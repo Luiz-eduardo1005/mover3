@@ -1,0 +1,21 @@
+{
+  "_comment": "MOVER - Mobilidade e Oportunidades para Vagas com Empregabilidade e Respeito | Desenvolvido por Luis Roberto Lins de Almeida e equipe ADS FAMetro | Curso: Análise e Desenvolvimento de Sistemas (ADS) | Instituição: FAMETRO - Faculdade Metropolitana de Manaus | Período: 2º Período - 2025 | Copyright (c) 2025 Luis Roberto Lins de Almeida e equipe ADS FAMetro",
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/index.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  }
+}
