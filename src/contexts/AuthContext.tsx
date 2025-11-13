@@ -9,7 +9,7 @@
  * Copyright (c) 2025 Luis Roberto Lins de Almeida e equipe ADS FAMetro
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
@@ -139,49 +139,133 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    // Verificar sessão atual
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        try {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-        } catch (error) {
-          console.error('Erro ao buscar perfil na inicialização:', error);
+    let mounted = true;
+    const loadingTimeoutRef = { current: null as NodeJS.Timeout | null };
+    
+    // Timeout de segurança para garantir que loading sempre termine
+    loadingTimeoutRef.current = setTimeout(() => {
+      if (mounted) {
+        console.warn('⚠️ Timeout na verificação de sessão, finalizando loading...');
+        setLoading(false);
+      }
+    }, 10000); // 10 segundos máximo
+    
+    // Verificar sessão atual ao carregar
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        // Limpar timeout se a verificação completar
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        
+        if (error) {
+          console.error('❌ Erro ao obter sessão:', error);
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+        
+        if (session?.user) {
+          console.log('✅ Sessão encontrada, restaurando usuário...', session.user.email);
+          setSession(session);
+          setUser(session.user);
+          
+          // Buscar perfil
+          try {
+            const profileData = await fetchProfile(session.user.id);
+            if (mounted) {
+              setProfile(profileData);
+              console.log('✅ Perfil carregado:', profileData ? 'Sim' : 'Não encontrado');
+            }
+          } catch (error) {
+            console.error('❌ Erro ao buscar perfil na inicialização:', error);
+            if (mounted) {
+              setProfile(null);
+            }
+          }
+        } else {
+          console.log('ℹ️ Nenhuma sessão encontrada');
+          setSession(null);
+          setUser(null);
           setProfile(null);
         }
-      } else {
-        setProfile(null);
+      } catch (error) {
+        console.error('❌ Erro na inicialização:', error);
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      
-      setLoading(false);
-    });
+    };
 
-    // Ouvir mudanças de autenticação
+    initializeAuth();
+
+    // Ouvir mudanças de autenticação (login, logout, etc)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Mudança de estado de autenticação:', event);
+      
+      if (!mounted) return;
+      
+      // Limpar timeout se houver mudança de estado
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        console.log('✅ Usuário autenticado:', session.user.email);
         try {
           const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
+          if (mounted) {
+            setProfile(profileData);
+            console.log('✅ Perfil atualizado:', profileData ? 'Sim' : 'Não encontrado');
+          }
         } catch (error) {
-          console.error('Erro ao buscar perfil na mudança de estado:', error);
-          setProfile(null);
+          console.error('❌ Erro ao buscar perfil na mudança de estado:', error);
+          if (mounted) {
+            setProfile(null);
+          }
         }
       } else {
-        setProfile(null);
+        console.log('ℹ️ Usuário deslogado');
+        if (mounted) {
+          setProfile(null);
+        }
       }
       
-      setLoading(false);
+      if (mounted) {
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

@@ -32,28 +32,42 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: typeof window !== 'undefined' ? {
       getItem: (key: string) => {
-        const storageType = getStorageType();
-        if (storageType === 'localStorage') {
-          return localStorage.getItem(key);
+        try {
+          const storageType = getStorageType();
+          if (storageType === 'localStorage') {
+            return localStorage.getItem(key);
+          }
+          return sessionStorage.getItem(key);
+        } catch (error) {
+          console.error('Erro ao ler do storage:', error);
+          return null;
         }
-        return sessionStorage.getItem(key);
       },
       setItem: (key: string, value: string) => {
-        const storageType = getStorageType();
-        if (storageType === 'localStorage') {
-          localStorage.setItem(key, value);
-        } else {
-          sessionStorage.setItem(key, value);
+        try {
+          const storageType = getStorageType();
+          if (storageType === 'localStorage') {
+            localStorage.setItem(key, value);
+          } else {
+            sessionStorage.setItem(key, value);
+          }
+        } catch (error) {
+          console.error('Erro ao salvar no storage:', error);
         }
       },
       removeItem: (key: string) => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
+        try {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        } catch (error) {
+          console.error('Erro ao remover do storage:', error);
+        }
       },
     } : undefined,
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    storageKey: 'mover-auth-session',
   },
 });
 

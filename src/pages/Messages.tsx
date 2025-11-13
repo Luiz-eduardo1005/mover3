@@ -114,22 +114,30 @@ const getMockMessages = (currentUserId?: string) => ({
 });
 
 const Messages = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, session, loading } = useAuth();
   const navigate = useNavigate();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Verificar se há sessão válida
+  const isAuthenticated = !loading && user && session;
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
+    // Só redirecionar se realmente não houver sessão válida após o loading terminar
+    if (!loading && (!user || !session)) {
+      navigate('/login', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, session, loading, navigate]);
 
   // Mostrar loading apenas enquanto está verificando autenticação
-  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
-  if (loading && !user) {
+  if (loading) {
     return <LoadingPage />;
+  }
+
+  // Se não há sessão válida após loading, não renderizar nada (será redirecionado)
+  if (!isAuthenticated) {
+    return null;
   }
 
   // Filtrar conversas por busca

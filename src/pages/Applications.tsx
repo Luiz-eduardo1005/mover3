@@ -68,8 +68,11 @@ const statusConfig = {
 };
 
 const Applications = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, session, loading } = useAuth();
   const navigate = useNavigate();
+  
+  // Verificar se há sessão válida
+  const isAuthenticated = !loading && user && session;
 
   // Buscar candidaturas do usuário
   const { data: applications, isLoading } = useQuery({
@@ -135,19 +138,19 @@ const Applications = () => {
   });
 
   useEffect(() => {
-    // Só redirecionar se realmente não houver usuário após o loading terminar
-    if (!loading && !user) {
+    // Só redirecionar se realmente não houver sessão válida após o loading terminar
+    if (!loading && (!user || !session)) {
       navigate('/login', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, session, loading, navigate]);
 
   // Mostrar loading apenas enquanto está verificando autenticação
   if (loading) {
     return <LoadingPage />;
   }
 
-  // Se não há usuário após loading, não renderizar nada (será redirecionado)
-  if (!user) {
+  // Se não há sessão válida após loading, não renderizar nada (será redirecionado)
+  if (!isAuthenticated) {
     return null;
   }
 

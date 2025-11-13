@@ -36,10 +36,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 
 const Header = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, session, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
+  
+  // Só mostrar usuário se houver sessão válida e não estiver carregando
+  const isAuthenticated = !loading && user && session;
 
   // Garantir que o tema seja aplicado corretamente
   useEffect(() => {
@@ -118,7 +121,7 @@ const Header = () => {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Alternar tema</span>
             </Button>
-            {user ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -233,16 +236,16 @@ const Header = () => {
                       <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                       <span className="sr-only">Alternar tema</span>
                     </Button>
-            {user ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || user.email || 'Usuário'} />
+                      <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || user?.email || 'Usuário'} />
                       <AvatarFallback>
                         {profile?.full_name 
                           ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-                          : user.email?.charAt(0).toUpperCase() || 'U'
+                          : user?.email?.charAt(0).toUpperCase() || 'U'
                         }
                       </AvatarFallback>
                     </Avatar>
@@ -255,7 +258,7 @@ const Header = () => {
                         {profile?.full_name || 'Usuário'}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
+                        {user?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
@@ -392,8 +395,8 @@ const Header = () => {
                   >
                     Sobre
                   </Link>
-                  {!user && (
-                    <div className="pt-4 space-y-3 border-t border-gray-200 mt-4">
+                  {!isAuthenticated && (
+                    <div className="pt-4 space-y-3 border-t border-gray-200 dark:border-gray-800 mt-4">
                       <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full justify-start">
                           <User className="mr-2 h-4 w-4" />

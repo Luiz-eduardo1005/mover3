@@ -35,7 +35,10 @@ import LoadingPage from './LoadingPage';
 import EmailPreferencesComponent from '@/components/notifications/EmailPreferences';
 
 const Profile = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, session, loading } = useAuth();
+  
+  // Verificar se há sessão válida
+  const isAuthenticated = !loading && user && session;
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [profileProgress, setProfileProgress] = useState(0);
@@ -65,12 +68,12 @@ const Profile = () => {
   }, [profile]);
 
   // Mostrar loading apenas enquanto está verificando autenticação
-  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
-  if (loading && !user) {
+  if (loading) {
     return <LoadingPage />;
   }
 
-  if (!user) {
+  // Se não há sessão válida após loading, não renderizar nada
+  if (!isAuthenticated) {
     return null;
   }
   

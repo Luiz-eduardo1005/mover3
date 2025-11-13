@@ -25,15 +25,15 @@ const LoadingPage = () => {
   }, [navigate]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-600 to-brand-800 overflow-hidden">
-      <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <div className="fixed inset-0 h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-600 to-brand-800 overflow-hidden z-50">
+      <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(10)].map((_, i) => (
             <div 
               key={i} 
               className={cn(
-                "absolute w-20 h-20 md:w-40 md:h-40 rounded-full bg-white/10",
+                "absolute w-16 h-16 sm:w-20 sm:h-20 md:w-40 md:h-40 rounded-full bg-white/10",
                 "animate-pulse"
               )}
               style={{
@@ -47,51 +47,51 @@ const LoadingPage = () => {
           ))}
         </div>
         
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center w-full max-w-md mx-auto">
           {/* Logo */}
-          <div className="mb-8 flex flex-col items-center">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg">
-              <div className="text-4xl font-bold text-brand-600 font-heading tracking-tighter">MV</div>
+          <div className="mb-6 sm:mb-8 flex flex-col items-center">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
+              <div className="text-3xl sm:text-4xl font-bold text-brand-600 font-heading tracking-tighter">MV</div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white font-heading tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white font-heading tracking-tight">
               MOVER
             </h1>
-            <p className="text-white/80 mt-2 text-sm md:text-base">
+            <p className="text-white/80 mt-2 text-xs sm:text-sm md:text-base px-4">
               Mobilidade e Oportunidades para Vagas com Empregabilidade e Respeito
             </p>
           </div>
           
           {/* Loading bar */}
-          <div className="w-64 md:w-96 h-2 bg-white/20 rounded-full overflow-hidden mt-8 mb-4">
+          <div className="w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto h-2 bg-white/20 rounded-full overflow-hidden mt-6 sm:mt-8 mb-3 sm:mb-4">
             <div 
               className="h-full bg-white rounded-full transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
           
-          <p className="text-white/70 text-sm">
+          <p className="text-white/70 text-xs sm:text-sm mb-2">
             {progress === 100 ? 'Carregado!' : 'Carregando recursos...'}
           </p>
           
           {/* Loading messages */}
-          <div className="h-8 mt-4">
+          <div className="h-6 sm:h-8 mt-3 sm:mt-4">
             {progress < 30 && (
-              <p className="text-white/70 text-sm animate-fade-in">
+              <p className="text-white/70 text-xs sm:text-sm animate-fade-in">
                 Preparando vagas personalizadas...
               </p>
             )}
             {progress >= 30 && progress < 60 && (
-              <p className="text-white/70 text-sm animate-fade-in">
+              <p className="text-white/70 text-xs sm:text-sm animate-fade-in">
                 Analisando melhores oportunidades...
               </p>
             )}
             {progress >= 60 && progress < 90 && (
-              <p className="text-white/70 text-sm animate-fade-in">
+              <p className="text-white/70 text-xs sm:text-sm animate-fade-in">
                 Otimizando experiência do usuário...
               </p>
             )}
             {progress >= 90 && (
-              <p className="text-white/70 text-sm animate-fade-in">
+              <p className="text-white/70 text-xs sm:text-sm animate-fade-in">
                 Quase lá! Finalizando...
               </p>
             )}
