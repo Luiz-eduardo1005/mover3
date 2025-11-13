@@ -80,12 +80,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       );
       
       if (sessionKeys.length === 0) {
+        console.log('⚠️ Nenhuma chave de sessão encontrada no localStorage');
         return null;
       }
       
       console.log('🔍 Tentando restaurar sessão do localStorage...');
+      console.log('📋 Chaves encontradas:', sessionKeys);
       
-      // Tentar usar getUser() que pode funcionar mesmo com clock skew
+      // Tentar ler diretamente do localStorage e fazer parse
+      for (const key of sessionKeys) {
+        try {
+          const storedValue = localStorage.getItem(key);
+          if (storedValue) {
+            const parsed = JSON.parse(storedValue);
+            console.log('📦 Valor encontrado na chave:', key, parsed);
+            
+            // Se tem access_token e refresh_token, tentar restaurar
+            if (parsed.access_token && parsed.refresh_token) {
+              console.log('🔄 Tentando restaurar sessão com tokens encontrados...');
+              const { data: { session }, error: restoreError } = await supabase.auth.setSession({
+                access_token: parsed.access_token,
+                refresh_token: parsed.refresh_token,
+              });
+              
+              if (session && !restoreError) {
+                console.log('✅ Sessão restaurada com sucesso do localStorage!');
+                return session;
+              } else if (restoreError) {
+                console.warn('⚠️ Erro ao restaurar sessão:', restoreError.message);
+                // Mesmo com erro, tentar refresh
+                const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+                if (refreshedSession && !refreshError) {
+                  console.log('✅ Sessão atualizada após erro de restauração!');
+                  return refreshedSession;
+                }
+              }
+            }
+          }
+        } catch (parseError) {
+          console.warn('⚠️ Erro ao fazer parse da chave:', key, parseError);
+        }
+      }
+      
+      // Fallback: tentar usar getUser() que pode funcionar mesmo com clock skew
+      console.log('🔄 Tentando fallback com getUser()...');
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (user && !userError) {
@@ -201,13 +239,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Verificar sessão atual ao carregar
     const initializeAuth = async () => {
       try {
-        // Primeira tentativa: getSession padrão
+        console.log('🚀 Iniciando verificação de autenticação...');
+        
+        // SEMPRE tentar restaurar do localStorage primeiro (mais confiável)
+        console.log('📂 Verificando localStorage primeiro...');
+        let restoredSession = await tryRestoreSessionFromStorage();
+        
+        // Se restaurou com sucesso, usar essa sessão
+        if (restoredSession) {
+          console.log('✅ Sessão restaurada do localStorage com sucesso!');
+          const session = restoredSession;
+          const error = null;
+          
+          if (!mounted) return;
+          
+          // Limpar timeout
+          if (loadingTimeoutRef.current) {
+            clearTimeout(loadingTimeoutRef.current);
+            loadingTimeoutRef.current = null;
+          }
+          
+          setSession(session);
+          setUser(session.user);
+          
+          // Buscar perfil
+          try {
+            const profileData = await fetchProfile(session.user.id);
+            if (mounted) {
+              setProfile(profileData);
+              console.log('✅ Perfil carregado:', profileData ? 'Sim' : 'Não encontrado');
+            }
+          } catch (error) {
+            console.error('❌ Erro ao buscar perfil:', error);
+            if (mounted) {
+              setProfile(null);
+            }
+          }
+          
+          if (mounted) {
+            setLoading(false);
+          }
+          return;
+        }
+        
+        // Se não restaurou, tentar getSession padrão
+        console.log('⚠️ Não foi possível restaurar do localStorage, tentando getSession()...');
         let { data: { session }, error } = await supabase.auth.getSession();
         
-        // Se não encontrou sessão ou houve erro, tentar restaurar do localStorage
+        // Se não encontrou sessão ou houve erro, tentar restaurar novamente
         if (!session || error) {
-          console.log('⚠️ Sessão não encontrada ou erro, tentando restaurar...');
-          const restoredSession = await tryRestoreSessionFromStorage();
+          console.log('⚠️ getSession() falhou, tentando restaurar novamente...');
+          restoredSession = await tryRestoreSessionFromStorage();
           if (restoredSession) {
             session = restoredSession;
             error = null;
@@ -485,11 +567,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       document.addEventListener('visibilitychange', handleVisibilityChange);
     }
 
+    // Verificação periódica da sessão (a cada 30 segundos)
+    const sessionCheckInterval = setInterval(async () => {
+      if (!mounted) return;
+      
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (currentSession) {
+          // Se há sessão, garantir que está salva no estado
+          if (!session || session.access_token !== currentSession.access_token) {
+            console.log('🔄 Sessão detectada, atualizando estado...');
+            setSession(currentSession);
+            setUser(currentSession.user);
+          }
+        } else {
+          // Se não há sessão mas deveria ter (usuário estava logado), tentar restaurar
+          if (user) {
+            console.log('⚠️ Sessão perdida, tentando restaurar...');
+            const restoredSession = await tryRestoreSessionFromStorage();
+            if (restoredSession) {
+              setSession(restoredSession);
+              setUser(restoredSession.user);
+              console.log('✅ Sessão restaurada pela verificação periódica!');
+            } else {
+              // Se não conseguiu restaurar e não há sessão, limpar estado
+              console.warn('⚠️ Não foi possível restaurar sessão, limpando estado...');
+              setSession(null);
+              setUser(null);
+              setProfile(null);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erro na verificação periódica:', error);
+      }
+    }, 30000); // Verificar a cada 30 segundos
+
     return () => {
       mounted = false;
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
       }
+      clearInterval(sessionCheckInterval);
       subscription.unsubscribe();
       if (typeof window !== 'undefined') {
         window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -498,7 +618,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
       }
     };
-  }, [tryRestoreSessionFromStorage]);
+  }, [tryRestoreSessionFromStorage, session, user]);
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({

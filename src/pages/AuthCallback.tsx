@@ -137,7 +137,20 @@ const AuthCallback = () => {
           }
           
           // Aguardar um pouco para garantir que tudo foi salvo
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Verificar novamente se a sessão foi salva
+          const { data: { session: verifySession } } = await supabase.auth.getSession();
+          if (verifySession) {
+            console.log('✅ Sessão verificada e confirmada após salvamento!');
+          } else {
+            console.warn('⚠️ Sessão não encontrada após salvamento, forçando novamente...');
+            // Forçar salvamento mais uma vez
+            await supabase.auth.setSession({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+            });
+          }
           
           if (mounted) {
             setProcessing(false);
