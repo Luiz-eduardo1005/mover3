@@ -193,8 +193,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setSession(null);
     setProfile(null);
     // Limpar localStorage relacionado à sessão
-    localStorage.removeItem('sb-mcvkfxpgrmraqsjrcuxu-auth-token');
-    sessionStorage.removeItem('sb-mcvkfxpgrmraqsjrcuxu-auth-token');
+    localStorage.removeItem('sb-dqsgxbheslqmqsvmmqfk-auth-token');
+    sessionStorage.removeItem('sb-dqsgxbheslqmqsvmmqfk-auth-token');
   };
 
   const value = {

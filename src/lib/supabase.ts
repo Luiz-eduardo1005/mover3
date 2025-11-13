@@ -11,8 +11,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://mcvkfxpgrmraqsjrcuxu.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_3uZOs5Nia5bBt_p1EdGIYA_oVXZBX4T';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://dqsgxbheslqmqsvmmqfk.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc2d4Ymhlc2xxbXFzdm1tcWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNDgyMjgsImV4cCI6MjA3ODYyNDIyOH0.vYORR82s9HYf8Ma_8IOzhhv5ATP92qDRO50oUc7Hau0';
 
 // Configuração de persistência de sessão
 const storageKey = 'mover-auth-session';
