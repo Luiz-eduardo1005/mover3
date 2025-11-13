@@ -112,10 +112,10 @@ const Login = () => {
     }
   };
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-brand-50 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-12">
       <Link to="/" className="flex items-center mb-8" aria-label="MOVER - Voltar para página inicial">
-        <Briefcase className="h-10 w-10 text-brand-600" aria-hidden="true" />
-        <span className="ml-2 text-2xl font-bold text-gray-900 font-heading">MOVER</span>
+        <Briefcase className="h-10 w-10 text-brand-600 dark:text-brand-400" aria-hidden="true" />
+        <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white font-heading">MOVER</span>
       </Link>
       
       <Card className="w-full max-w-md shadow-lg">
@@ -187,7 +187,7 @@ const Login = () => {
                     <span className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-gray-500">Ou continue com</span>
+                    <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
                   </div>
                 </div>
                 
@@ -275,7 +275,7 @@ const Login = () => {
                     <span className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-gray-500">Ou continue com</span>
+                    <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
                   </div>
                 </div>
                 

@@ -10,7 +10,7 @@
  * Copyright (c) 2025 Luis Roberto Lins de Almeida e equipe ADS FAMetro
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -39,7 +39,15 @@ const Header = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  // Garantir que o tema seja aplicado corretamente
+  useEffect(() => {
+    // Se não houver tema salvo, usar o tema do sistema
+    if (!theme) {
+      setTheme('system');
+    }
+  }, [theme, setTheme]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -78,9 +86,31 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => {
+                // Ciclo: system -> light -> dark -> system
+                if (theme === 'system' || !theme) {
+                  setTheme('light');
+                } else if (theme === 'light') {
+                  setTheme('dark');
+                } else {
+                  setTheme('system');
+                }
+              }}
               className="h-9 w-9 relative"
-              aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              aria-label={
+                theme === 'dark' || resolvedTheme === 'dark' 
+                  ? 'Ativar modo claro' 
+                  : theme === 'light' || resolvedTheme === 'light'
+                  ? 'Ativar modo escuro'
+                  : 'Alternar tema manual'
+              }
+              title={
+                theme === 'system' || !theme
+                  ? 'Tema: Automático (clique para manual)'
+                  : theme === 'light'
+                  ? 'Tema: Claro (clique para escuro)'
+                  : 'Tema: Escuro (clique para automático)'
+              }
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -168,17 +198,39 @@ const Header = () => {
             )}
           </div>
           <div className="flex md:hidden items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="h-9 w-9 relative"
-              aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Alternar tema</span>
-            </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        // Ciclo: system -> light -> dark -> system
+                        if (theme === 'system' || !theme) {
+                          setTheme('light');
+                        } else if (theme === 'light') {
+                          setTheme('dark');
+                        } else {
+                          setTheme('system');
+                        }
+                      }}
+                      className="h-9 w-9 relative"
+                      aria-label={
+                        theme === 'dark' || resolvedTheme === 'dark' 
+                          ? 'Ativar modo claro' 
+                          : theme === 'light' || resolvedTheme === 'light'
+                          ? 'Ativar modo escuro'
+                          : 'Alternar tema manual'
+                      }
+                      title={
+                        theme === 'system' || !theme
+                          ? 'Tema: Automático (clique para manual)'
+                          : theme === 'light'
+                          ? 'Tema: Claro (clique para escuro)'
+                          : 'Tema: Escuro (clique para automático)'
+                      }
+                    >
+                      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span className="sr-only">Alternar tema</span>
+                    </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

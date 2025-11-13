@@ -15,97 +15,97 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-auto">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-7xl mx-auto py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 tracking-wider uppercase">Sobre</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 tracking-wider uppercase">Sobre</h3>
             <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 md:space-y-4">
               <li>
-                <Link to="/about" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/about" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Sobre nós
                 </Link>
               </li>
               <li>
-                <Link to="/careers" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/careers" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Carreiras
                 </Link>
               </li>
               <li>
-                <Link to="/press" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/press" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Imprensa
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 tracking-wider uppercase">Candidatos</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 tracking-wider uppercase">Candidatos</h3>
             <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 md:space-y-4">
               <li>
-                <Link to="/jobs" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/jobs" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Procurar vagas
                 </Link>
               </li>
               <li>
-                <Link to="/profile" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/profile" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Criar perfil
                 </Link>
               </li>
               <li>
-                <Link to="/curriculum" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/curriculum" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Enviar currículo
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 tracking-wider uppercase">Empresas</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 tracking-wider uppercase">Empresas</h3>
             <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 md:space-y-4">
               <li>
-                <Link to="/advertise" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/advertise" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Publicar vaga
                 </Link>
               </li>
               <li>
-                <Link to="/employer" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/employer" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Portal do empregador
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/pricing" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Planos e preços
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 tracking-wider uppercase">Ajuda</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 tracking-wider uppercase">Ajuda</h3>
             <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 md:space-y-4">
               <li>
-                <Link to="/contact" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/contact" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Contato
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/faq" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/privacy" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Privacidade
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-sm sm:text-base text-gray-500 hover:text-brand-600">
+                <Link to="/terms" className="text-sm sm:text-base text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">
                   Termos de uso
                 </Link>
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 sm:mt-10 md:mt-12 border-t border-gray-200 pt-6 sm:pt-8">
-          <p className="text-xs sm:text-sm md:text-base text-gray-400 text-center px-4">
+        <div className="mt-8 sm:mt-10 md:mt-12 border-t border-gray-200 dark:border-gray-800 pt-6 sm:pt-8">
+          <p className="text-xs sm:text-sm md:text-base text-gray-400 dark:text-gray-500 text-center px-4">
             &copy; {new Date().getFullYear()} MOVER - Mobilidade e Oportunidades para Vagas com Empregabilidade e Respeito. Todos os direitos reservados.
           </p>
         </div>

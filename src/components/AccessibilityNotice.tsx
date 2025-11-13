@@ -38,16 +38,16 @@ const AccessibilityNotice = () => {
   ];
 
   return (
-    <section className="py-16 bg-brand-50 border-t border-brand-100">
+    <section className="py-16 bg-brand-50 dark:bg-gray-900 border-t border-brand-100 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-600 rounded-full mb-4">
             <Users className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Plataforma MOVER - Totalmente Acessível
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Compromisso com a inclusão digital. Nossa plataforma foi desenvolvida pensando em pessoas com todos os tipos de deficiência.
           </p>
         </div>
@@ -56,14 +56,14 @@ const AccessibilityNotice = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card key={index} className="border-2 border-brand-200 hover:border-brand-500 transition-colors">
+              <Card key={index} className="border-2 border-brand-200 dark:border-brand-800 hover:border-brand-500 dark:hover:border-brand-400 transition-colors bg-white dark:bg-gray-800">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center text-center">
-                    <div className="mb-4 w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-brand-600" />
+                    <div className="mb-4 w-12 h-12 bg-brand-100 dark:bg-brand-900 rounded-full flex items-center justify-center">
+                      <Icon className="h-6 w-6 text-brand-600 dark:text-brand-400" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
+                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">{feature.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{feature.description}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -71,13 +71,13 @@ const AccessibilityNotice = () => {
           })}
         </div>
 
-        <Card className="bg-white border-2 border-brand-200">
+        <Card className="bg-white dark:bg-gray-800 border-2 border-brand-200 dark:border-brand-800">
           <CardContent className="p-6">
             <div className="flex items-start space-x-4">
-              <CheckCircle className="h-6 w-6 text-brand-600 flex-shrink-0 mt-1" />
+              <CheckCircle className="h-6 w-6 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-semibold text-lg mb-2">Recursos de Acessibilidade Implementados</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Recursos de Acessibilidade Implementados</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-brand-600" />
                     <span>Labels descritivos para campos de formulário</span>
@@ -131,10 +131,10 @@ const AccessibilityNotice = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-brand-50 border-2 border-brand-200 mt-6">
+        <Card className="bg-brand-50 dark:bg-gray-800 border-2 border-brand-200 dark:border-brand-800 mt-6">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-3 text-center">Desenvolvido por Alunos da FAMETRO</h3>
-            <p className="text-sm text-gray-600 text-center mb-4">
+            <h3 className="font-semibold text-lg mb-3 text-center text-gray-900 dark:text-white">Desenvolvido por Alunos da FAMETRO</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">
               Este projeto foi desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistemas (ADS) da 
               FAMETRO - Faculdade Metropolitana de Manaus, Unidade Sul Cachoeirinha, no 2º período de 2025, 
               como parte de um projeto acadêmico focado em acessibilidade e inclusão digital.
@@ -143,12 +143,12 @@ const AccessibilityNotice = () => {
         </Card>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Precisa de suporte adicional? Entre em contato através do nosso{' '}
-            <a href="/contact" className="text-brand-600 hover:underline font-medium">
+            <a href="/contact" className="text-brand-600 dark:text-brand-400 hover:underline font-medium">
               formulário de contato
             </a>
-            {' '}ou pelo email: <a href="mailto:acessibilidade@mover.com.br" className="text-brand-600 hover:underline font-medium">acessibilidade@mover.com.br</a>
+            {' '}ou pelo email: <a href="mailto:acessibilidade@mover.com.br" className="text-brand-600 dark:text-brand-400 hover:underline font-medium">acessibilidade@mover.com.br</a>
           </p>
         </div>
       </div>

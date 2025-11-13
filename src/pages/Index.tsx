@@ -33,15 +33,15 @@ const Index = () => {
             style={{ backgroundImage: 'url("/banner.jpg")' }}
           ></div>
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-brand-50 opacity-75"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 opacity-75"></div>
           {/* Content */}
           <div className="relative z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 px-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-2">
                   Encontre seu emprego ideal em Manaus e em todo o Brasil
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
+                <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
                   Plataforma desenvolvida por alunos da FAMETRO Manaus. Conectamos pessoas com deficiência a oportunidades de trabalho inclusivas e acessíveis. 
                   Milhares de vagas de emprego atualizadas diariamente, com foco em inclusão e respeito, seguindo WCAG 2.1 Nível AA.
                 </p>
@@ -73,10 +73,10 @@ const Index = () => {
         <section className="py-8 sm:py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                 Vagas em destaque em Manaus
               </h2>
-              <Link to="/jobs" className="text-brand-600 hover:text-brand-700 font-medium text-sm sm:text-base">
+              <Link to="/jobs" className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium text-sm sm:text-base">
                 Ver todas as vagas →
               </Link>
             </div>
@@ -86,18 +86,18 @@ const Index = () => {
         </section>
 
         {/* Categories */}
-        <section className="py-8 sm:py-12 md:py-16 bg-gray-50">
+        <section className="py-8 sm:py-12 md:py-16 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center px-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8 text-center px-2">
               Explore por categoria
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
               {['Tecnologia', 'Saúde', 'Educação', 'Finanças', 'Marketing', 'Vendas', 'Administração', 'Engenharia'].map((category) => (
                 <Link to={`/jobs?category=${category}`} key={category}>
-                  <div className="bg-white rounded-lg p-4 sm:p-6 text-center shadow-sm hover:shadow-md transition-shadow card-hover min-h-[100px] sm:min-h-[120px] flex flex-col justify-center">
-                    <h3 className="font-medium text-base sm:text-lg text-gray-900">{category}</h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Vagas disponíveis</p>
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 text-center shadow-sm hover:shadow-md transition-shadow card-hover min-h-[100px] sm:min-h-[120px] flex flex-col justify-center border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">{category}</h3>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Vagas disponíveis</p>
                   </div>
                 </Link>
               ))}
@@ -106,17 +106,17 @@ const Index = () => {
         </section>
 
         {/* Featured Companies */}
-        <section className="py-8 sm:py-12 md:py-16">
+        <section className="py-8 sm:py-12 md:py-16 bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center px-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8 text-center px-2">
               Empresas em destaque
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="bg-white rounded-lg p-3 sm:p-4 flex items-center justify-center h-20 sm:h-24 shadow-sm">
-                  <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
-                    <span className="text-gray-400 font-medium text-xs sm:text-sm">Logo</span>
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 flex items-center justify-center h-20 sm:h-24 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="w-full h-full bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
+                    <span className="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-sm">Logo</span>
                   </div>
                 </div>
               ))}
