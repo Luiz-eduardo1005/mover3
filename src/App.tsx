@@ -33,6 +33,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Applications from "./pages/Applications";
 import Messages from "./pages/Messages";
 import CompanyProfile from "./pages/CompanyProfile";
+import JobDetails from "./pages/JobDetails";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/applications" element={<Applications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/company/:id" element={<CompanyProfile />} />
+              <Route path="/jobs/:id" element={<JobDetails />} />
               <Route path="/loading" element={<LoadingPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

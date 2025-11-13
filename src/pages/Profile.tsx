@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -449,9 +449,11 @@ const Profile = () => {
                               </div>
                             </div>
                             <div className="flex items-center gap-2 w-full sm:w-auto">
-                              <Button variant="outline" size="sm" className="flex-1 sm:flex-initial text-xs sm:text-sm">
-                                Ver vaga
-                              </Button>
+                              <Link to={`/jobs/${job.id}`} className="flex-1 sm:flex-initial">
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                                  Ver vaga
+                                </Button>
+                              </Link>
                               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 text-red-500">
                                 <X className="h-4 w-4" />
                               </Button>
