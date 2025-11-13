@@ -14,6 +14,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import LoadingPage from './LoadingPage';
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dqsgxbheslqmqsvmmqfk.supabase.co';
+
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(true);
@@ -73,6 +75,32 @@ const AuthCallback = () => {
         }
 
         if (session?.user) {
+          console.log('✅ Sessão recebida com sucesso!');
+          console.log('💾 Verificando se sessão foi salva no localStorage...');
+          
+          // Verificar se a sessão foi salva corretamente
+          // O Supabase salva com a chave padrão baseada na URL
+          const supabaseProjectId = SUPABASE_URL.split('//')[1].split('.')[0];
+          const sessionKey = `sb-${supabaseProjectId}-auth-token`;
+          const savedSession = localStorage.getItem(sessionKey);
+          
+          if (savedSession) {
+            console.log('✅ Sessão salva no localStorage');
+          } else {
+            console.warn('⚠️ Sessão não encontrada no localStorage, forçando salvamento...');
+            // Forçar salvamento da sessão usando setSession
+            const { error: setSessionError } = await supabase.auth.setSession({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+            });
+            
+            if (setSessionError) {
+              console.error('❌ Erro ao salvar sessão:', setSessionError);
+            } else {
+              console.log('✅ Sessão salva com sucesso!');
+            }
+          }
+          
           // Verificar se o perfil já existe
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -107,6 +135,9 @@ const AuthCallback = () => {
           if (window.location.hash) {
             window.history.replaceState({}, document.title, window.location.pathname);
           }
+          
+          // Aguardar um pouco para garantir que tudo foi salvo
+          await new Promise(resolve => setTimeout(resolve, 300));
           
           if (mounted) {
             setProcessing(false);

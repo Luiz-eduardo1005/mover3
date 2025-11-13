@@ -174,6 +174,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         if (session?.user) {
           console.log('✅ Sessão encontrada, restaurando usuário...', session.user.email);
+          
+          // Verificar se a sessão está salva no localStorage
+          const sessionKeys = Object.keys(localStorage).filter(key => 
+            key.includes('auth-token') || key.includes('supabase.auth')
+          );
+          
+          if (sessionKeys.length === 0) {
+            console.warn('⚠️ Sessão não encontrada no localStorage, forçando salvamento...');
+            // Forçar salvamento da sessão
+            const { error: setSessionError } = await supabase.auth.setSession({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+            });
+            
+            if (setSessionError) {
+              console.error('❌ Erro ao salvar sessão na inicialização:', setSessionError);
+            } else {
+              console.log('✅ Sessão salva com sucesso na inicialização!');
+            }
+          } else {
+            console.log('✅ Sessão confirmada no localStorage na inicialização');
+          }
+          
           setSession(session);
           setUser(session.user);
           
@@ -230,6 +253,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loadingTimeoutRef.current = null;
       }
       
+      // Se há uma sessão, garantir que está salva
+      if (session) {
+        console.log('💾 Verificando persistência da sessão...');
+        // Verificar se a sessão foi salva no localStorage
+        const sessionKeys = Object.keys(localStorage).filter(key => 
+          key.includes('auth-token') || key.includes('supabase.auth')
+        );
+        
+        if (sessionKeys.length === 0) {
+          console.warn('⚠️ Sessão não encontrada no localStorage, forçando salvamento...');
+          // Forçar salvamento da sessão
+          const { error: setSessionError } = await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          });
+          
+          if (setSessionError) {
+            console.error('❌ Erro ao salvar sessão:', setSessionError);
+          } else {
+            console.log('✅ Sessão salva com sucesso!');
+          }
+        } else {
+          console.log('✅ Sessão confirmada no localStorage');
+        }
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -269,10 +318,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    // Garantir que a sessão foi salva
+    if (data?.session) {
+      console.log('✅ Login realizado, sessão salva automaticamente');
+      // Verificar se foi salva no localStorage
+      const sessionKey = Object.keys(localStorage).find(key => key.includes('auth-token'));
+      if (sessionKey) {
+        console.log('✅ Sessão confirmada no localStorage');
+      } else {
+        console.warn('⚠️ Sessão não encontrada, forçando salvamento...');
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
+    }
+    
     return { error };
   };
 
