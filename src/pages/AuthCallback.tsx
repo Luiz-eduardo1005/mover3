@@ -25,24 +25,14 @@ const AuthCallback = () => {
 
     const handleAuthCallback = async () => {
       try {
-        console.log('🔄 Processando callback de autenticação...');
-        console.log('📍 URL atual:', window.location.href);
-        
-        // Verificar se há erro na URL (query params)
         const urlParams = new URLSearchParams(window.location.search);
         const urlError = urlParams.get('error');
         const errorCode = urlParams.get('error_code');
         const errorDescription = urlParams.get('error_description');
         
         if (urlError) {
-          console.error('❌ Erro na URL do callback:');
-          console.error('   - Error:', urlError);
-          console.error('   - Code:', errorCode);
-          console.error('   - Description:', errorDescription);
-          
           if (mounted) {
             setProcessing(false);
-            // Mostrar mensagem mais específica
             let errorMessage = 'auth_failed';
             if (urlError === 'server_error' || errorCode === 'unexpected_failure') {
               errorMessage = 'server_error';
@@ -52,21 +42,11 @@ const AuthCallback = () => {
           return;
         }
         
-        // Aguardar um pouco para garantir que o Supabase processe o hash
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Processar o hash da URL para obter a sessão
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        console.log('📦 Sessão recebida:', session ? 'Sim' : 'Não');
-        if (session?.user) {
-          console.log('👤 Usuário:', session.user.email);
-        }
 
         if (error) {
-          console.error('❌ Erro ao processar callback:', error);
-          console.error('   - Message:', error.message);
-          console.error('   - Status:', error.status);
           if (mounted) {
             setProcessing(false);
             navigate('/login?error=auth_failed');
@@ -75,21 +55,16 @@ const AuthCallback = () => {
         }
 
         if (session?.user) {
-          console.log('✅ Sessão recebida com sucesso!', session.user.email);
-          
-          // Limpar o hash da URL imediatamente
           if (window.location.hash) {
             window.history.replaceState({}, document.title, window.location.pathname);
           }
           
-          // Verificar se o perfil já existe (sem bloquear)
           supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single()
             .then(({ data: profile, error: profileError }) => {
-              // Se não existe perfil, criar um (em background, não bloqueia)
               if (!profile && profileError?.code === 'PGRST116') {
                 const profileData = {
                   id: session.user.id,
@@ -109,17 +84,13 @@ const AuthCallback = () => {
                   .catch(err => console.error('Erro ao criar perfil:', err));
               }
             })
-            .catch(() => {
-              // Ignorar erros de perfil, não bloqueia o login
-            });
+            .catch(() => {});
           
-          // Redirecionar imediatamente - não esperar
           if (mounted) {
             setProcessing(false);
             navigate('/profile', { replace: true });
           }
         } else {
-          // Se não há sessão, aguardar um pouco mais e verificar novamente
           setTimeout(async () => {
             if (!mounted) return;
             
