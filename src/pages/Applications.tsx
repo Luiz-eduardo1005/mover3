@@ -71,24 +71,6 @@ const Applications = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Só redirecionar se realmente não houver usuário após o loading terminar
-    if (!loading && !user) {
-      navigate('/login', { replace: true });
-    }
-  }, [user, loading, navigate]);
-
-  // Mostrar loading apenas enquanto está verificando autenticação
-  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
-  if (loading && !user) {
-    return <LoadingPage />;
-  }
-
-  // Se não há usuário após loading, não renderizar nada (será redirecionado)
-  if (!user) {
-    return null;
-  }
-
   // Buscar candidaturas do usuário
   const { data: applications, isLoading } = useQuery({
     queryKey: ['applications', user?.id],
@@ -152,12 +134,34 @@ const Applications = () => {
     enabled: !!user?.id
   });
 
-  if (loading || isLoading) {
+  useEffect(() => {
+    // Só redirecionar se realmente não houver usuário após o loading terminar
+    if (!loading && !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  // Mostrar loading apenas enquanto está verificando autenticação
+  if (loading) {
     return <LoadingPage />;
   }
 
+  // Se não há usuário após loading, não renderizar nada (será redirecionado)
   if (!user) {
     return null;
+  }
+
+  // Mostrar loading enquanto busca candidaturas
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Header />
+        <main className="flex-grow flex items-center justify-center py-20">
+          <LoadingPage />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   // Agrupar candidaturas por status
@@ -271,18 +275,18 @@ const Applications = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => navigate(`/jobs/${application.job_id}`)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
                 Ver vaga
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={() => navigate('/messages')}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
-                <MessageSquare className="mr-2 h-4 w-4" />
+                <MessageSquare className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 Mensagens
               </Button>
             </div>
@@ -345,18 +349,26 @@ const Applications = () => {
 
           {/* Tabs */}
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid grid-cols-4 w-full mb-6">
-              <TabsTrigger value="all" className="text-xs sm:text-sm">
-                Todas ({groupedApplications.all.length})
+            <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full mb-4 sm:mb-6 h-auto gap-1 sm:gap-0">
+              <TabsTrigger value="all" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <span className="hidden xs:inline">Todas</span>
+                <span className="xs:hidden">Todas</span>
+                <span className="ml-1">({groupedApplications.all.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="pending" className="text-xs sm:text-sm">
-                Pendentes ({groupedApplications.pending.length})
+              <TabsTrigger value="pending" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <span className="hidden xs:inline">Pendentes</span>
+                <span className="xs:hidden">Pend.</span>
+                <span className="ml-1">({groupedApplications.pending.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="active" className="text-xs sm:text-sm">
-                Em andamento ({groupedApplications.active.length})
+              <TabsTrigger value="active" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <span className="hidden xs:inline">Em andamento</span>
+                <span className="xs:hidden">Andamento</span>
+                <span className="ml-1">({groupedApplications.active.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="text-xs sm:text-sm">
-                Finalizadas ({groupedApplications.completed.length})
+              <TabsTrigger value="completed" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <span className="hidden xs:inline">Finalizadas</span>
+                <span className="xs:hidden">Finais</span>
+                <span className="ml-1">({groupedApplications.completed.length})</span>
               </TabsTrigger>
             </TabsList>
 

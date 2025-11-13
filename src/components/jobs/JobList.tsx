@@ -164,13 +164,13 @@ const JobList = () => {
                 variant="ghost"
                 size="icon"
                 onClick={(e) => handleSaveJob(e, job.id)}
-                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-800 shadow-md hover:shadow-lg"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-800 shadow-md hover:shadow-lg h-8 w-8 sm:h-9 sm:w-9"
                 aria-label={isSaved ? 'Remover das salvas' : 'Salvar vaga'}
               >
                 {isSaved ? (
-                  <BookmarkCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                  <BookmarkCheck className="h-4 w-4 sm:h-5 sm:w-5 text-brand-600 dark:text-brand-400" />
                 ) : (
-                  <Bookmark className="h-5 w-5 text-gray-400" />
+                  <Bookmark className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 )}
               </Button>
             )}

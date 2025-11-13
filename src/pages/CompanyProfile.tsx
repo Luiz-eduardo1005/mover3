@@ -262,47 +262,47 @@ const CompanyProfile = () => {
       <main className="flex-grow py-6 sm:py-8 md:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header da empresa */}
-          <Card className="mb-6 sm:mb-8">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0">
+          <Card className="mb-4 sm:mb-6 md:mb-8 bg-white dark:bg-gray-800">
+            <CardContent className="p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <Avatar className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 flex-shrink-0">
                   <AvatarImage src={company.logo || undefined} />
-                  <AvatarFallback className="bg-brand-100 dark:bg-brand-900 text-brand-600 dark:text-brand-400">
-                    <Building2 className="h-10 w-10 sm:h-12 sm:w-12" />
+                  <AvatarFallback className="bg-brand-100 dark:bg-brand-900 text-brand-600 dark:text-brand-400 text-lg sm:text-xl md:text-2xl">
+                    <Building2 className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12" />
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                    <div>
-                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 break-words">
                         {company.name}
                       </h1>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          <span>{company.location}</span>
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{company.location}</span>
                         </div>
                         <div className="flex items-center">
-                          <Briefcase className="h-4 w-4 mr-1" />
-                          <span>{company.industry}</span>
+                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{company.industry}</span>
                         </div>
                         <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1" />
-                          <span>{company.size}</span>
+                          <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{company.size}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="text-right">
                         <div className="flex items-center gap-1 mb-1">
-                          <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                          <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                          <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 fill-yellow-500" />
+                          <span className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                             {company.rating}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
                           {company.totalReviews} avaliações
                         </p>
                       </div>

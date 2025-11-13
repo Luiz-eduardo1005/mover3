@@ -293,11 +293,23 @@ const Profile = () => {
             {/* Right Column - Details */}
             <div className="lg:col-span-2">
               <Tabs defaultValue="resume" className="w-full">
-                <TabsList className="grid grid-cols-4 w-full mb-4 sm:mb-6 h-auto">
-                  <TabsTrigger value="resume" className="text-xs sm:text-sm py-2 sm:py-3">Currículo</TabsTrigger>
-                  <TabsTrigger value="saved" className="text-xs sm:text-sm py-2 sm:py-3">Vagas salvas</TabsTrigger>
-                  <TabsTrigger value="applications" className="text-xs sm:text-sm py-2 sm:py-3">Candidaturas</TabsTrigger>
-                  <TabsTrigger value="settings" className="text-xs sm:text-sm py-2 sm:py-3">Configurações</TabsTrigger>
+                <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full mb-4 sm:mb-6 h-auto gap-1 sm:gap-0 overflow-x-auto">
+                  <TabsTrigger value="resume" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                    <span className="hidden xs:inline">Currículo</span>
+                    <span className="xs:hidden">CV</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="saved" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                    <span className="hidden xs:inline">Vagas salvas</span>
+                    <span className="xs:hidden">Salvas</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="applications" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                    <span className="hidden xs:inline">Candidaturas</span>
+                    <span className="xs:hidden">Candid.</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                    <span className="hidden xs:inline">Configurações</span>
+                    <span className="xs:hidden">Config</span>
+                  </TabsTrigger>
                 </TabsList>
                 
                 {/* Resume Tab */}

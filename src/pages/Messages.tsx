@@ -187,19 +187,19 @@ const Messages = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-250px)] sm:h-[calc(100vh-300px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-200px)] sm:h-[calc(100vh-250px)] lg:h-[calc(100vh-300px)]">
             {/* Lista de conversas */}
-            <Card className="lg:col-span-1 flex flex-col">
+            <Card className="lg:col-span-1 flex flex-col bg-white dark:bg-gray-800">
               <CardContent className="p-0 flex flex-col h-full">
                 {/* Busca */}
-                <div className="p-4 border-b dark:border-gray-800">
+                <div className="p-3 sm:p-4 border-b dark:border-gray-700">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Buscar conversas..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 dark:bg-gray-800"
+                      className="pl-9 sm:pl-10 text-sm dark:bg-gray-800 h-9 sm:h-10"
                     />
                   </div>
                 </div>
@@ -216,27 +216,27 @@ const Messages = () => {
                           <div
                             key={conversation.id}
                             onClick={() => setSelectedConversation(conversation.id)}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
+                            className={`p-2.5 sm:p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
                               isSelected
                                 ? 'bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800'
                                 : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                             }`}
                           >
-                            <div className="flex items-start gap-3">
-                              <Avatar className="h-10 w-10 flex-shrink-0">
+                            <div className="flex items-start gap-2 sm:gap-3">
+                              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
                                 <AvatarImage src={conversation.participant.avatar || undefined} />
-                                <AvatarFallback>
+                                <AvatarFallback className="text-xs">
                                   {conversation.participant.type === 'company' ? (
-                                    <Building2 className="h-5 w-5" />
+                                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                   ) : (
-                                    <User className="h-5 w-5" />
+                                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                                   )}
                                 </AvatarFallback>
                               </Avatar>
                               
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <p className={`text-sm font-medium truncate ${
+                                <div className="flex items-center justify-between mb-0.5 sm:mb-1 gap-2">
+                                  <p className={`text-xs sm:text-sm font-medium truncate ${
                                     isUnread 
                                       ? 'text-gray-900 dark:text-white' 
                                       : 'text-gray-700 dark:text-gray-300'
@@ -244,23 +244,23 @@ const Messages = () => {
                                     {conversation.participant.name}
                                   </p>
                                   {isUnread && (
-                                    <Badge className="bg-brand-500 text-white text-xs h-5 px-1.5">
+                                    <Badge className="bg-brand-500 text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5 flex-shrink-0">
                                       {conversation.unreadCount}
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-1">
+                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate mb-0.5 sm:mb-1">
                                   {conversation.jobTitle}
                                 </p>
-                                <div className="flex items-center justify-between">
-                                  <p className={`text-xs truncate flex-1 ${
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className={`text-[10px] sm:text-xs truncate flex-1 ${
                                     isUnread 
                                       ? 'text-gray-900 dark:text-white font-medium' 
                                       : 'text-gray-500 dark:text-gray-400'
                                   }`}>
                                     {conversation.lastMessage.text}
                                   </p>
-                                  <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                                  <span className="text-[10px] sm:text-xs text-gray-400 flex-shrink-0">
                                     {formatTime(conversation.lastMessage.timestamp)}
                                   </span>
                                 </div>
@@ -283,34 +283,34 @@ const Messages = () => {
             </Card>
 
             {/* Área de mensagens */}
-            <Card className="lg:col-span-2 flex flex-col">
+            <Card className="lg:col-span-2 flex flex-col bg-white dark:bg-gray-800">
               {selectedConv ? (
                 <>
                   {/* Header da conversa */}
-                  <div className="p-4 border-b dark:border-gray-800 flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                  <div className="p-3 sm:p-4 border-b dark:border-gray-700 flex items-center gap-2 sm:gap-3">
+                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
                       <AvatarImage src={selectedConv.participant.avatar || undefined} />
-                      <AvatarFallback>
+                      <AvatarFallback className="text-xs">
                         {selectedConv.participant.type === 'company' ? (
-                          <Building2 className="h-5 w-5" />
+                          <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                         ) : (
-                          <User className="h-5 w-5" />
+                          <User className="h-4 w-4 sm:h-5 sm:w-5" />
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 dark:text-white">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
                         {selectedConv.participant.name}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                         {selectedConv.jobTitle}
                       </p>
                     </div>
                   </div>
 
                   {/* Mensagens */}
-                  <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">
+                  <ScrollArea className="flex-1 p-3 sm:p-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {messages.map((message) => {
                         const isOwn = message.senderId === user?.id;
                         return (
@@ -318,14 +318,14 @@ const Messages = () => {
                             key={message.id}
                             className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                           >
-                            <div className={`max-w-[70%] sm:max-w-[80%] rounded-lg p-3 ${
+                            <div className={`max-w-[75%] sm:max-w-[70%] md:max-w-[80%] rounded-lg p-2.5 sm:p-3 ${
                               isOwn
                                 ? 'bg-brand-500 text-white'
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
                             }`}>
-                              <p className="text-sm">{message.text}</p>
+                              <p className="text-xs sm:text-sm break-words">{message.text}</p>
                               <div className="flex items-center justify-end gap-1 mt-1">
-                                <span className={`text-xs ${
+                                <span className={`text-[10px] sm:text-xs ${
                                   isOwn ? 'text-brand-100' : 'text-gray-500 dark:text-gray-400'
                                 }`}>
                                   {formatTime(message.timestamp)}
@@ -346,7 +346,7 @@ const Messages = () => {
                   </ScrollArea>
 
                   {/* Input de mensagem */}
-                  <div className="p-4 border-t dark:border-gray-800">
+                  <div className="p-3 sm:p-4 border-t dark:border-gray-700">
                     <div className="flex gap-2">
                       <Input
                         placeholder="Digite sua mensagem..."
@@ -358,12 +358,12 @@ const Messages = () => {
                             handleSendMessage();
                           }
                         }}
-                        className="flex-1 dark:bg-gray-800"
+                        className="flex-1 dark:bg-gray-800 text-sm sm:text-base h-9 sm:h-10"
                       />
                       <Button
                         onClick={handleSendMessage}
                         disabled={!messageText.trim()}
-                        className="bg-brand-500 hover:bg-brand-600"
+                        className="bg-brand-500 hover:bg-brand-600 h-9 w-9 sm:h-10 sm:w-10 p-0"
                       >
                         <Send className="h-4 w-4" />
                       </Button>
@@ -371,13 +371,13 @@ const Messages = () => {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center p-8">
+                <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
                   <div className="text-center">
-                    <MessageSquare className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    <MessageSquare className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                       Selecione uma conversa
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 px-4">
                       Escolha uma conversa da lista para começar a trocar mensagens
                     </p>
                   </div>

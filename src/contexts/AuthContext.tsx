@@ -259,11 +259,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
+      const userId = user?.id;
+      
+      // Fazer signOut no Supabase PRIMEIRO (importante para OAuth)
+      await supabase.auth.signOut();
+      
       // Limpar todas as chaves relacionadas ao Supabase
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.includes('supabase') || key.includes('sb-') || key.includes('auth-token'))) {
+        if (key && (
+          key.includes('supabase') || 
+          key.includes('sb-') || 
+          key.includes('auth-token') ||
+          key.includes('auth') ||
+          key.startsWith('supabase.')
+        )) {
           keysToRemove.push(key);
         }
       }
@@ -273,31 +284,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const sessionKeysToRemove: string[] = [];
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
-        if (key && (key.includes('supabase') || key.includes('sb-') || key.includes('auth-token'))) {
+        if (key && (
+          key.includes('supabase') || 
+          key.includes('sb-') || 
+          key.includes('auth-token') ||
+          key.includes('auth') ||
+          key.startsWith('supabase.')
+        )) {
           sessionKeysToRemove.push(key);
         }
       }
       sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
 
       // Limpar vagas salvas do usuário
-      if (user?.id) {
-        localStorage.removeItem(`saved_jobs_${user.id}`);
+      if (userId) {
+        localStorage.removeItem(`saved_jobs_${userId}`);
       }
 
-      // Fazer signOut no Supabase
-      await supabase.auth.signOut();
+      // Limpar cookies relacionados ao OAuth (se houver)
+      document.cookie.split(";").forEach((c) => {
+        const cookieName = c.trim().split("=")[0];
+        if (cookieName.includes('auth') || cookieName.includes('session')) {
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+      });
       
       // Limpar estados
       setUser(null);
       setSession(null);
       setProfile(null);
       setLoading(false);
+      
+      // Forçar reload da página para garantir limpeza completa (especialmente para OAuth)
+      window.location.href = '/login';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      // Mesmo com erro, limpar estados locais
+      // Mesmo com erro, limpar estados locais e redirecionar
       setUser(null);
       setSession(null);
       setProfile(null);
+      setLoading(false);
+      window.location.href = '/login';
     }
   };
 

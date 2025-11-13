@@ -49,10 +49,11 @@ const Header = () => {
     }
   }, [theme, setTheme]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+  const handleSignOut = async (e?: Event) => {
+    e?.preventDefault();
     setMobileMenuOpen(false);
+    await signOut();
+    // O signOut já faz o redirect, não precisa navegar aqui
   };
   return (
     <>

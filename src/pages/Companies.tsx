@@ -116,25 +116,25 @@ const Companies = () => {
       <main className="flex-grow py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4">
               Empresas
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400">
               Conheça as empresas que estão contratando e encontre oportunidades de trabalho
             </p>
           </div>
 
           {/* Search and Filter */}
-          <div className="mb-8 space-y-4">
+          <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
               <Input
                 type="text"
                 placeholder="Buscar empresas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-6 text-base"
+                className="pl-9 sm:pl-10 py-5 sm:py-6 text-sm sm:text-base"
               />
             </div>
             
@@ -145,7 +145,7 @@ const Companies = () => {
                   variant={selectedIndustry === industry ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedIndustry(industry)}
-                  className={selectedIndustry === industry ? "bg-brand-500 hover:bg-brand-600" : ""}
+                  className={`text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${selectedIndustry === industry ? "bg-brand-500 hover:bg-brand-600" : ""}`}
                 >
                   {industry === 'all' ? 'Todas' : industry}
                 </Button>
@@ -154,7 +154,7 @@ const Companies = () => {
           </div>
 
           {/* Companies Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredCompanies.map((company) => (
               <Card 
                 key={company.id} 
@@ -162,9 +162,9 @@ const Companies = () => {
                 onClick={() => navigate(`/company/${company.id}`)}
               >
                 <CardHeader>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                         {company.logo ? (
                           <img 
                             src={company.logo} 
@@ -183,57 +183,57 @@ const Companies = () => {
                           <Building2 className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                         )}
                       </div>
-                      <div>
-                        <CardTitle className="text-xl text-gray-900 dark:text-white mb-1">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="text-base sm:text-xl text-gray-900 dark:text-white mb-1 truncate">
                           {company.name}
                         </CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-4 w-4" />
-                          <span>{company.location}</span>
+                        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{company.location}</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 line-clamp-2">
                     {company.description}
                   </p>
                   
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
+                  <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="text-gray-600 dark:text-gray-400">Setor:</span>
-                      <Badge variant="secondary">{company.industry}</Badge>
+                      <Badge variant="secondary" className="text-xs">{company.industry}</Badge>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                        <Users className="h-4 w-4" />
+                        <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                         Tamanho:
                       </span>
-                      <span className="text-gray-900 dark:text-white">{company.size}</span>
+                      <span className="text-gray-900 dark:text-white text-xs sm:text-sm">{company.size}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-500" />
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                         Avaliação:
                       </span>
-                      <span className="text-gray-900 dark:text-white">
+                      <span className="text-gray-900 dark:text-white text-xs sm:text-sm">
                         {company.rating} ({company.totalReviews})
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                        <Briefcase className="h-4 w-4" />
+                        <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
                         Vagas ativas:
                       </span>
-                      <span className="text-brand-600 dark:text-brand-400 font-medium">
+                      <span className="text-brand-600 dark:text-brand-400 font-medium text-xs sm:text-sm">
                         {company.activeJobs}
                       </span>
                     </div>
                   </div>
 
                   <Button 
-                    className="w-full bg-brand-500 hover:bg-brand-600"
+                    className="w-full bg-brand-500 hover:bg-brand-600 text-xs sm:text-sm py-2 sm:py-2.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/company/${company.id}`);

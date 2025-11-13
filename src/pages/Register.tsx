@@ -118,16 +118,16 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-12">
-      <Link to="/" className="flex items-center mb-8">
-        <Briefcase className="h-10 w-10 text-brand-600 dark:text-brand-400" />
-        <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">MOVER</span>
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-6 sm:py-12">
+      <Link to="/" className="flex items-center mb-6 sm:mb-8">
+        <Briefcase className="h-8 w-8 sm:h-10 sm:w-10 text-brand-600 dark:text-brand-400" />
+        <span className="ml-2 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">MOVER</span>
       </Link>
       
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Crie sua conta</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-md shadow-lg bg-white dark:bg-gray-800">
+        <CardHeader className="text-center p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl text-gray-900 dark:text-white">Crie sua conta</CardTitle>
+          <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Cadastre-se para acessar todas as funcionalidades
           </CardDescription>
         </CardHeader>

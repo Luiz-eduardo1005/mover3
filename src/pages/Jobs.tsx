@@ -93,27 +93,27 @@ const Jobs = () => {
             
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-2 mb-4 sm:mb-6">
               <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                 <Input 
                   type="text" 
                   placeholder="Cargo, empresa ou palavra-chave"
                   value={filters.keyword}
                   onChange={e => handleFilterChange('keyword', e.target.value)} 
-                  className="pl-10 py-5 sm:py-6 text-base" 
+                  className="pl-9 sm:pl-10 py-4 sm:py-5 md:py-6 text-sm sm:text-base" 
                 />
               </div>
               <div className="relative flex-grow">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                 <Input 
                   type="text" 
                   placeholder="Localização"
                   value={filters.location}
                   onChange={e => handleFilterChange('location', e.target.value)} 
-                  className="pl-10 py-5 sm:py-6 text-base" 
+                  className="pl-9 sm:pl-10 py-4 sm:py-5 md:py-6 text-sm sm:text-base" 
                 />
               </div>
-              <Button size="lg" className="bg-brand-500 hover:bg-brand-600 py-5 sm:py-6 w-full sm:w-auto">
-                <Search className="mr-2 h-5 w-5" />
+              <Button size="lg" className="bg-brand-500 hover:bg-brand-600 py-4 sm:py-5 md:py-6 w-full sm:w-auto text-sm sm:text-base">
+                <Search className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Pesquisar
               </Button>
             </div>

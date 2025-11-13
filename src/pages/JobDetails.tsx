@@ -323,50 +323,50 @@ const JobDetails = () => {
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="mb-4 sm:mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm sm:text-base"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Conteúdo Principal */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Header da Vaga */}
               <Card className="bg-white dark:bg-gray-800">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white break-words">
                           {job.title}
                         </h1>
                         {job.featured && (
-                          <Badge className="bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200">
+                          <Badge className="bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 text-xs">
                             Destaque
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-lg text-gray-600 dark:text-gray-300 mb-4">
-                        <Building2 className="h-5 w-5" />
-                        <span>{job.company}</span>
+                      <div className="flex items-center gap-2 text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
+                        <Building2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                        <span className="truncate">{job.company}</span>
                       </div>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          <span>{job.location}</span>
+                      <div className="flex flex-wrap gap-2 sm:gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{job.location}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{job.type}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{job.type}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{job.salary}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{job.salary}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>{job.posted}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{job.posted}</span>
                         </div>
                       </div>
                     </div>
@@ -375,13 +375,13 @@ const JobDetails = () => {
                         variant="ghost"
                         size="icon"
                         onClick={handleSaveJob}
-                        className="flex-shrink-0"
+                        className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
                         aria-label={isSaved ? 'Remover das salvas' : 'Salvar vaga'}
                       >
                         {isSaved ? (
-                          <BookmarkCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                          <BookmarkCheck className="h-4 w-4 sm:h-5 sm:w-5 text-brand-600 dark:text-brand-400" />
                         ) : (
-                          <Bookmark className="h-5 w-5 text-gray-400" />
+                          <Bookmark className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                         )}
                       </Button>
                     )}
@@ -391,13 +391,13 @@ const JobDetails = () => {
 
               {/* Descrição da Vaga */}
               <Card className="bg-white dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl text-gray-900 dark:text-white">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
                     Descrição da vaga
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                     {job.description}
                   </p>
                 </CardContent>
@@ -405,17 +405,17 @@ const JobDetails = () => {
 
               {/* Responsabilidades */}
               <Card className="bg-white dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl text-gray-900 dark:text-white">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
                     Responsabilidades
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <ul className="space-y-2 sm:space-y-3">
                     {job.responsibilities.map((item: string, index: number) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                      <li key={index} className="flex items-start gap-2 sm:gap-3">
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -424,17 +424,17 @@ const JobDetails = () => {
 
               {/* Requisitos */}
               <Card className="bg-white dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl text-gray-900 dark:text-white">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
                     Requisitos
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <ul className="space-y-2 sm:space-y-3">
                     {job.requirements.map((item: string, index: number) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                      <li key={index} className="flex items-start gap-2 sm:gap-3">
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -444,17 +444,17 @@ const JobDetails = () => {
               {/* Diferenciais */}
               {job.differentials && job.differentials.length > 0 && (
                 <Card className="bg-white dark:bg-gray-800">
-                  <CardHeader>
-                    <CardTitle className="text-xl text-gray-900 dark:text-white">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
                       Diferenciais
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <ul className="space-y-2 sm:space-y-3">
                       {job.differentials.map((item: string, index: number) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                        <li key={index} className="flex items-start gap-2 sm:gap-3">
+                          <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -464,17 +464,17 @@ const JobDetails = () => {
 
               {/* Benefícios */}
               <Card className="bg-white dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-xl text-gray-900 dark:text-white">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
                     Benefícios
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {job.benefits.map((benefit: string, index: number) => (
                       <div key={index} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                        <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -484,16 +484,16 @@ const JobDetails = () => {
 
             {/* Sidebar - Ações */}
             <div className="lg:col-span-1">
-              <Card className="bg-white dark:bg-gray-800 sticky top-24">
-                <CardHeader>
-                  <CardTitle className="text-lg text-gray-900 dark:text-white">
+              <Card className="bg-white dark:bg-gray-800 sticky top-20 sm:top-24">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
                     Ações
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="p-4 sm:p-6 pt-0 space-y-2 sm:space-y-3">
                   <Button 
                     onClick={handleApply}
-                    className="w-full bg-brand-500 hover:bg-brand-600 text-white"
+                    className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm sm:text-base py-2.5 sm:py-3"
                     size="lg"
                   >
                     <Send className="h-4 w-4 mr-2" />
@@ -504,7 +504,7 @@ const JobDetails = () => {
                     <Button
                       variant="outline"
                       onClick={handleSaveJob}
-                      className="w-full"
+                      className="w-full text-sm sm:text-base py-2.5 sm:py-3"
                     >
                       {isSaved ? (
                         <>
