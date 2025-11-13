@@ -80,7 +80,7 @@ const categories = ["Programação", "Web", "JavaScript", "Excel", "Análise de 
 // Course Card Component
 const CourseCard = ({ course }) => {
   return (
-    <Card className="overflow-hidden card-hover">
+    <Card className="overflow-hidden card-hover bg-white dark:bg-gray-800">
       <div className="h-40 overflow-hidden relative">
         <img 
           src={course.image} 
@@ -95,13 +95,13 @@ const CourseCard = ({ course }) => {
         )}
       </div>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-heading">{course.title}</CardTitle>
-        <CardDescription>{course.provider}</CardDescription>
+        <CardTitle className="text-lg font-heading text-gray-900 dark:text-white">{course.title}</CardTitle>
+        <CardDescription className="text-gray-600 dark:text-gray-400">{course.provider}</CardDescription>
       </CardHeader>
       <CardContent className="pt-0 pb-2">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-600">Duração: {course.duration}</span>
-          <span className="font-medium text-brand-600">{course.price}</span>
+          <span className="text-gray-600 dark:text-gray-400">Duração: {course.duration}</span>
+          <span className="font-medium text-brand-600 dark:text-brand-400">{course.price}</span>
         </div>
         <div className="flex flex-wrap gap-1 mt-3">
           {course.categories.map(category => (
@@ -114,7 +114,7 @@ const CourseCard = ({ course }) => {
               <svg
                 key={i}
                 className={`w-4 h-4 ${
-                  i < Math.floor(course.rating) ? "text-yellow-400" : "text-gray-300"
+                  i < Math.floor(course.rating) ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"
                 }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -122,9 +122,9 @@ const CourseCard = ({ course }) => {
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             ))}
-            <span className="ml-1 text-sm text-gray-600">{course.rating}</span>
+            <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">{course.rating}</span>
           </div>
-          <span className="text-xs text-gray-500 ml-auto">Nível: {course.level}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">Nível: {course.level}</span>
         </div>
       </CardContent>
       <CardFooter>
@@ -157,13 +157,13 @@ const Courses = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 font-heading mb-3">Cursos com Certificação</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-heading mb-3">Cursos com Certificação</h1>
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Desenvolva suas habilidades profissionais com nossos cursos certificados a preços acessíveis e aumente suas chances de conquistar a vaga dos seus sonhos.
           </p>
         </div>
@@ -187,8 +187,8 @@ const Courses = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-lg mb-3">Categorias</h3>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+              <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Categorias</h3>
               <div className="space-y-2 max-h-96 overflow-auto">
                 {categories.map(category => (
                   <div key={category} className="flex items-center">
@@ -199,44 +199,44 @@ const Courses = () => {
                       checked={selectedCategories.includes(category)}
                       onChange={() => handleCategoryToggle(category)}
                     />
-                    <label htmlFor={category} className="text-sm">{category}</label>
+                    <label htmlFor={category} className="text-sm text-gray-700 dark:text-gray-300">{category}</label>
                   </div>
                 ))}
               </div>
 
               <Separator className="my-4" />
 
-              <h3 className="font-semibold text-lg mb-3">Nível</h3>
+              <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Nível</h3>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input type="checkbox" id="beginner" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="beginner" className="text-sm">Iniciante</label>
+                  <label htmlFor="beginner" className="text-sm text-gray-700 dark:text-gray-300">Iniciante</label>
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" id="intermediate" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="intermediate" className="text-sm">Intermediário</label>
+                  <label htmlFor="intermediate" className="text-sm text-gray-700 dark:text-gray-300">Intermediário</label>
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" id="advanced" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="advanced" className="text-sm">Avançado</label>
+                  <label htmlFor="advanced" className="text-sm text-gray-700 dark:text-gray-300">Avançado</label>
                 </div>
               </div>
 
               <Separator className="my-4" />
 
-              <h3 className="font-semibold text-lg mb-3">Preço</h3>
+              <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Preço</h3>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input type="checkbox" id="free" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="free" className="text-sm">Gratuito</label>
+                  <label htmlFor="free" className="text-sm text-gray-700 dark:text-gray-300">Gratuito</label>
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" id="low-price" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="low-price" className="text-sm">Até R$ 29,90</label>
+                  <label htmlFor="low-price" className="text-sm text-gray-700 dark:text-gray-300">Até R$ 29,90</label>
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" id="mid-price" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
-                  <label htmlFor="mid-price" className="text-sm">R$ 30 - R$ 49,90</label>
+                  <label htmlFor="mid-price" className="text-sm text-gray-700 dark:text-gray-300">R$ 30 - R$ 49,90</label>
                 </div>
               </div>
             </div>
@@ -260,9 +260,9 @@ const Courses = () => {
                   </div>
                 ) : (
                   <div className="text-center py-10">
-                    <BookOpen className="h-16 w-16 mx-auto text-gray-400" />
-                    <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhum curso encontrado</h3>
-                    <p className="mt-1 text-gray-500">Tente ajustar os filtros ou termos de busca.</p>
+                    <BookOpen className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500" />
+                    <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">Nenhum curso encontrado</h3>
+                    <p className="mt-1 text-gray-500 dark:text-gray-400">Tente ajustar os filtros ou termos de busca.</p>
                   </div>
                 )}
               </TabsContent>
@@ -294,18 +294,18 @@ const Courses = () => {
         </div>
       </main>
       
-      <section className="bg-brand-50 py-12">
+      <section className="bg-brand-50 dark:bg-gray-800 py-12">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold font-heading mb-6">Certificações Reconhecidas pelo Mercado</h2>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-10">
+          <h2 className="text-3xl font-bold font-heading mb-6 text-gray-900 dark:text-white">Certificações Reconhecidas pelo Mercado</h2>
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10">
             Todos os nossos cursos incluem certificados reconhecidos por empresas parceiras, com preços acessíveis para impulsionar sua carreira sem comprometer seu orçamento.
           </p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             {/* Placeholder for partner logos */}
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-4 h-24 flex items-center justify-center shadow-sm">
-                <div className="bg-gray-200 w-full h-10 rounded animate-pulse"></div>
+              <div key={i} className="bg-white dark:bg-gray-700 rounded-lg p-4 h-24 flex items-center justify-center shadow-sm">
+                <div className="bg-gray-200 dark:bg-gray-600 w-full h-10 rounded animate-pulse"></div>
               </div>
             ))}
           </div>

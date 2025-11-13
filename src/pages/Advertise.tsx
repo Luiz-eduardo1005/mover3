@@ -29,13 +29,13 @@ const Advertise = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-grow py-12 bg-gradient-to-b from-brand-50 to-white">
+      <main className="flex-grow py-12 bg-gradient-to-b from-brand-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
               Anuncie sua vaga
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+            <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500 dark:text-gray-400">
               Encontre os melhores profissionais para a sua empresa
             </p>
           </div>
@@ -187,17 +187,17 @@ const Advertise = () => {
                             <TabsTrigger value="standard">Padrão</TabsTrigger>
                             <TabsTrigger value="premium">Premium</TabsTrigger>
                           </TabsList>
-                          <TabsContent value="basic" className="p-4 border rounded-md mt-2">
-                            <p className="font-bold">R$ 99,00</p>
-                            <p className="text-sm text-gray-500">Visibilidade por 7 dias</p>
+                          <TabsContent value="basic" className="p-4 border dark:border-gray-700 rounded-md mt-2 bg-white dark:bg-gray-800">
+                            <p className="font-bold text-gray-900 dark:text-white">R$ 99,00</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Visibilidade por 7 dias</p>
                           </TabsContent>
-                          <TabsContent value="standard" className="p-4 border rounded-md mt-2 border-brand-500 bg-brand-50">
-                            <p className="font-bold">R$ 199,00</p>
-                            <p className="text-sm text-gray-500">Visibilidade por 15 dias + destaque na lista</p>
+                          <TabsContent value="standard" className="p-4 border rounded-md mt-2 border-brand-500 dark:border-brand-400 bg-brand-50 dark:bg-brand-900/20">
+                            <p className="font-bold text-gray-900 dark:text-white">R$ 199,00</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Visibilidade por 15 dias + destaque na lista</p>
                           </TabsContent>
-                          <TabsContent value="premium" className="p-4 border rounded-md mt-2">
-                            <p className="font-bold">R$ 399,00</p>
-                            <p className="text-sm text-gray-500">Visibilidade por 30 dias + destaque na lista + envio para candidatos selecionados</p>
+                          <TabsContent value="premium" className="p-4 border dark:border-gray-700 rounded-md mt-2 bg-white dark:bg-gray-800">
+                            <p className="font-bold text-gray-900 dark:text-white">R$ 399,00</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Visibilidade por 30 dias + destaque na lista + envio para candidatos selecionados</p>
                           </TabsContent>
                         </Tabs>
                       </div>
@@ -221,28 +221,28 @@ const Advertise = () => {
                       <CheckCircle className="h-5 w-5 text-brand-600" />
                     </div>
                     <div>
-                      <p className="font-medium">Alcance qualificado</p>
-                      <p className="text-sm text-gray-500">Mais de 100.000 profissionais cadastrados na região de Campinas e SP</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Alcance qualificado</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Mais de 100.000 profissionais cadastrados na região de Campinas e SP</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <div className="bg-brand-100 p-2 rounded-full">
-                      <CheckCircle className="h-5 w-5 text-brand-600" />
+                    <div className="bg-brand-100 dark:bg-brand-900 p-2 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-brand-600 dark:text-brand-400" />
                     </div>
                     <div>
-                      <p className="font-medium">Ferramentas de triagem</p>
-                      <p className="text-sm text-gray-500">Filtros avançados para encontrar o candidato ideal</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Ferramentas de triagem</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Filtros avançados para encontrar o candidato ideal</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <div className="bg-brand-100 p-2 rounded-full">
-                      <CheckCircle className="h-5 w-5 text-brand-600" />
+                    <div className="bg-brand-100 dark:bg-brand-900 p-2 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-brand-600 dark:text-brand-400" />
                     </div>
                     <div>
-                      <p className="font-medium">Análise de desempenho</p>
-                      <p className="text-sm text-gray-500">Estatísticas completas sobre visualizações e candidaturas</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Análise de desempenho</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Estatísticas completas sobre visualizações e candidaturas</p>
                     </div>
                   </div>
                 </CardContent>
@@ -254,25 +254,25 @@ const Advertise = () => {
                   <CardDescription>Exemplos de vagas atualmente em destaque</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="border p-4 rounded-md">
+                  <div className="border dark:border-gray-700 p-4 rounded-md bg-white dark:bg-gray-800">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">Desenvolvedor Full Stack</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-white">Desenvolvedor Full Stack</h4>
                       <Badge>Destaque</Badge>
                     </div>
-                    <p className="text-sm text-gray-600">TechSolutions</p>
-                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">TechSolutions</p>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
                       <MapPin className="h-3 w-3 mr-1" />
                       <span>Manaus, AM</span>
                     </div>
                   </div>
                   
-                  <div className="border p-4 rounded-md">
+                  <div className="border dark:border-gray-700 p-4 rounded-md bg-white dark:bg-gray-800">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">Analista de Marketing Digital</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-white">Analista de Marketing Digital</h4>
                       <Badge>Destaque</Badge>
                     </div>
-                    <p className="text-sm text-gray-600">Digital Growth</p>
-                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Digital Growth</p>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
                       <MapPin className="h-3 w-3 mr-1" />
                       <span>Remoto</span>
                     </div>
@@ -285,7 +285,7 @@ const Advertise = () => {
                   <CardTitle>Precisa de ajuda?</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Entre em contato com nosso time de suporte para tirar dúvidas ou solicitar um pacote personalizado para sua empresa.
                   </p>
                   <Button variant="outline" className="w-full">Falar com consultor</Button>

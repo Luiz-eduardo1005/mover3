@@ -47,7 +47,7 @@ const CookieConsent = () => {
     <div
       className={cn(
         "fixed bottom-0 left-0 right-0 z-[100] p-4 animate-in slide-in-from-bottom-5 duration-300",
-        "bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg"
+        "bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 shadow-lg"
       )}
       role="banner"
       aria-label="Aviso sobre cookies"
@@ -60,17 +60,17 @@ const CookieConsent = () => {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-5 w-5 text-brand-600" aria-hidden="true" />
-                <h3 className="font-semibold text-gray-900">
+                <Shield className="h-5 w-5 text-brand-600 dark:text-brand-400" aria-hidden="true" />
+                <h3 className="font-semibold text-gray-900 dark:text-white">
                   Uso de Cookies e Armazenamento Local
                 </h3>
               </div>
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                 Este site utiliza cookies e armazenamento local do navegador para melhorar sua experiência, 
                 manter sua sessão de login ativa e personalizar o conteúdo. Ao continuar navegando, você 
                 concorda com o uso dessas tecnologias.
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 <strong>Importante:</strong> Os cookies são essenciais para manter você logado e salvar suas preferências. 
                 Se você recusar, algumas funcionalidades podem não funcionar corretamente.
               </p>

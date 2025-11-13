@@ -182,8 +182,8 @@ const About = () => {
                     </div>
                   </div>
                   
-                  <div className="mt-6 p-4 bg-brand-50 rounded-lg border-l-4 border-brand-600">
-                    <p className="text-sm text-gray-700">
+                  <div className="mt-6 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-lg border-l-4 border-brand-600 dark:border-brand-400">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
                       <strong>FAMETRO - Faculdade Metropolitana de Manaus</strong><br/>
                       Curso: Análise e Desenvolvimento de Sistemas (ADS)<br/>
                       Período: 2º Período - 2025<br/>
@@ -200,49 +200,49 @@ const About = () => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Luis Roberto Lins de Almeida</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Victor Hugo de Paula Ferreira</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Luiz Gustavo de Souza Feitosa</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Mozart Brian de Almeida Assunção</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Alan Medeiros Batista</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Vinícius da Silva Pereira</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Milena Lima Varela</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Kaiky Alex Barroso dos Santos</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Alex Victor Oliveira Cortez dos Santos</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Luiz Eduardo Martins Figueredo</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Luiz Gabriel Alves Candido da Silva</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Cauan Bastos Mendonça de Oliveira</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Marcos Vinicius Nicacio Tavares</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Isaías Emanuel Vinhote Coelho</h4>
                   </div>
-                  <div className="bg-brand-50 p-4 rounded-lg text-center">
+                  <div className="bg-brand-50 dark:bg-gray-800 p-4 rounded-lg text-center">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">Matheus Aurélio Nunes Barbosa</h4>
                   </div>
                 </div>

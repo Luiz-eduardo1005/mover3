@@ -184,7 +184,7 @@ const Login = () => {
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
+                    <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
@@ -238,7 +238,7 @@ const Login = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="employer-password">Senha</Label>
-                      <Link to="/forgot-password" className="text-sm text-brand-600 hover:underline">
+                      <Link to="/forgot-password" className="text-sm text-brand-600 dark:text-brand-400 hover:underline">
                         Esqueceu a senha?
                       </Link>
                     </div>
@@ -272,7 +272,7 @@ const Login = () => {
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
+                    <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
@@ -309,10 +309,10 @@ const Login = () => {
           </TabsContent>
         </Tabs>
         
-        <CardFooter className="flex justify-center border-t p-6">
-          <span className="text-sm text-gray-600">
+        <CardFooter className="flex justify-center border-t dark:border-gray-700 p-6">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             Não tem conta?{' '}
-            <Link to="/register" className="text-brand-600 hover:underline font-medium">
+            <Link to="/register" className="text-brand-600 dark:text-brand-400 hover:underline font-medium">
               Registre-se
             </Link>
           </span>

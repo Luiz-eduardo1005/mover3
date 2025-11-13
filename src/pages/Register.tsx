@@ -239,7 +239,7 @@ const Register = () => {
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
+                    <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
@@ -317,7 +317,7 @@ const Register = () => {
                     <Label htmlFor="company-size">Tamanho da empresa</Label>
                     <select 
                       id="company-size" 
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-input bg-background dark:bg-gray-800 dark:border-gray-700 dark:text-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={formData.companySize}
                       onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
                       required
@@ -358,11 +358,11 @@ const Register = () => {
                     <Checkbox id="company-terms" required />
                     <Label htmlFor="company-terms" className="text-sm">
                       Ao criar a conta, concordo com os{' '}
-                      <Link to="/terms" className="text-brand-600 hover:underline">
+                      <Link to="/terms" className="text-brand-600 dark:text-brand-400 hover:underline">
                         Termos de Uso
                       </Link>{' '}
                       e{' '}
-                      <Link to="/privacy" className="text-brand-600 hover:underline">
+                      <Link to="/privacy" className="text-brand-600 dark:text-brand-400 hover:underline">
                         Política de Privacidade
                       </Link>
                     </Label>
@@ -384,7 +384,7 @@ const Register = () => {
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
+                    <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Ou continue com</span>
@@ -421,10 +421,10 @@ const Register = () => {
           </TabsContent>
         </Tabs>
         
-        <CardFooter className="flex justify-center border-t p-6">
-          <span className="text-sm text-gray-600">
+        <CardFooter className="flex justify-center border-t dark:border-gray-700 p-6">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             Já tem conta?{' '}
-            <Link to="/login" className="text-brand-600 hover:underline font-medium">
+            <Link to="/login" className="text-brand-600 dark:text-brand-400 hover:underline font-medium">
               Faça login
             </Link>
           </span>

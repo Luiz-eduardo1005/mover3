@@ -87,9 +87,9 @@ const Jobs = () => {
       
       <main className="flex-grow">
         {/* Search Bar Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-brand-50 py-6 sm:py-8">
+        <section className="bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Encontre Vagas em Manaus e Região</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Encontre Vagas em Manaus e Região</h1>
             
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-2 mb-4 sm:mb-6">
               <div className="relative flex-grow">
@@ -153,17 +153,17 @@ const Jobs = () => {
           </div>
         </section>
         
-        <section className="py-4 sm:py-8">
+        <section className="py-4 sm:py-8 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
               
               {/* Filters Panel */}
               {showFilters && (
                 <div className="w-full lg:w-1/4">
-                  <Card className="sticky top-20 lg:top-24">
+                  <Card className="sticky top-20 lg:top-24 bg-white dark:bg-gray-800">
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-semibold text-base sm:text-lg">Filtros</h2>
+                        <h2 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white">Filtros</h2>
                         <Button 
                           variant="ghost" 
                           size="sm" 
@@ -177,7 +177,7 @@ const Jobs = () => {
                       <div className="space-y-6">
                         {/* Job Types */}
                         <div>
-                          <h3 className="font-medium mb-2">Tipo de vaga</h3>
+                          <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Tipo de vaga</h3>
                           <div className="space-y-2">
                             {jobTypes.map(type => (
                               <div key={type} className="flex items-center">
@@ -186,7 +186,7 @@ const Jobs = () => {
                                   checked={filters.jobType.includes(type)}
                                   onCheckedChange={() => handleFilterChange('jobType', type)}
                                 />
-                                <label htmlFor={`job-type-${type}`} className="ml-2 text-sm">
+                                <label htmlFor={`job-type-${type}`} className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                                   {type}
                                 </label>
                               </div>
@@ -198,7 +198,7 @@ const Jobs = () => {
                         
                         {/* Distance */}
                         <div>
-                          <h3 className="font-medium mb-2">Distância</h3>
+                          <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Distância</h3>
                           <div className="px-2">
                             <Slider
                               defaultValue={[30]}
@@ -208,7 +208,7 @@ const Jobs = () => {
                               onValueChange={(value) => handleFilterChange('distance', value[0])}
                               className="mb-2"
                             />
-                            <div className="flex justify-between text-xs text-gray-500">
+                            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                               <span>0km</span>
                               <span>Até {filters.distance}km</span>
                               <span>100km</span>
@@ -220,7 +220,7 @@ const Jobs = () => {
                         
                         {/* Date Posted */}
                         <div>
-                          <h3 className="font-medium mb-2">Data de publicação</h3>
+                          <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Data de publicação</h3>
                           <Select 
                             value={filters.datePosted}
                             onValueChange={(value) => handleFilterChange('datePosted', value)}
@@ -242,7 +242,7 @@ const Jobs = () => {
                         
                         {/* Salary Range */}
                         <div>
-                          <h3 className="font-medium mb-2">Faixa salarial</h3>
+                          <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Faixa salarial</h3>
                           <div className="px-2">
                             <Slider
                               defaultValue={[0, 15000]}
@@ -253,7 +253,7 @@ const Jobs = () => {
                               onValueChange={(value) => handleFilterChange('salary', value)}
                               className="mb-2"
                             />
-                            <div className="flex justify-between text-xs text-gray-500">
+                            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                               <span>R$ {filters.salary[0].toLocaleString('pt-BR')}</span>
                               <span>R$ {filters.salary[1].toLocaleString('pt-BR')}</span>
                             </div>
@@ -272,7 +272,7 @@ const Jobs = () => {
               {/* Job Listings */}
               <div className={`w-full ${showFilters ? 'lg:w-3/4' : 'w-full'}`}>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     Vagas em destaque
                   </h2>
                   <Select defaultValue="relevance">

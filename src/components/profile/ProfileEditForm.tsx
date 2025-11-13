@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, X } from 'lucide-react';
 
 interface ProfileEditFormProps {
   onSaved?: () => void;
@@ -161,7 +161,7 @@ export const ProfileEditForm = ({ onSaved }: ProfileEditFormProps) => {
               type="email"
               value={user?.email || ''}
               disabled
-              className="bg-gray-50"
+              className="bg-gray-50 dark:bg-gray-800"
             />
           </div>
 
@@ -255,12 +255,12 @@ export const ProfileEditForm = ({ onSaved }: ProfileEditFormProps) => {
           </div>
           <div className="flex flex-wrap gap-2">
             {formData.skills.map((skill, index) => (
-              <div key={index} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                <span className="text-sm">{skill}</span>
+              <div key={index} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                <span className="text-sm text-gray-900 dark:text-white">{skill}</span>
                 <button
                   type="button"
                   onClick={() => removeSkill(skill)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   <X className="h-3 w-3" />
                 </button>
