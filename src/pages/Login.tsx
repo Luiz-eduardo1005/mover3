@@ -32,6 +32,38 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Verificar erros na URL ao carregar a página
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const details = urlParams.get('details');
+    
+    if (error) {
+      let errorMessage = "Não foi possível fazer login. Tente novamente.";
+      
+      if (error === 'server_error') {
+        errorMessage = "Erro no servidor de autenticação. Verifique se as credenciais do Google OAuth estão configuradas corretamente no Supabase.";
+      } else if (error === 'auth_failed') {
+        errorMessage = "Falha na autenticação. Tente novamente.";
+      } else if (error === 'no_session') {
+        errorMessage = "Não foi possível criar a sessão. Tente fazer login novamente.";
+      }
+      
+      if (details) {
+        errorMessage += ` Detalhes: ${decodeURIComponent(details)}`;
+      }
+      
+      toast({
+        title: "Erro ao fazer login",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      // Limpar a URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
+
   const handleSubmit = async (e: React.FormEvent, userType: 'candidate' | 'employer') => {
     e.preventDefault();
     setLoading(true);

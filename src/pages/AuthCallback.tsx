@@ -26,16 +26,45 @@ const AuthCallback = () => {
         console.log('🔄 Processando callback de autenticação...');
         console.log('📍 URL atual:', window.location.href);
         
+        // Verificar se há erro na URL (query params)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlError = urlParams.get('error');
+        const errorCode = urlParams.get('error_code');
+        const errorDescription = urlParams.get('error_description');
+        
+        if (urlError) {
+          console.error('❌ Erro na URL do callback:');
+          console.error('   - Error:', urlError);
+          console.error('   - Code:', errorCode);
+          console.error('   - Description:', errorDescription);
+          
+          if (mounted) {
+            setProcessing(false);
+            // Mostrar mensagem mais específica
+            let errorMessage = 'auth_failed';
+            if (urlError === 'server_error' || errorCode === 'unexpected_failure') {
+              errorMessage = 'server_error';
+            }
+            navigate(`/login?error=${errorMessage}&details=${encodeURIComponent(errorDescription || '')}`);
+          }
+          return;
+        }
+        
         // Aguardar um pouco para garantir que o Supabase processe o hash
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Processar o hash da URL para obter a sessão
         const { data: { session }, error } = await supabase.auth.getSession();
         
         console.log('📦 Sessão recebida:', session ? 'Sim' : 'Não');
+        if (session?.user) {
+          console.log('👤 Usuário:', session.user.email);
+        }
 
         if (error) {
-          console.error('Erro ao processar callback:', error);
+          console.error('❌ Erro ao processar callback:', error);
+          console.error('   - Message:', error.message);
+          console.error('   - Status:', error.status);
           if (mounted) {
             setProcessing(false);
             navigate('/login?error=auth_failed');
