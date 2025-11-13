@@ -258,13 +258,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    // Limpar localStorage relacionado à sessão
-    localStorage.removeItem('sb-dqsgxbheslqmqsvmmqfk-auth-token');
-    sessionStorage.removeItem('sb-dqsgxbheslqmqsvmmqfk-auth-token');
+    try {
+      // Limpar todas as chaves relacionadas ao Supabase
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('sb-') || key.includes('auth-token'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // Limpar sessionStorage também
+      const sessionKeysToRemove: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('sb-') || key.includes('auth-token'))) {
+          sessionKeysToRemove.push(key);
+        }
+      }
+      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
+
+      // Limpar vagas salvas do usuário
+      if (user?.id) {
+        localStorage.removeItem(`saved_jobs_${user.id}`);
+      }
+
+      // Fazer signOut no Supabase
+      await supabase.auth.signOut();
+      
+      // Limpar estados
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setLoading(false);
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // Mesmo com erro, limpar estados locais
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+    }
   };
 
   const value = {

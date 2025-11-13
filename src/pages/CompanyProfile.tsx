@@ -27,12 +27,112 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import LoadingPage from './LoadingPage';
 
-// Mock data - substituir por dados reais do Supabase
-const mockCompany = {
+// Mapeamento de logos e dados das empresas
+const companyDataMap: Record<string, any> = {
+  'techsolutions': {
+    id: 'techsolutions',
+    name: 'TechSolutions',
+    description: 'Somos uma empresa de tecnologia focada em soluções inovadoras para o mercado brasileiro. Com mais de 10 anos de experiência, desenvolvemos softwares de alta qualidade e oferecemos oportunidades de crescimento profissional.',
+    logo: '/logos/techsolutions.svg',
+    website: 'https://techsolutions.com.br',
+    email: 'contato@techsolutions.com.br',
+    phone: '(92) 3234-5678',
+    location: 'Manaus, AM',
+    industry: 'Tecnologia',
+    size: '50-200 funcionários',
+    founded: '2014',
+    rating: 4.5,
+    totalReviews: 23,
+    activeJobs: 5
+  },
+  'empresa-inovadora': {
+    id: 'empresa-inovadora',
+    name: 'Empresa Inovadora',
+    description: 'Agência de marketing digital especializada em crescimento e inovação. Transformamos ideias em resultados através de estratégias criativas e eficazes.',
+    logo: '/logos/empresa-inovadora.svg',
+    website: 'https://empresainovadora.com.br',
+    email: 'contato@empresainovadora.com.br',
+    phone: '(92) 3234-5679',
+    location: 'Manaus, AM',
+    industry: 'Marketing',
+    size: '11-50 funcionários',
+    founded: '2018',
+    rating: 4.3,
+    totalReviews: 15,
+    activeJobs: 3
+  },
+  'vendamais': {
+    id: 'vendamais',
+    name: 'VendaMais',
+    description: 'Empresa líder em soluções de vendas e relacionamento. Desenvolvemos estratégias personalizadas para maximizar resultados e fortalecer parcerias.',
+    logo: '/logos/vendamais.svg',
+    website: 'https://vendamais.com.br',
+    email: 'contato@vendamais.com.br',
+    phone: '(92) 3234-5680',
+    location: 'Manaus, AM',
+    industry: 'Vendas',
+    size: '51-200 funcionários',
+    founded: '2015',
+    rating: 4.7,
+    totalReviews: 31,
+    activeJobs: 8
+  },
+  'adminpro': {
+    id: 'adminpro',
+    name: 'AdminPro',
+    description: 'Soluções administrativas e consultoria empresarial. Oferecemos serviços especializados para otimizar processos e aumentar a eficiência organizacional.',
+    logo: '/logos/adminpro.svg',
+    website: 'https://adminpro.com.br',
+    email: 'contato@adminpro.com.br',
+    phone: '(92) 3234-5681',
+    location: 'Manaus, AM',
+    industry: 'Administração',
+    size: '1-10 funcionários',
+    founded: '2020',
+    rating: 4.2,
+    totalReviews: 8,
+    activeJobs: 2
+  },
+  'hospital-central': {
+    id: 'hospital-central',
+    name: 'Hospital Central',
+    description: 'Hospital de referência em atendimento de qualidade. Comprometidos com a excelência em saúde e bem-estar da comunidade.',
+    logo: '/logos/hospital-central.svg',
+    website: 'https://hospitalcentral.com.br',
+    email: 'contato@hospitalcentral.com.br',
+    phone: '(92) 3234-5682',
+    location: 'Manaus, AM',
+    industry: 'Saúde',
+    size: '201-500 funcionários',
+    founded: '2010',
+    rating: 4.6,
+    totalReviews: 45,
+    activeJobs: 12
+  },
+  'construtora-horizonte': {
+    id: 'construtora-horizonte',
+    name: 'Construtora Horizonte',
+    description: 'Construtora especializada em obras de grande porte. Construímos o futuro com qualidade, segurança e inovação.',
+    logo: '/logos/construtora-horizonte.svg',
+    website: 'https://construtorahorizonte.com.br',
+    email: 'contato@construtorahorizonte.com.br',
+    phone: '(92) 3234-5683',
+    location: 'Manaus, AM',
+    industry: 'Construção',
+    size: '51-200 funcionários',
+    founded: '2012',
+    rating: 4.4,
+    totalReviews: 19,
+    activeJobs: 6
+  }
+};
+
+// Mock data padrão - substituir por dados reais do Supabase
+const defaultCompany = {
   id: '1',
   name: 'TechSolutions',
   description: 'Somos uma empresa de tecnologia focada em soluções inovadoras para o mercado brasileiro. Com mais de 10 anos de experiência, desenvolvemos softwares de alta qualidade e oferecemos oportunidades de crescimento profissional.',
-  logo: null,
+  logo: '/logos/techsolutions.svg',
   website: 'https://techsolutions.com.br',
   email: 'contato@techsolutions.com.br',
   phone: '(92) 3234-5678',
@@ -102,7 +202,19 @@ const CompanyProfile = () => {
     queryFn: async () => {
       // Simular delay de API
       await new Promise(resolve => setTimeout(resolve, 500));
-      return mockCompany;
+      
+      // Buscar dados da empresa baseado no ID
+      if (id && companyDataMap[id]) {
+        return {
+          ...defaultCompany,
+          ...companyDataMap[id],
+          socialMedia: defaultCompany.socialMedia,
+          benefits: defaultCompany.benefits,
+          values: defaultCompany.values
+        };
+      }
+      
+      return defaultCompany;
     }
   });
 

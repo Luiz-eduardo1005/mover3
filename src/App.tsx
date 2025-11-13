@@ -34,6 +34,7 @@ import Applications from "./pages/Applications";
 import Messages from "./pages/Messages";
 import CompanyProfile from "./pages/CompanyProfile";
 import JobDetails from "./pages/JobDetails";
+import Companies from "./pages/Companies";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/courses" element={<Courses />} />
               <Route path="/applications" element={<Applications />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/companies" element={<Companies />} />
               <Route path="/company/:id" element={<CompanyProfile />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
               <Route path="/loading" element={<LoadingPage />} />

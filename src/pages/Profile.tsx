@@ -168,40 +168,40 @@ const Profile = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-grow bg-gray-50 py-6 sm:py-8 md:py-10">
+      <main className="flex-grow bg-gray-50 dark:bg-gray-900 py-6 sm:py-8 md:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Profile Summary */}
             <div className="space-y-4 sm:space-y-6">
               {/* Profile Card */}
-              <Card>
+              <Card className="bg-white dark:bg-gray-800">
                 <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6 flex flex-col items-center text-center">
                   <div className="relative">
                     <Avatar className="h-20 w-20 sm:h-24 sm:w-24">
                       <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
-                      <AvatarFallback className="text-xl sm:text-2xl">{initials}</AvatarFallback>
+                      <AvatarFallback className="text-xl sm:text-2xl bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">{initials}</AvatarFallback>
                     </Avatar>
-                    <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white">
+                    <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                   
-                  <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold text-gray-900">{displayName}</h2>
+                  <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{displayName}</h2>
                   {profile?.profession && (
-                    <p className="text-sm sm:text-base text-gray-500 flex items-center justify-center gap-1 mt-1">
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1 mt-1">
                       <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" /> {profile.profession}
                     </p>
                   )}
                   {profile?.location && (
-                    <p className="text-sm sm:text-base text-gray-500 flex items-center justify-center gap-1 mt-1">
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1 mt-1">
                       <MapPin className="h-3 w-3 sm:h-4 sm:w-4" /> {profile.location}
                     </p>
                   )}
                   
                   <div className="mt-4 sm:mt-6 w-full">
                     <div className="flex justify-between text-xs sm:text-sm mb-1">
-                      <span className="font-medium">Perfil completo</span>
-                      <span className="text-gray-500">{profileProgress}%</span>
+                      <span className="font-medium text-gray-900 dark:text-white">Perfil completo</span>
+                      <span className="text-gray-500 dark:text-gray-400">{profileProgress}%</span>
                     </div>
                     <Progress value={profileProgress} className="h-2" />
                   </div>
@@ -220,25 +220,25 @@ const Profile = () => {
               </Card>
               
               {/* Contact Info */}
-              <Card>
+              <Card className="bg-white dark:bg-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-lg">Informações de contato</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-white">Informações de contato</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center">
-                    <Mail className="h-4 w-4 mr-3 text-gray-500" />
-                    <span>{user?.email || 'Não informado'}</span>
+                    <Mail className="h-4 w-4 mr-3 text-gray-500 dark:text-gray-400" />
+                    <span className="text-gray-900 dark:text-white">{user?.email || 'Não informado'}</span>
                   </div>
                   {profile?.phone && (
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-3 text-gray-500" />
-                      <span>{profile.phone}</span>
+                      <Phone className="h-4 w-4 mr-3 text-gray-500 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{profile.phone}</span>
                     </div>
                   )}
                   {profile?.location && (
                     <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-3 text-gray-500" />
-                      <span>{profile.location}</span>
+                      <MapPin className="h-4 w-4 mr-3 text-gray-500 dark:text-gray-400" />
+                      <span className="text-gray-900 dark:text-white">{profile.location}</span>
                     </div>
                   )}
                 </CardContent>
@@ -246,9 +246,9 @@ const Profile = () => {
               
               {/* Skills */}
               {profile?.skills && profile.skills.length > 0 && (
-                <Card>
+                <Card className="bg-white dark:bg-gray-800">
                   <CardHeader>
-                    <CardTitle className="text-lg">Habilidades</CardTitle>
+                    <CardTitle className="text-lg text-gray-900 dark:text-white">Habilidades</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
@@ -263,25 +263,25 @@ const Profile = () => {
               )}
               
               {/* Privacy Settings */}
-              <Card>
+              <Card className="bg-white dark:bg-gray-800">
                 <CardHeader>
-                  <CardTitle className="text-lg">Privacidade</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-white">Privacidade</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="profile-public" className="flex-1">
+                    <Label htmlFor="profile-public" className="flex-1 text-gray-900 dark:text-white">
                       Perfil visível para recrutadores
                     </Label>
                     <Switch id="profile-public" checked />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="resume-searchable" className="flex-1">
+                    <Label htmlFor="resume-searchable" className="flex-1 text-gray-900 dark:text-white">
                       Currículo pesquisável
                     </Label>
                     <Switch id="resume-searchable" checked />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="job-alerts" className="flex-1">
+                    <Label htmlFor="job-alerts" className="flex-1 text-gray-900 dark:text-white">
                       Receber alertas de vagas
                     </Label>
                     <Switch id="job-alerts" checked />
@@ -304,9 +304,9 @@ const Profile = () => {
                 <TabsContent value="resume">
                   <div className="space-y-4 sm:space-y-6">
                     {/* Summary */}
-                    <Card>
+                    <Card className="bg-white dark:bg-gray-800">
                       <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                        <CardTitle className="text-base sm:text-lg flex items-center justify-between">
+                        <CardTitle className="text-base sm:text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Resumo profissional</span>
                           <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8">
                             <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -314,7 +314,7 @@ const Profile = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                        <p className="text-sm sm:text-base text-gray-700">
+                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                           Desenvolvedora Full Stack com mais de 3 anos de experiência em desenvolvimento de aplicações web.
                           Especialista em React, Node.js e bancos de dados SQL. Apaixonada por criar interfaces intuitivas
                           e desenvolver soluções eficientes. Comprometida com aprendizado contínuo e melhoria de habilidades técnicas.
@@ -323,9 +323,9 @@ const Profile = () => {
                     </Card>
                     
                     {/* Experience */}
-                    <Card>
+                    <Card className="bg-white dark:bg-gray-800">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Experiência profissional</span>
                           <Button size="icon" variant="ghost" className="h-8 w-8">
                             <Plus className="h-4 w-4" />
@@ -338,10 +338,10 @@ const Profile = () => {
                             <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-8 w-8">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <h3 className="text-lg font-medium">{job.role}</h3>
-                            <p className="text-gray-600">{job.company}</p>
-                            <p className="text-gray-500 text-sm mb-2">{job.period}</p>
-                            <p className="text-gray-700">{job.description}</p>
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{job.role}</h3>
+                            <p className="text-gray-600 dark:text-gray-400">{job.company}</p>
+                            <p className="text-gray-500 dark:text-gray-500 text-sm mb-2">{job.period}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{job.description}</p>
                             {index < experience.length - 1 && <Separator className="mt-4" />}
                           </div>
                         ))}
@@ -349,9 +349,9 @@ const Profile = () => {
                     </Card>
                     
                     {/* Education */}
-                    <Card>
+                    <Card className="bg-white dark:bg-gray-800">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Educação</span>
                           <Button size="icon" variant="ghost" className="h-8 w-8">
                             <Plus className="h-4 w-4" />
@@ -364,9 +364,9 @@ const Profile = () => {
                             <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-8 w-8">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <h3 className="text-lg font-medium">{edu.degree}</h3>
-                            <p className="text-gray-600">{edu.institution}</p>
-                            <p className="text-gray-500 text-sm">{edu.period}</p>
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{edu.degree}</h3>
+                            <p className="text-gray-600 dark:text-gray-400">{edu.institution}</p>
+                            <p className="text-gray-500 dark:text-gray-500 text-sm">{edu.period}</p>
                             {index < education.length - 1 && <Separator className="mt-4" />}
                           </div>
                         ))}
@@ -374,9 +374,9 @@ const Profile = () => {
                     </Card>
                     
                     {/* Languages */}
-                    <Card>
+                    <Card className="bg-white dark:bg-gray-800">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Idiomas</span>
                           <Button size="icon" variant="ghost" className="h-8 w-8">
                             <Plus className="h-4 w-4" />
@@ -386,33 +386,33 @@ const Profile = () => {
                       <CardContent>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">Português</span>
-                            <span>Nativo</span>
+                            <span className="font-medium text-gray-900 dark:text-white">Português</span>
+                            <span className="text-gray-600 dark:text-gray-400">Nativo</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">Inglês</span>
-                            <span>Fluente</span>
+                            <span className="font-medium text-gray-900 dark:text-white">Inglês</span>
+                            <span className="text-gray-600 dark:text-gray-400">Fluente</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">Espanhol</span>
-                            <span>Intermediário</span>
+                            <span className="font-medium text-gray-900 dark:text-white">Espanhol</span>
+                            <span className="text-gray-600 dark:text-gray-400">Intermediário</span>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                     
                     {/* Additional Documents */}
-                    <Card>
+                    <Card className="bg-white dark:bg-gray-800">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">Documentos adicionais</CardTitle>
+                        <CardTitle className="text-lg text-gray-900 dark:text-white">Documentos adicionais</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between p-3 border rounded-md mb-3">
+                        <div className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-md mb-3 bg-gray-50 dark:bg-gray-700/50">
                           <div className="flex items-center">
-                            <FileText className="h-5 w-5 mr-3 text-gray-500" />
+                            <FileText className="h-5 w-5 mr-3 text-gray-500 dark:text-gray-400" />
                             <div>
-                              <p className="font-medium">Currículo_MariaC.pdf</p>
-                              <p className="text-sm text-gray-500">Adicionado em 12/04/2023</p>
+                              <p className="font-medium text-gray-900 dark:text-white">Currículo_MariaC.pdf</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Adicionado em 12/04/2023</p>
                             </div>
                           </div>
                           <Button variant="ghost" size="sm">
@@ -430,26 +430,26 @@ const Profile = () => {
                 
                 {/* Saved Jobs Tab */}
                 <TabsContent value="saved">
-                  <Card>
+                  <Card className="bg-white dark:bg-gray-800">
                     <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
-                      <CardTitle className="text-base sm:text-lg">Vagas salvas</CardTitle>
-                      <CardDescription className="text-sm">
+                      <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">Vagas salvas</CardTitle>
+                      <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
                         Gerencie as vagas que você salvou para se candidatar mais tarde
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
                       <div className="space-y-3 sm:space-y-4">
                         {savedJobs.map(job => (
-                          <div key={job.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 border rounded-md hover:bg-gray-50 transition-colors">
+                          <div key={job.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 border dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors bg-white dark:bg-gray-800">
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-base sm:text-lg">{job.title}</h3>
-                              <p className="text-sm sm:text-base text-gray-600">{job.company}</p>
-                              <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 mt-1">
+                              <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">{job.title}</h3>
+                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{job.company}</p>
+                              <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 <div className="flex items-center">
                                   <MapPin className="h-3 w-3 mr-1" />
                                   <span>{job.location}</span>
                                 </div>
-                                <span className="hidden sm:inline mx-2 text-gray-400">•</span>
+                                <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                                 <span>{job.date}</span>
                               </div>
                             </div>
@@ -472,59 +472,59 @@ const Profile = () => {
                 
                 {/* Applications Tab */}
                 <TabsContent value="applications">
-                  <Card>
+                  <Card className="bg-white dark:bg-gray-800">
                     <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
-                      <CardTitle className="text-base sm:text-lg">Candidaturas</CardTitle>
-                      <CardDescription className="text-sm">
+                      <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">Candidaturas</CardTitle>
+                      <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
                         Acompanhe o status de todas as suas candidaturas
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y">
-                        <div className="p-3 sm:p-4">
+                      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg">Desenvolvedor Full Stack</h3>
+                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Desenvolvedor Full Stack</h3>
                             <Badge className="text-xs">Em análise</Badge>
                           </div>
-                          <p className="text-sm sm:text-base text-gray-600">TechSolutions</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 mt-1">
+                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">TechSolutions</p>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
                               <MapPin className="h-3 w-3 mr-1" />
                               <span>Manaus, AM</span>
                             </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400">•</span>
+                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 5 dias</span>
                           </div>
                         </div>
                         
-                        <div className="p-3 sm:p-4">
+                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg">Front-end Developer</h3>
+                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Front-end Developer</h3>
                             <Badge variant="outline" className="text-xs">Visualizado</Badge>
                           </div>
-                          <p className="text-sm sm:text-base text-gray-600">WebInnovate</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 mt-1">
+                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">WebInnovate</p>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
                               <MapPin className="h-3 w-3 mr-1" />
                               <span>Remoto</span>
                             </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400">•</span>
+                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 1 semana</span>
                           </div>
                         </div>
                         
-                        <div className="p-3 sm:p-4">
+                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg">Desenvolvedor React</h3>
+                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Desenvolvedor React</h3>
                             <Badge variant="destructive" className="text-xs">Encerrada</Badge>
                           </div>
-                          <p className="text-sm sm:text-base text-gray-600">Digital Solutions</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 mt-1">
+                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Digital Solutions</p>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
                               <MapPin className="h-3 w-3 mr-1" />
                               <span>Manaus, AM</span>
                             </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400">•</span>
+                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 2 semanas</span>
                           </div>
                         </div>

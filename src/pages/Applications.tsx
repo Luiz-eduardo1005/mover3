@@ -72,8 +72,9 @@ const Applications = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Só redirecionar se realmente não houver usuário após o loading terminar
     if (!loading && !user) {
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -81,6 +82,11 @@ const Applications = () => {
   // Se o usuário existe mas o perfil não, ainda assim mostrar a página
   if (loading && !user) {
     return <LoadingPage />;
+  }
+
+  // Se não há usuário após loading, não renderizar nada (será redirecionado)
+  if (!user) {
+    return null;
   }
 
   // Buscar candidaturas do usuário
@@ -182,7 +188,7 @@ const Applications = () => {
     const currentIndex = statusOrder.indexOf(application.status);
     
     return (
-      <Card className="mb-4 hover:shadow-md transition-shadow">
+      <Card className="mb-4 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex-1">
@@ -191,7 +197,7 @@ const Applications = () => {
                   <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-1">
                     {application.job?.title || 'Vaga'}
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                     {application.job?.company_name || 'Empresa'}
                   </p>
                 </div>
@@ -303,7 +309,7 @@ const Applications = () => {
 
           {/* Estatísticas */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 sm:mb-8">
-            <Card>
+            <Card className="bg-white dark:bg-gray-800">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {groupedApplications.all.length}
@@ -311,7 +317,7 @@ const Applications = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Total</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white dark:bg-gray-800">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {groupedApplications.pending.length}
@@ -319,7 +325,7 @@ const Applications = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pendentes</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white dark:bg-gray-800">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                   {groupedApplications.active.length}
@@ -327,7 +333,7 @@ const Applications = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Em andamento</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white dark:bg-gray-800">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {groupedApplications.completed.filter(app => app.status === 'accepted').length}
@@ -360,9 +366,9 @@ const Applications = () => {
                   <ApplicationCard key={app.id} application={app} />
                 ))
               ) : (
-                <Card>
+                <Card className="bg-white dark:bg-gray-800">
                   <CardContent className="p-12 text-center">
-                    <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <Briefcase className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                       Nenhuma candidatura encontrada
                     </h3>

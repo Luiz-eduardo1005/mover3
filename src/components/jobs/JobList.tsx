@@ -129,14 +129,14 @@ const JobList = () => {
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
                         <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
-                      </div>
+                  </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
                           <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white truncate">{job.title}</h3>
-                          {job.featured && (
+                      {job.featured && (
                             <Badge className="w-fit bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 hover:bg-brand-200 dark:hover:bg-brand-800 text-xs sm:text-sm">Destaque</Badge>
-                          )}
-                        </div>
+                      )}
+                    </div>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1">{job.company}</p>
                         <div className="mt-2 flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center">
@@ -146,19 +146,19 @@ const JobList = () => {
                           <span className="hidden sm:inline mx-2">•</span>
                           <div className="flex items-center">
                             <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-                            <span>{job.type}</span>
-                          </div>
-                        </div>
-                      </div>
+                      <span>{job.type}</span>
                     </div>
+                  </div>
+                </div>
+              </div>
                   </div>
                   <div className="mt-2 sm:mt-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 border-t sm:border-t-0 dark:border-gray-700 pt-3 sm:pt-0">
                     <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">{job.salary}</span>
                     <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{job.posted}</span>
-                  </div>
-                </div>
               </div>
-            </Link>
+            </div>
+          </div>
+        </Link>
             {user && (
               <Button
                 variant="ghost"

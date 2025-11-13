@@ -76,6 +76,7 @@ const Header = () => {
             <nav className="hidden md:ml-8 md:flex md:space-x-8" role="navigation" aria-label="Menu principal">
               <Link to="/" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
               <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
+              <Link to="/companies" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver empresas">Empresas</Link>
               <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
               <Link to="/courses" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
               <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
@@ -354,6 +355,13 @@ const Header = () => {
                     className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Vagas
+                  </Link>
+                  <Link 
+                    to="/companies" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
+                  >
+                    Empresas
                   </Link>
                   <Link 
                     to="/advertise" 

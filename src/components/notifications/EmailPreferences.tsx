@@ -70,13 +70,13 @@ const EmailPreferencesComponent = () => {
   ];
 
   return (
-    <Card>
+    <Card className="bg-white dark:bg-gray-800">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Mail className="h-5 w-5 text-brand-600" />
-          <CardTitle>Preferências de Email</CardTitle>
+          <Mail className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+          <CardTitle className="text-gray-900 dark:text-white">Preferências de Email</CardTitle>
         </div>
-        <CardDescription>
+        <CardDescription className="text-gray-600 dark:text-gray-400">
           Escolha quais tipos de notificações você deseja receber por email
         </CardDescription>
       </CardHeader>
@@ -84,11 +84,11 @@ const EmailPreferencesComponent = () => {
         {preferencesConfig.map((config) => {
           const Icon = config.icon;
           return (
-            <div key={config.key} className="flex items-start justify-between gap-4 p-4 border rounded-lg">
+            <div key={config.key} className="flex items-start justify-between gap-4 p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon className="h-4 w-4 text-gray-500" />
-                  <Label htmlFor={config.key} className="font-medium cursor-pointer">
+                  <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <Label htmlFor={config.key} className="font-medium cursor-pointer text-gray-900 dark:text-white">
                     {config.label}
                   </Label>
                 </div>
@@ -105,7 +105,7 @@ const EmailPreferencesComponent = () => {
           );
         })}
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end pt-4 border-t dark:border-gray-700">
           <Button onClick={handleSave} className="bg-brand-500 hover:bg-brand-600">
             Salvar preferências
           </Button>

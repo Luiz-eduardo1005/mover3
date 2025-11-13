@@ -113,12 +113,35 @@ const Index = () => {
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 flex items-center justify-center h-20 sm:h-24 shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="w-full h-full bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-sm">Logo</span>
+              {[
+                { id: 'techsolutions', name: 'TechSolutions', logo: '/logos/techsolutions.svg' },
+                { id: 'empresa-inovadora', name: 'Empresa Inovadora', logo: '/logos/empresa-inovadora.svg' },
+                { id: 'vendamais', name: 'VendaMais', logo: '/logos/vendamais.svg' },
+                { id: 'adminpro', name: 'AdminPro', logo: '/logos/adminpro.svg' },
+                { id: 'hospital-central', name: 'Hospital Central', logo: '/logos/hospital-central.svg' },
+                { id: 'construtora-horizonte', name: 'Construtora Horizonte', logo: '/logos/construtora-horizonte.svg' }
+              ].map((company) => (
+                <Link 
+                  key={company.id} 
+                  to={`/company/${company.id}`}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 flex items-center justify-center h-20 sm:h-24 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <div className="w-full h-full rounded flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={company.logo} 
+                      alt={`${company.name} logo`}
+                      className="w-full h-full object-contain p-1"
+                      onError={(e) => {
+                        // Se a imagem não carregar, mostrar placeholder
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        if (target.parentElement) {
+                          target.parentElement.innerHTML = `<span class="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-sm">${company.name}</span>`;
+                        }
+                      }}
+                    />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
