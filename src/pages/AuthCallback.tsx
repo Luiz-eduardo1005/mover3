@@ -75,83 +75,45 @@ const AuthCallback = () => {
         }
 
         if (session?.user) {
-          console.log('✅ Sessão recebida com sucesso!');
-          console.log('💾 Verificando se sessão foi salva no localStorage...');
+          console.log('✅ Sessão recebida com sucesso!', session.user.email);
           
-          // Verificar se a sessão foi salva corretamente
-          // O Supabase salva com a chave padrão baseada na URL
-          const supabaseProjectId = SUPABASE_URL.split('//')[1].split('.')[0];
-          const sessionKey = `sb-${supabaseProjectId}-auth-token`;
-          const savedSession = localStorage.getItem(sessionKey);
-          
-          if (savedSession) {
-            console.log('✅ Sessão salva no localStorage');
-          } else {
-            console.warn('⚠️ Sessão não encontrada no localStorage, forçando salvamento...');
-            // Forçar salvamento da sessão usando setSession
-            const { error: setSessionError } = await supabase.auth.setSession({
-              access_token: session.access_token,
-              refresh_token: session.refresh_token,
-            });
-            
-            if (setSessionError) {
-              console.error('❌ Erro ao salvar sessão:', setSessionError);
-            } else {
-              console.log('✅ Sessão salva com sucesso!');
-            }
-          }
-          
-          // Verificar se o perfil já existe
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          // Se não existe perfil, criar um
-          if (!profile && profileError?.code === 'PGRST116') {
-            const profileData = {
-              id: session.user.id,
-              email: session.user.email || '',
-              full_name: session.user.user_metadata?.full_name || 
-                        session.user.user_metadata?.name || 
-                        '',
-              avatar_url: session.user.user_metadata?.avatar_url || 
-                        session.user.user_metadata?.picture || 
-                        '',
-              user_type: 'candidate', // Padrão para login via Google
-            };
-
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert(profileData);
-            
-            if (insertError) {
-              console.error('Erro ao criar perfil:', insertError);
-            }
-          }
-
-          // Limpar o hash da URL após processar
+          // Limpar o hash da URL imediatamente
           if (window.location.hash) {
             window.history.replaceState({}, document.title, window.location.pathname);
           }
           
-          // Aguardar um pouco para garantir que tudo foi salvo
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Verificar novamente se a sessão foi salva
-          const { data: { session: verifySession } } = await supabase.auth.getSession();
-          if (verifySession) {
-            console.log('✅ Sessão verificada e confirmada após salvamento!');
-          } else {
-            console.warn('⚠️ Sessão não encontrada após salvamento, forçando novamente...');
-            // Forçar salvamento mais uma vez
-            await supabase.auth.setSession({
-              access_token: session.access_token,
-              refresh_token: session.refresh_token,
+          // Verificar se o perfil já existe (sem bloquear)
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data: profile, error: profileError }) => {
+              // Se não existe perfil, criar um (em background, não bloqueia)
+              if (!profile && profileError?.code === 'PGRST116') {
+                const profileData = {
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  full_name: session.user.user_metadata?.full_name || 
+                            session.user.user_metadata?.name || 
+                            '',
+                  avatar_url: session.user.user_metadata?.avatar_url || 
+                            session.user.user_metadata?.picture || 
+                            '',
+                  user_type: 'candidate',
+                };
+
+                supabase
+                  .from('profiles')
+                  .insert(profileData)
+                  .catch(err => console.error('Erro ao criar perfil:', err));
+              }
+            })
+            .catch(() => {
+              // Ignorar erros de perfil, não bloqueia o login
             });
-          }
           
+          // Redirecionar imediatamente - não esperar
           if (mounted) {
             setProcessing(false);
             navigate('/profile', { replace: true });
