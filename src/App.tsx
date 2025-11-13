@@ -15,6 +15,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CookieConsent from "@/components/CookieConsent";
 import Index from "./pages/Index";
@@ -29,36 +30,44 @@ import CurriculumRegistration from "./pages/CurriculumRegistration";
 import Courses from "./pages/Courses";
 import LoadingPage from "./pages/LoadingPage";
 import AuthCallback from "./pages/AuthCallback";
+import Applications from "./pages/Applications";
+import Messages from "./pages/Messages";
+import CompanyProfile from "./pages/CompanyProfile";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/advertise" element={<Advertise />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/curriculum" element={<CurriculumRegistration />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/loading" element={<LoadingPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <CookieConsent />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/advertise" element={<Advertise />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/curriculum" element={<CurriculumRegistration />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/company/:id" element={<CompanyProfile />} />
+              <Route path="/loading" element={<LoadingPage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <CookieConsent />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

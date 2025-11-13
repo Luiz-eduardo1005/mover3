@@ -29,15 +29,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Search, User, Briefcase, List, FileText, BookOpen, AlertCircle, LogOut, Settings, Menu, X } from 'lucide-react';
+import { Search, User, Briefcase, List, FileText, BookOpen, AlertCircle, LogOut, Settings, Menu, X, Moon, Sun, MessageSquare } from 'lucide-react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from 'next-themes';
 
 const Header = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const handleSignOut = async () => {
     await signOut();
@@ -55,24 +57,35 @@ const Header = () => {
         <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse flex-shrink-0" aria-hidden="true" />
       </div>
       
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center" aria-label="MOVER - Página inicial">
-              <Briefcase className="h-8 w-8 text-brand-600" aria-hidden="true" />
-              <span className="ml-2 text-xl font-bold text-gray-900 font-heading">MOVER</span>
+              <Briefcase className="h-8 w-8 text-brand-600 dark:text-brand-400" aria-hidden="true" />
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white font-heading">MOVER</span>
             </Link>
             <nav className="hidden md:ml-8 md:flex md:space-x-8" role="navigation" aria-label="Menu principal">
-              <Link to="/" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
-              <Link to="/jobs" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
-              <Link to="/advertise" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
-              <Link to="/courses" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
-              <Link to="/curriculum" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
-              <Link to="/about" className="text-gray-900 hover:text-brand-600 px-3 py-2 text-sm font-medium" aria-label="Sobre a plataforma MOVER">Sobre</Link>
+              <Link to="/" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
+              <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
+              <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
+              <Link to="/courses" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
+              <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
+              <Link to="/about" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Sobre a plataforma MOVER">Sobre</Link>
             </nav>
           </div>
           <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="h-9 w-9 relative"
+              aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Alternar tema</span>
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -108,6 +121,20 @@ const Header = () => {
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
+                    onSelect={() => navigate('/applications')}
+                    className="cursor-pointer"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Minhas Candidaturas</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onSelect={() => navigate('/messages')}
+                    className="cursor-pointer"
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Mensagens</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
                     onSelect={() => navigate('/profile')}
                     className="cursor-pointer"
                   >
@@ -141,6 +168,17 @@ const Header = () => {
             )}
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="h-9 w-9 relative"
+              aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Alternar tema</span>
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -177,6 +215,26 @@ const Header = () => {
                   >
                     <User className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onSelect={() => {
+                      navigate('/applications');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Minhas Candidaturas</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onSelect={() => {
+                      navigate('/messages');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Mensagens</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onSelect={() => {
@@ -234,42 +292,42 @@ const Header = () => {
                   <Link 
                     to="/" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Início
                   </Link>
                   <Link 
                     to="/jobs" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Vagas
                   </Link>
                   <Link 
                     to="/advertise" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Anuncie
                   </Link>
                   <Link 
                     to="/courses" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Cursos
                   </Link>
                   <Link 
                     to="/curriculum" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Cadastrar Currículo
                   </Link>
                   <Link 
                     to="/about" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-900 hover:text-brand-600 py-2 border-b border-gray-100"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
                   >
                     Sobre
                   </Link>

@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import LoadingPage from './LoadingPage';
+import EmailPreferencesComponent from '@/components/notifications/EmailPreferences';
 
 const Profile = () => {
   const { user, profile, loading } = useAuth();
@@ -287,10 +288,11 @@ const Profile = () => {
             {/* Right Column - Details */}
             <div className="lg:col-span-2">
               <Tabs defaultValue="resume" className="w-full">
-                <TabsList className="grid grid-cols-3 w-full mb-4 sm:mb-6 h-auto">
+                <TabsList className="grid grid-cols-4 w-full mb-4 sm:mb-6 h-auto">
                   <TabsTrigger value="resume" className="text-xs sm:text-sm py-2 sm:py-3">Currículo</TabsTrigger>
                   <TabsTrigger value="saved" className="text-xs sm:text-sm py-2 sm:py-3">Vagas salvas</TabsTrigger>
                   <TabsTrigger value="applications" className="text-xs sm:text-sm py-2 sm:py-3">Candidaturas</TabsTrigger>
+                  <TabsTrigger value="settings" className="text-xs sm:text-sm py-2 sm:py-3">Configurações</TabsTrigger>
                 </TabsList>
                 
                 {/* Resume Tab */}
@@ -522,6 +524,13 @@ const Profile = () => {
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+                
+                {/* Settings Tab */}
+                <TabsContent value="settings">
+                  <div className="space-y-6">
+                    <EmailPreferencesComponent />
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

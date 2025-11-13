@@ -1,8 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Clock } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Briefcase, MapPin, Clock, Bookmark, BookmarkCheck } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 // Mock data for job listings
 const jobListings = [
@@ -69,47 +73,110 @@ const jobListings = [
 ];
 
 const JobList = () => {
+  const { user } = useAuth();
+  const [savedJobs, setSavedJobs] = useState<number[]>([]);
+
+  // Carregar vagas salvas do usuário
+  React.useEffect(() => {
+    if (user?.id) {
+      // TODO: Buscar do Supabase quando tabela estiver criada
+      // Por enquanto usar localStorage
+      const saved = JSON.parse(localStorage.getItem(`saved_jobs_${user.id}`) || '[]');
+      setSavedJobs(saved);
+    }
+  }, [user?.id]);
+
+  const handleSaveJob = async (e: React.MouseEvent, jobId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error('Faça login para salvar vagas');
+      return;
+    }
+
+    const isSaved = savedJobs.includes(jobId);
+    
+    if (isSaved) {
+      // Remover
+      const newSaved = savedJobs.filter(id => id !== jobId);
+      setSavedJobs(newSaved);
+      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
+      
+      // TODO: Remover do Supabase
+      toast.success('Vaga removida das salvas');
+    } else {
+      // Salvar
+      const newSaved = [...savedJobs, jobId];
+      setSavedJobs(newSaved);
+      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
+      
+      // TODO: Salvar no Supabase
+      toast.success('Vaga salva com sucesso!');
+    }
+  };
+
   return (
     <div className="space-y-3 sm:space-y-4">
-      {jobListings.map((job) => (
-        <Link to={`/jobs/${job.id}`} key={job.id} className="block">
-          <div className={`bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow border-l-4 ${job.featured ? 'border-brand-500' : 'border-transparent'}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                    <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
-                  </div>
+      {jobListings.map((job) => {
+        const isSaved = savedJobs.includes(job.id);
+        return (
+          <div key={job.id} className="relative group">
+            <Link to={`/jobs/${job.id}`} className="block">
+              <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow border-l-4 ${job.featured ? 'border-brand-500' : 'border-transparent'}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
-                      <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">{job.title}</h3>
-                      {job.featured && (
-                        <Badge className="w-fit bg-brand-100 text-brand-800 hover:bg-brand-200 text-xs sm:text-sm">Destaque</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm sm:text-base text-gray-600 mt-1">{job.company}</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-                        <span className="truncate">{job.location}</span>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                       </div>
-                      <span className="hidden sm:inline mx-2">•</span>
-                      <div className="flex items-center">
-                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-                        <span>{job.type}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                          <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white truncate">{job.title}</h3>
+                          {job.featured && (
+                            <Badge className="w-fit bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 hover:bg-brand-200 dark:hover:bg-brand-800 text-xs sm:text-sm">Destaque</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1">{job.company}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center">
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{job.location}</span>
+                          </div>
+                          <span className="hidden sm:inline mx-2">•</span>
+                          <div className="flex items-center">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span>{job.type}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                  <div className="mt-2 sm:mt-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 border-t sm:border-t-0 dark:border-gray-700 pt-3 sm:pt-0">
+                    <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">{job.salary}</span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{job.posted}</span>
                   </div>
                 </div>
               </div>
-              <div className="mt-2 sm:mt-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 border-t sm:border-t-0 pt-3 sm:pt-0">
-                <span className="text-base sm:text-lg font-medium text-gray-900">{job.salary}</span>
-                <span className="text-xs sm:text-sm text-gray-500">{job.posted}</span>
-              </div>
-            </div>
+            </Link>
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => handleSaveJob(e, job.id)}
+                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-800 shadow-md hover:shadow-lg"
+                aria-label={isSaved ? 'Remover das salvas' : 'Salvar vaga'}
+              >
+                {isSaved ? (
+                  <BookmarkCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                ) : (
+                  <Bookmark className="h-5 w-5 text-gray-400" />
+                )}
+              </Button>
+            )}
           </div>
-        </Link>
-      ))}
+        );
+      })}
     </div>
   );
 };
