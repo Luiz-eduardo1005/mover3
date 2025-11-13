@@ -22,11 +22,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   MessageSquare, Send, Search, User, Building2, 
-  Clock, Check, CheckCheck 
+  Clock, Check, CheckCheck, ArrowLeft 
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingPage from './LoadingPage';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Mock data - substituir por dados reais do Supabase
 const mockConversations = [
@@ -187,9 +186,9 @@ const Messages = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-200px)] sm:h-[calc(100vh-250px)] lg:h-[calc(100vh-300px)]">
-            {/* Lista de conversas */}
-            <Card className="lg:col-span-1 flex flex-col bg-white dark:bg-gray-800">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+            {/* Lista de conversas - Mobile: ocultar quando conversa selecionada */}
+            <Card className={`lg:col-span-1 flex flex-col bg-white dark:bg-gray-800 ${selectedConversation && 'hidden lg:flex'}`}>
               <CardContent className="p-0 flex flex-col h-full">
                 {/* Busca */}
                 <div className="p-3 sm:p-4 border-b dark:border-gray-700">
@@ -205,8 +204,8 @@ const Messages = () => {
                 </div>
 
                 {/* Lista */}
-                <ScrollArea className="flex-1">
-                  <div className="p-2">
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-2 sm:p-3">
                     {filteredConversations.length > 0 ? (
                       filteredConversations.map((conversation) => {
                         const isSelected = selectedConversation === conversation.id;
@@ -215,55 +214,59 @@ const Messages = () => {
                         return (
                           <div
                             key={conversation.id}
-                            onClick={() => setSelectedConversation(conversation.id)}
-                            className={`p-2.5 sm:p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
+                            onClick={() => {
+                              setSelectedConversation(conversation.id);
+                            }}
+                            className={`p-3 sm:p-4 rounded-lg cursor-pointer transition-colors mb-2 active:scale-[0.98] ${
                               isSelected
                                 ? 'bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800'
-                                : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent'
                             }`}
                           >
-                            <div className="flex items-start gap-2 sm:gap-3">
-                              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                                 <AvatarImage src={conversation.participant.avatar || undefined} />
-                                <AvatarFallback className="text-xs">
+                                <AvatarFallback className="text-xs bg-gray-200 dark:bg-gray-700">
                                   {conversation.participant.type === 'company' ? (
-                                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-gray-400" />
                                   ) : (
-                                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <User className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-gray-400" />
                                   )}
                                 </AvatarFallback>
                               </Avatar>
                               
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-0.5 sm:mb-1 gap-2">
-                                  <p className={`text-xs sm:text-sm font-medium truncate ${
-                                    isUnread 
-                                      ? 'text-gray-900 dark:text-white' 
-                                      : 'text-gray-700 dark:text-gray-300'
-                                  }`}>
-                                    {conversation.participant.name}
-                                  </p>
-                                  {isUnread && (
-                                    <Badge className="bg-brand-500 text-white text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5 flex-shrink-0">
-                                      {conversation.unreadCount}
-                                    </Badge>
-                                  )}
+                                <div className="flex items-start justify-between mb-1 gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-sm sm:text-base font-semibold truncate ${
+                                      isUnread 
+                                        ? 'text-gray-900 dark:text-white' 
+                                        : 'text-gray-700 dark:text-gray-300'
+                                    }`}>
+                                      {conversation.participant.name}
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                      {conversation.jobTitle}
+                                    </p>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                    {isUnread && (
+                                      <Badge className="bg-brand-500 text-white text-xs h-5 px-2 flex-shrink-0">
+                                        {conversation.unreadCount}
+                                      </Badge>
+                                    )}
+                                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                                      {formatTime(conversation.lastMessage.timestamp)}
+                                    </span>
+                                  </div>
                                 </div>
-                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate mb-0.5 sm:mb-1">
-                                  {conversation.jobTitle}
+                                <p className={`text-sm truncate mt-1 ${
+                                  isUnread 
+                                    ? 'text-gray-900 dark:text-white font-medium' 
+                                    : 'text-gray-600 dark:text-gray-400'
+                                }`}>
+                                  {conversation.lastMessage.text}
                                 </p>
-                                <div className="flex items-center justify-between gap-2">
-                                  <p className={`text-[10px] sm:text-xs truncate flex-1 ${
-                                    isUnread 
-                                      ? 'text-gray-900 dark:text-white font-medium' 
-                                      : 'text-gray-500 dark:text-gray-400'
-                                  }`}>
-                                    {conversation.lastMessage.text}
-                                  </p>
-                                  <span className="text-[10px] sm:text-xs text-gray-400 flex-shrink-0">
-                                    {formatTime(conversation.lastMessage.timestamp)}
-                                  </span>
-                                </div>
                               </div>
                             </div>
                           </div>
@@ -272,34 +275,45 @@ const Messages = () => {
                     ) : (
                       <div className="p-8 text-center">
                         <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Nenhuma conversa encontrada
                         </p>
                       </div>
                     )}
                   </div>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Área de mensagens */}
-            <Card className="lg:col-span-2 flex flex-col bg-white dark:bg-gray-800">
+            {/* Área de mensagens - Mobile: mostrar quando conversa selecionada */}
+            <Card className={`lg:col-span-2 flex flex-col bg-white dark:bg-gray-800 ${!selectedConversation && 'hidden lg:flex'}`}>
               {selectedConv ? (
                 <>
                   {/* Header da conversa */}
-                  <div className="p-3 sm:p-4 border-b dark:border-gray-700 flex items-center gap-2 sm:gap-3">
-                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                  <div className="p-3 sm:p-4 border-b dark:border-gray-700 flex items-center gap-3">
+                    {/* Botão voltar - apenas mobile */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSelectedConversation(null);
+                      }}
+                      className="lg:hidden h-9 w-9 flex-shrink-0"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                       <AvatarImage src={selectedConv.participant.avatar || undefined} />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-xs bg-gray-200 dark:bg-gray-700">
                         {selectedConv.participant.type === 'company' ? (
-                          <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-gray-400" />
                         ) : (
-                          <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <User className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-gray-400" />
                         )}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                      <p className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white truncate">
                         {selectedConv.participant.name}
                       </p>
                       <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
@@ -309,8 +323,8 @@ const Messages = () => {
                   </div>
 
                   {/* Mensagens */}
-                  <ScrollArea className="flex-1 p-3 sm:p-4">
-                    <div className="space-y-3 sm:space-y-4">
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                       {messages.map((message) => {
                         const isOwn = message.senderId === user?.id;
                         return (
@@ -318,23 +332,23 @@ const Messages = () => {
                             key={message.id}
                             className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                           >
-                            <div className={`max-w-[75%] sm:max-w-[70%] md:max-w-[80%] rounded-lg p-2.5 sm:p-3 ${
+                            <div className={`max-w-[85%] sm:max-w-[75%] md:max-w-[70%] lg:max-w-[80%] rounded-2xl p-3 sm:p-4 ${
                               isOwn
-                                ? 'bg-brand-500 text-white'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                                ? 'bg-brand-500 text-white rounded-br-sm'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-sm'
                             }`}>
-                              <p className="text-xs sm:text-sm break-words">{message.text}</p>
-                              <div className="flex items-center justify-end gap-1 mt-1">
-                                <span className={`text-[10px] sm:text-xs ${
+                              <p className="text-sm sm:text-base break-words leading-relaxed">{message.text}</p>
+                              <div className="flex items-center justify-end gap-1.5 mt-2">
+                                <span className={`text-xs ${
                                   isOwn ? 'text-brand-100' : 'text-gray-500 dark:text-gray-400'
                                 }`}>
                                   {formatTime(message.timestamp)}
                                 </span>
                                 {isOwn && (
                                   message.read ? (
-                                    <CheckCheck className="h-3 w-3 text-brand-100" />
+                                    <CheckCheck className="h-3.5 w-3.5 text-brand-100" />
                                   ) : (
-                                    <Check className="h-3 w-3 text-brand-100" />
+                                    <Check className="h-3.5 w-3.5 text-brand-100" />
                                   )
                                 )}
                               </div>
@@ -343,11 +357,11 @@ const Messages = () => {
                         );
                       })}
                     </div>
-                  </ScrollArea>
+                  </div>
 
                   {/* Input de mensagem */}
-                  <div className="p-3 sm:p-4 border-t dark:border-gray-700">
-                    <div className="flex gap-2">
+                  <div className="p-3 sm:p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div className="flex gap-2 items-end">
                       <Input
                         placeholder="Digite sua mensagem..."
                         value={messageText}
@@ -358,26 +372,26 @@ const Messages = () => {
                             handleSendMessage();
                           }
                         }}
-                        className="flex-1 dark:bg-gray-800 text-sm sm:text-base h-9 sm:h-10"
+                        className="flex-1 dark:bg-gray-700 text-sm sm:text-base h-11 sm:h-12 rounded-full px-4"
                       />
                       <Button
                         onClick={handleSendMessage}
                         disabled={!messageText.trim()}
-                        className="bg-brand-500 hover:bg-brand-600 h-9 w-9 sm:h-10 sm:w-10 p-0"
+                        className="bg-brand-500 hover:bg-brand-600 h-11 w-11 sm:h-12 sm:w-12 p-0 rounded-full flex-shrink-0 disabled:opacity-50"
                       >
-                        <Send className="h-4 w-4" />
+                        <Send className="h-5 w-5" />
                       </Button>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
+                <div className="flex-1 flex items-center justify-center p-6 sm:p-8 min-h-[400px]">
                   <div className="text-center">
-                    <MessageSquare className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    <MessageSquare className="h-16 w-16 sm:h-20 sm:w-20 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
                       Selecione uma conversa
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 px-4">
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4 max-w-md">
                       Escolha uma conversa da lista para começar a trocar mensagens
                     </p>
                   </div>
