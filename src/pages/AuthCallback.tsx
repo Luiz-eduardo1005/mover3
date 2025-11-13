@@ -23,11 +23,16 @@ const AuthCallback = () => {
 
     const handleAuthCallback = async () => {
       try {
+        console.log('🔄 Processando callback de autenticação...');
+        console.log('📍 URL atual:', window.location.href);
+        
         // Aguardar um pouco para garantir que o Supabase processe o hash
         await new Promise(resolve => setTimeout(resolve, 200));
 
         // Processar o hash da URL para obter a sessão
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        console.log('📦 Sessão recebida:', session ? 'Sim' : 'Não');
 
         if (error) {
           console.error('Erro ao processar callback:', error);

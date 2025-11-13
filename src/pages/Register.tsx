@@ -96,10 +96,21 @@ const Register = () => {
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
-    } catch (error) {
+      // Não precisa setar loading como false aqui porque o usuário será redirecionado
+    } catch (error: any) {
+      let errorMessage = "Não foi possível fazer registro com Google. Tente novamente.";
+      
+      if (error?.message?.includes('provider is not enabled')) {
+        errorMessage = "O login com Google não está habilitado. Por favor, habilite no painel do Supabase.";
+      } else if (error?.message?.includes('redirect_uri_mismatch')) {
+        errorMessage = "Erro de configuração: URL de redirecionamento não corresponde. Verifique as configurações.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer registro com Google",
-        description: "Não foi possível fazer registro com Google. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
       setGoogleLoading(false);
