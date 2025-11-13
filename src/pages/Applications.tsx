@@ -77,6 +77,12 @@ const Applications = () => {
     }
   }, [user, loading, navigate]);
 
+  // Mostrar loading apenas enquanto está verificando autenticação
+  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
+  if (loading && !user) {
+    return <LoadingPage />;
+  }
+
   // Buscar candidaturas do usuário
   const { data: applications, isLoading } = useQuery({
     queryKey: ['applications', user?.id],

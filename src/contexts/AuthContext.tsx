@@ -77,14 +77,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Erro ao buscar perfil:', error);
+      // Se o perfil não existe (PGRST116 = not found), criar um perfil básico
+      if (error && error.code === 'PGRST116') {
+        console.log('📝 Perfil não encontrado, criando perfil básico...');
+        
+        // Buscar dados do usuário para criar o perfil
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const profileData = {
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata?.full_name || 
+                      user.user_metadata?.name || 
+                      user.email?.split('@')[0] || 
+                      '',
+            avatar_url: user.user_metadata?.avatar_url || 
+                      user.user_metadata?.picture || 
+                      null,
+            user_type: user.user_metadata?.user_type || 'candidate',
+            profile_visible: true,
+            resume_searchable: false,
+            job_alerts_enabled: true,
+          };
+
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert(profileData)
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('❌ Erro ao criar perfil:', insertError);
+            return null;
+          }
+
+          console.log('✅ Perfil criado com sucesso');
+          return newProfile as Profile;
+        }
+        
+        return null;
+      }
+
+      if (error) {
+        console.error('❌ Erro ao buscar perfil:', error);
         return null;
       }
 
       return data as Profile | null;
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
+      console.error('❌ Erro ao buscar perfil:', error);
       return null;
     }
   };
@@ -103,8 +145,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+        try {
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+        } catch (error) {
+          console.error('Erro ao buscar perfil na inicialização:', error);
+          setProfile(null);
+        }
+      } else {
+        setProfile(null);
       }
       
       setLoading(false);
@@ -118,8 +167,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+        try {
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+        } catch (error) {
+          console.error('Erro ao buscar perfil na mudança de estado:', error);
+          setProfile(null);
+        }
       } else {
         setProfile(null);
       }

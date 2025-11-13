@@ -58,10 +58,15 @@ const Profile = () => {
       ];
       const filledFields = fields.filter(Boolean).length;
       setProfileProgress(Math.round((filledFields / fields.length) * 100));
+    } else {
+      // Se não há perfil mas há usuário, resetar progresso
+      setProfileProgress(0);
     }
   }, [profile]);
 
-  if (loading) {
+  // Mostrar loading apenas enquanto está verificando autenticação
+  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
+  if (loading && !user) {
     return <LoadingPage />;
   }
 

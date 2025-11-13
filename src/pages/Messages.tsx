@@ -127,6 +127,12 @@ const Messages = () => {
     }
   }, [user, loading, navigate]);
 
+  // Mostrar loading apenas enquanto está verificando autenticação
+  // Se o usuário existe mas o perfil não, ainda assim mostrar a página
+  if (loading && !user) {
+    return <LoadingPage />;
+  }
+
   // Filtrar conversas por busca
   const filteredConversations = mockConversations.filter(conv => 
     conv.participant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,10 +167,6 @@ const Messages = () => {
     if (diffHours < 48) return 'Ontem';
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
-
-  if (loading) {
-    return <LoadingPage />;
-  }
 
   if (!user) {
     return null;
