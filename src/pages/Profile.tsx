@@ -461,8 +461,8 @@ const Profile = () => {
                               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{job.company}</p>
                               <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 <div className="flex items-center">
-                                  <MapPin className="h-3 w-3 mr-1" />
-                                  <span>{job.location}</span>
+                                <MapPin className="h-3 w-3 mr-1" />
+                                <span>{job.location}</span>
                                 </div>
                                 <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                                 <span>{job.date}</span>
@@ -471,8 +471,8 @@ const Profile = () => {
                             <div className="flex items-center gap-2 w-full sm:w-auto">
                               <Link to={`/jobs/${job.id}`} className="flex-1 sm:flex-initial">
                                 <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
-                                  Ver vaga
-                                </Button>
+                                Ver vaga
+                              </Button>
                               </Link>
                               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 text-red-500">
                                 <X className="h-4 w-4" />
@@ -504,8 +504,8 @@ const Profile = () => {
                           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">TechSolutions</p>
                           <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              <span>Manaus, AM</span>
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span>Manaus, AM</span>
                             </div>
                             <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 5 dias</span>
@@ -520,8 +520,8 @@ const Profile = () => {
                           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">WebInnovate</p>
                           <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              <span>Remoto</span>
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span>Remoto</span>
                             </div>
                             <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 1 semana</span>
@@ -536,8 +536,8 @@ const Profile = () => {
                           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Digital Solutions</p>
                           <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             <div className="flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              <span>Manaus, AM</span>
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span>Manaus, AM</span>
                             </div>
                             <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
                             <span>Candidatura enviada há 2 semanas</span>

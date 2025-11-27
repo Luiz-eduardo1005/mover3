@@ -40,37 +40,37 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/advertise" element={<Advertise />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/curriculum" element={<CurriculumRegistration />} />
-              <Route path="/courses" element={<Courses />} />
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/advertise" element={<Advertise />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/curriculum" element={<CurriculumRegistration />} />
+            <Route path="/courses" element={<Courses />} />
               <Route path="/applications" element={<Applications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/companies" element={<Companies />} />
               <Route path="/company/:id" element={<CompanyProfile />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
-              <Route path="/loading" element={<LoadingPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <CookieConsent />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+            <Route path="/loading" element={<LoadingPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <CookieConsent />
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
   </ThemeProvider>
 );
 

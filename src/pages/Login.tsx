@@ -16,19 +16,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Loader2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { signIn, signInWithGoogle } = useAuth();
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const { signIn, signInWithGoogle, resendConfirmationEmail } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -68,15 +69,29 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const sanitizedEmail = email.trim();
+    const { error } = await signIn(sanitizedEmail, password);
 
     if (error) {
+      const normalizedMessage = error.message?.toLowerCase() || '';
+      const requiresConfirmation =
+        normalizedMessage.includes('confirm') ||
+        normalizedMessage.includes('verification') ||
+        normalizedMessage.includes('not confirmed');
+
+      if (requiresConfirmation) {
+        setPendingVerificationEmail(sanitizedEmail);
+      } else {
+        setPendingVerificationEmail(null);
+      }
+
       toast({
         title: "Erro ao fazer login",
         description: error.message || "Credenciais inválidas. Verifique seu email e senha.",
         variant: "destructive",
       });
     } else {
+      setPendingVerificationEmail(null);
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta!",
@@ -85,6 +100,61 @@ const Login = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!pendingVerificationEmail) return;
+    setResendingEmail(true);
+    const { error } = await resendConfirmationEmail(pendingVerificationEmail);
+
+    if (error) {
+      toast({
+        title: "Erro ao reenviar confirmação",
+        description: error.message || "Não foi possível reenviar o email. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Email reenviado",
+        description: "Verifique sua caixa de entrada e confirme seu cadastro.",
+      });
+    }
+
+    setResendingEmail(false);
+  };
+
+  const renderVerificationAlert = () => {
+    if (!pendingVerificationEmail) return null;
+    return (
+      <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Confirme seu email</p>
+            <p className="mt-1 text-sm opacity-90">
+              Enviamos um link de confirmação para <span className="font-medium">{pendingVerificationEmail}</span>.
+              Confirme o endereço para ativar sua conta.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3 border-amber-400 text-amber-700 hover:bg-amber-100 dark:border-amber-400/60 dark:text-amber-200 dark:hover:bg-amber-500/20"
+              onClick={handleResendConfirmation}
+              disabled={resendingEmail}
+            >
+              {resendingEmail ? (
+                <>
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  Reenviando...
+                </>
+              ) : (
+                'Reenviar email de confirmação'
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const handleGoogleLogin = async () => {
@@ -181,6 +251,8 @@ const Login = () => {
                 </div>
               </form>
               
+              {renderVerificationAlert()}
+              
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -269,6 +341,8 @@ const Login = () => {
                 </div>
               </form>
               
+              {renderVerificationAlert()}
+
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">

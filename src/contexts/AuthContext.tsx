@@ -43,7 +43,13 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, userType: 'candidate' | 'employer', additionalData?: any) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    userType: 'candidate' | 'employer',
+    additionalData?: any
+  ) => Promise<{ error: AuthError | null }>;
+  resendConfirmationEmail: (email: string) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -69,6 +75,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getEmailRedirectUrl = () => {
+    if (typeof window === 'undefined') return undefined;
+    return `${window.location.origin}/auth/callback?source=email`;
+  };
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -78,7 +88,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', userId)
         .single();
 
+      // Se o perfil não existe (PGRST116 = not found), criar um perfil básico
       if (error && error.code === 'PGRST116') {
+        console.log('📝 Perfil não encontrado, criando perfil básico...');
+        
+        // Buscar dados do usuário para criar o perfil
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
@@ -105,10 +119,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             .single();
 
           if (insertError) {
-            console.error('Erro ao criar perfil:', insertError);
+            console.error('❌ Erro ao criar perfil:', insertError);
             return null;
           }
 
+          console.log('✅ Perfil criado com sucesso');
           return newProfile as Profile;
         }
         
@@ -116,13 +131,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (error) {
-        console.error('Erro ao buscar perfil:', error);
+        console.error('❌ Erro ao buscar perfil:', error);
         return null;
       }
 
       return data as Profile | null;
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
+      console.error('❌ Erro ao buscar perfil:', error);
       return null;
     }
   };
@@ -138,27 +153,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     let mounted = true;
     const loadingTimeoutRef = { current: null as NodeJS.Timeout | null };
     
+    // Timeout de segurança para garantir que loading sempre termine
     loadingTimeoutRef.current = setTimeout(() => {
       if (mounted) {
+        console.warn('⚠️ Timeout na verificação de sessão, finalizando loading...');
         setLoading(false);
       }
-    }, 10000);
+    }, 10000); // 10 segundos máximo
 
+    // Verificar sessão atual ao carregar - VERSÃO SIMPLIFICADA
     const initializeAuth = async () => {
       try {
+        // Limpar timeout
         if (loadingTimeoutRef.current) {
           clearTimeout(loadingTimeoutRef.current);
           loadingTimeoutRef.current = null;
         }
         
+        // Tentar obter sessão - método mais simples e direto
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
         
         if (session?.user) {
+          console.log('✅ Sessão encontrada:', session.user.email);
           setSession(session);
           setUser(session.user);
           
+          // Buscar perfil em background (não bloqueia)
           fetchProfile(session.user.id)
             .then(profileData => {
               if (mounted) {
@@ -166,18 +188,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             })
             .catch(error => {
-              console.error('Erro ao buscar perfil:', error);
+              console.error('❌ Erro ao buscar perfil:', error);
               if (mounted) {
                 setProfile(null);
               }
             });
         } else {
+          console.log('ℹ️ Nenhuma sessão encontrada');
           setSession(null);
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        console.error('Erro na inicialização:', error);
+        console.error('❌ Erro na inicialização:', error);
         if (mounted) {
           setSession(null);
           setUser(null);
@@ -192,20 +215,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
 
+    // Ouvir mudanças de autenticação (login, logout, etc)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Mudança de estado de autenticação:', event);
+      
       if (!mounted) return;
       
+      // Limpar timeout se houver mudança de estado
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
         loadingTimeoutRef.current = null;
       }
       
+      // Atualizar estado imediatamente - sem verificações complexas
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        console.log('✅ Usuário autenticado:', session.user.email);
+        // Buscar perfil em background (não bloqueia)
         fetchProfile(session.user.id)
           .then(profileData => {
             if (mounted) {
@@ -213,12 +243,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           })
           .catch(error => {
-            console.error('Erro ao buscar perfil:', error);
+            console.error('❌ Erro ao buscar perfil:', error);
             if (mounted) {
               setProfile(null);
             }
           });
       } else {
+        console.log('ℹ️ Usuário deslogado');
         if (mounted) {
           setProfile(null);
         }
@@ -229,34 +260,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     });
 
+    // Listener para salvar sessão antes de fechar a página
     const handleBeforeUnload = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+          // Forçar salvamento da sessão antes de fechar
           await supabase.auth.setSession({
             access_token: session.access_token,
             refresh_token: session.refresh_token,
           });
+          console.log('💾 Sessão salva antes de fechar a página');
         }
       } catch (error) {
-        console.error('Erro ao salvar sessão:', error);
+        console.error('❌ Erro ao salvar sessão antes de fechar:', error);
       }
     };
 
+    // Adicionar listener para beforeunload
     if (typeof window !== 'undefined') {
       window.addEventListener('beforeunload', handleBeforeUnload);
     }
 
+    // Listener para visibility change (quando a aba volta ao foco)
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
         try {
+          // Verificar sessão quando a aba volta ao foco
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
             setSession(session);
             setUser(session.user);
           }
         } catch (error) {
-          console.error('Erro ao verificar sessão:', error);
+          console.error('❌ Erro ao verificar sessão:', error);
         }
       }
     };
@@ -286,9 +323,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password,
     });
     
+    // Garantir que a sessão foi salva
     if (data?.session) {
+      console.log('✅ Login realizado, sessão salva automaticamente');
+      // Verificar se foi salva no localStorage
       const sessionKey = Object.keys(localStorage).find(key => key.includes('auth-token'));
-      if (!sessionKey) {
+      if (sessionKey) {
+        console.log('✅ Sessão confirmada no localStorage');
+      } else {
+        console.warn('⚠️ Sessão não encontrada, forçando salvamento...');
         await supabase.auth.setSession({
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token,
@@ -305,10 +348,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     userType: 'candidate' | 'employer',
     additionalData?: any
   ) => {
+    const emailRedirectTo = getEmailRedirectUrl();
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
         data: {
           user_type: userType,
           ...additionalData,
@@ -325,16 +371,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ...additionalData,
       };
 
-      await supabase.from('profiles').insert(profileData);
+      try {
+        await supabase.from('profiles').insert(profileData);
+      } catch (profileError) {
+        console.warn('⚠️ Não foi possível criar o perfil imediatamente (provável falta de confirmação de email):', profileError);
+      }
     }
 
     return { error };
   };
 
+  const resendConfirmationEmail = async (email: string) => {
+    const emailRedirectTo = getEmailRedirectUrl();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: emailRedirectTo
+        ? {
+            emailRedirectTo,
+          }
+        : undefined,
+    });
+
+    return { error: error as AuthError | null };
+  };
+
   const signInWithGoogle = async () => {
     try {
+      // Garantir que estamos usando a URL atual correta (com porta)
       const currentOrigin = window.location.origin;
       const redirectUrl = `${currentOrigin}/auth/callback`;
+      
+      console.log('🔐 Iniciando login com Google...');
+      console.log('📍 URL de redirecionamento:', redirectUrl);
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -348,11 +417,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('Erro ao fazer login com Google:', error);
+        console.error('❌ Erro ao fazer login com Google:', error);
         throw error;
       }
+      
+      // Se não houver erro, o usuário será redirecionado automaticamente
+      console.log('✅ Redirecionando para Google...');
     } catch (error: any) {
-      console.error('Erro ao fazer login com Google:', error);
+      console.error('❌ Erro ao fazer login com Google:', error);
       throw error;
     }
   };
@@ -361,8 +433,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const userId = user?.id;
       
+      // Fazer signOut no Supabase PRIMEIRO (importante para OAuth)
       await supabase.auth.signOut();
       
+      // Limpar todas as chaves relacionadas ao Supabase
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -378,6 +452,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       keysToRemove.forEach(key => localStorage.removeItem(key));
 
+      // Limpar sessionStorage também
       const sessionKeysToRemove: string[] = [];
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
@@ -393,10 +468,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
 
+      // Limpar vagas salvas do usuário
       if (userId) {
         localStorage.removeItem(`saved_jobs_${userId}`);
       }
 
+      // Limpar cookies relacionados ao OAuth (se houver)
       document.cookie.split(";").forEach((c) => {
         const cookieName = c.trim().split("=")[0];
         if (cookieName.includes('auth') || cookieName.includes('session')) {
@@ -404,14 +481,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       });
       
+      // Limpar estados
       setUser(null);
       setSession(null);
       setProfile(null);
       setLoading(false);
       
+      // Forçar reload da página para garantir limpeza completa (especialmente para OAuth)
       window.location.href = '/login';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
+      // Mesmo com erro, limpar estados locais e redirecionar
       setUser(null);
       setSession(null);
       setProfile(null);
@@ -427,6 +507,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     signIn,
     signUp,
+    resendConfirmationEmail,
     signInWithGoogle,
     signOut,
     refreshProfile,
