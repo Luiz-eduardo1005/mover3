@@ -11,14 +11,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -27,8 +25,8 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Briefcase, User, MapPin, Mail, Phone, Calendar, 
-  Edit, Plus, X, ArrowUp, Download, FileText, Bookmark, Loader2
+  Briefcase, MapPin, Mail, Phone, 
+  Edit, Plus, X, Download, Bookmark
 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import LoadingPage from './LoadingPage';
@@ -76,63 +74,6 @@ const Profile = () => {
   if (!isAuthenticated) {
     return null;
   }
-  
-  const skills = [
-    "React", "JavaScript", "TypeScript", "HTML", "CSS", 
-    "Node.js", "Git", "SQL", "Python", "UI/UX"
-  ];
-  
-  const education = [
-    {
-      degree: "Bacharelado em Ciência da Computação",
-      institution: "Universidade Estadual de Campinas",
-      period: "2018 - 2022"
-    },
-    {
-      degree: "Técnico em Desenvolvimento de Software",
-      institution: "ETEC Campinas",
-      period: "2016 - 2017"
-    }
-  ];
-  
-  const experience = [
-    {
-      role: "Desenvolvedor Full Stack",
-      company: "TechSolutions",
-      period: "Jan 2022 - Presente",
-      description: "Desenvolvimento e manutenção de aplicações web utilizando React, Node.js e SQL. Implementação de novas funcionalidades e correção de bugs."
-    },
-    {
-      role: "Desenvolvedor Front-end",
-      company: "WebCreative",
-      period: "Mar 2020 - Dez 2021",
-      description: "Desenvolvimento de interfaces de usuário responsivas e otimização de desempenho em aplicações web."
-    }
-  ];
-  
-  const savedJobs = [
-    {
-      id: 1,
-      title: "Desenvolvedor Full Stack",
-      company: "TechSolutions",
-      location: "Manaus, AM",
-      date: "Salvo há 2 dias"
-    },
-    {
-      id: 2,
-      title: "Desenvolvedor Front-end Senior",
-      company: "InnovaTech",
-      location: "Remoto",
-      date: "Salvo há 1 semana"
-    },
-    {
-      id: 3,
-      title: "Engenheiro de Software",
-      company: "SoftExpert",
-      location: "Manaus, AM",
-      date: "Salvo há 3 dias"
-    }
-  ];
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Usuário';
   const initials = displayName
@@ -329,11 +270,15 @@ const Profile = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                          Desenvolvedora Full Stack com mais de 3 anos de experiência em desenvolvimento de aplicações web.
-                          Especialista em React, Node.js e bancos de dados SQL. Apaixonada por criar interfaces intuitivas
-                          e desenvolver soluções eficientes. Comprometida com aprendizado contínuo e melhoria de habilidades técnicas.
-                        </p>
+                        {profile?.bio ? (
+                          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                            {profile.bio}
+                          </p>
+                        ) : (
+                          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 italic">
+                            Nenhum resumo profissional adicionado ainda. Clique em editar para adicionar.
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                     
@@ -347,19 +292,10 @@ const Profile = () => {
                           </Button>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-6">
-                        {experience.map((job, index) => (
-                          <div key={index} className="relative">
-                            <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-8 w-8">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{job.role}</h3>
-                            <p className="text-gray-600 dark:text-gray-400">{job.company}</p>
-                            <p className="text-gray-500 dark:text-gray-500 text-sm mb-2">{job.period}</p>
-                            <p className="text-gray-700 dark:text-gray-300">{job.description}</p>
-                            {index < experience.length - 1 && <Separator className="mt-4" />}
-                          </div>
-                        ))}
+                      <CardContent>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          Nenhuma experiência profissional adicionada ainda. Clique em adicionar para incluir suas experiências.
+                        </p>
                       </CardContent>
                     </Card>
                     
@@ -373,18 +309,10 @@ const Profile = () => {
                           </Button>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-6">
-                        {education.map((edu, index) => (
-                          <div key={index} className="relative">
-                            <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-8 w-8">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{edu.degree}</h3>
-                            <p className="text-gray-600 dark:text-gray-400">{edu.institution}</p>
-                            <p className="text-gray-500 dark:text-gray-500 text-sm">{edu.period}</p>
-                            {index < education.length - 1 && <Separator className="mt-4" />}
-                          </div>
-                        ))}
+                      <CardContent>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          Nenhuma formação acadêmica adicionada ainda. Clique em adicionar para incluir sua educação.
+                        </p>
                       </CardContent>
                     </Card>
                     
@@ -399,20 +327,24 @@ const Profile = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900 dark:text-white">Português</span>
-                            <span className="text-gray-600 dark:text-gray-400">Nativo</span>
+                        {profile?.languages && Array.isArray(profile.languages) && profile.languages.length > 0 ? (
+                          <div className="space-y-3">
+                            {profile.languages.map((lang: any, index: number) => (
+                              <div key={index} className="flex items-center justify-between">
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {lang.language || lang.name || 'Idioma'}
+                                </span>
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {lang.level || lang.proficiency || 'Não especificado'}
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900 dark:text-white">Inglês</span>
-                            <span className="text-gray-600 dark:text-gray-400">Fluente</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900 dark:text-white">Espanhol</span>
-                            <span className="text-gray-600 dark:text-gray-400">Intermediário</span>
-                          </div>
-                        </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                            Nenhum idioma adicionado ainda. Clique em adicionar para incluir seus idiomas.
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                     
@@ -422,19 +354,9 @@ const Profile = () => {
                         <CardTitle className="text-lg text-gray-900 dark:text-white">Documentos adicionais</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-md mb-3 bg-gray-50 dark:bg-gray-700/50">
-                          <div className="flex items-center">
-                            <FileText className="h-5 w-5 mr-3 text-gray-500 dark:text-gray-400" />
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-white">Currículo_MariaC.pdf</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Adicionado em 12/04/2023</p>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic mb-4">
+                          Nenhum documento adicionado ainda.
+                        </p>
                         <Button variant="outline" className="w-full">
                           <Plus className="mr-2 h-4 w-4" /> Adicionar documento
                         </Button>
@@ -453,33 +375,14 @@ const Profile = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                      <div className="space-y-3 sm:space-y-4">
-                        {savedJobs.map(job => (
-                          <div key={job.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 border dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors bg-white dark:bg-gray-800">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">{job.title}</h3>
-                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{job.company}</p>
-                              <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                <div className="flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                <span>{job.location}</span>
-                                </div>
-                                <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
-                                <span>{job.date}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                              <Link to={`/jobs/${job.id}`} className="flex-1 sm:flex-initial">
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
-                                Ver vaga
-                              </Button>
-                              </Link>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 text-red-500">
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="text-center py-8">
+                        <Bookmark className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Você ainda não salvou nenhuma vaga.
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                          Explore as vagas disponíveis e salve as que mais interessam você.
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
@@ -495,54 +398,14 @@ const Profile = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Desenvolvedor Full Stack</h3>
-                            <Badge className="text-xs">Em análise</Badge>
-                          </div>
-                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">TechSolutions</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            <span>Manaus, AM</span>
-                            </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
-                            <span>Candidatura enviada há 5 dias</span>
-                          </div>
-                        </div>
-                        
-                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Front-end Developer</h3>
-                            <Badge variant="outline" className="text-xs">Visualizado</Badge>
-                          </div>
-                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">WebInnovate</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            <span>Remoto</span>
-                            </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
-                            <span>Candidatura enviada há 1 semana</span>
-                          </div>
-                        </div>
-                        
-                        <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                            <h3 className="font-medium text-base sm:text-lg text-gray-900 dark:text-white">Desenvolvedor React</h3>
-                            <Badge variant="destructive" className="text-xs">Encerrada</Badge>
-                          </div>
-                          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Digital Solutions</p>
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            <span>Manaus, AM</span>
-                            </div>
-                            <span className="hidden sm:inline mx-2 text-gray-400 dark:text-gray-600">•</span>
-                            <span>Candidatura enviada há 2 semanas</span>
-                          </div>
-                        </div>
+                      <div className="text-center py-8">
+                        <Briefcase className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Você ainda não se candidatou a nenhuma vaga.
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                          Explore as vagas disponíveis e envie sua candidatura.
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
