@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Briefcase, MapPin, Clock, Bookmark, BookmarkCheck } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Mock data for job listings
 const jobListings = [
@@ -74,19 +75,30 @@ const jobListings = [
 
 const JobList = () => {
   const { user } = useAuth();
-  const [savedJobs, setSavedJobs] = useState<number[]>([]);
+  const queryClient = useQueryClient();
 
-  // Carregar vagas salvas do usuário
-  React.useEffect(() => {
-    if (user?.id) {
-      // TODO: Buscar do Supabase quando tabela estiver criada
-      // Por enquanto usar localStorage
-      const saved = JSON.parse(localStorage.getItem(`saved_jobs_${user.id}`) || '[]');
-      setSavedJobs(saved);
-    }
-  }, [user?.id]);
+  // Buscar vagas salvas do Supabase
+  const { data: savedJobs = [] } = useQuery({
+    queryKey: ['savedJobs', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('saved_jobs')
+        .select('job_posting_id')
+        .eq('candidate_id', user.id);
+      
+      if (error) {
+        console.error('Erro ao buscar vagas salvas:', error);
+        return [];
+      }
+      
+      return data.map(item => item.job_posting_id);
+    },
+    enabled: !!user?.id,
+  });
 
-  const handleSaveJob = async (e: React.MouseEvent, jobId: number) => {
+  const handleSaveJob = async (e: React.MouseEvent, jobId: number | string) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -95,31 +107,64 @@ const JobList = () => {
       return;
     }
 
-    const isSaved = savedJobs.includes(jobId);
+    const jobIdStr = jobId.toString();
+    const isSaved = savedJobs.includes(jobIdStr);
     
-    if (isSaved) {
-      // Remover
-      const newSaved = savedJobs.filter(id => id !== jobId);
-      setSavedJobs(newSaved);
-      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
-      
-      // TODO: Remover do Supabase
-      toast.success('Vaga removida das salvas');
-    } else {
-      // Salvar
-      const newSaved = [...savedJobs, jobId];
-      setSavedJobs(newSaved);
-      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
-      
-      // TODO: Salvar no Supabase
-      toast.success('Vaga salva com sucesso!');
+    try {
+      if (isSaved) {
+        // Remover do Supabase
+        const { error } = await supabase
+          .from('saved_jobs')
+          .delete()
+          .eq('candidate_id', user.id)
+          .eq('job_posting_id', jobIdStr);
+        
+        if (error) throw error;
+        
+        // Atualizar cache
+        queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
+          old.filter(id => id !== jobIdStr)
+        );
+        
+        toast.success('Vaga removida das salvas');
+      } else {
+        // Salvar no Supabase
+        const { error } = await supabase
+          .from('saved_jobs')
+          .insert({
+            candidate_id: user.id,
+            job_posting_id: jobIdStr,
+          });
+        
+        if (error) {
+          // Se já existe, apenas atualizar cache
+          if (error.code === '23505') {
+            queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
+              [...old, jobIdStr]
+            );
+            toast.success('Vaga já estava salva');
+            return;
+          }
+          throw error;
+        }
+        
+        // Atualizar cache
+        queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
+          [...old, jobIdStr]
+        );
+        
+        toast.success('Vaga salva com sucesso!');
+      }
+    } catch (error: any) {
+      console.error('Erro ao salvar/remover vaga:', error);
+      toast.error(error.message || 'Erro ao processar ação. Tente novamente.');
     }
   };
 
   return (
     <div className="space-y-3 sm:space-y-4">
       {jobListings.map((job) => {
-        const isSaved = savedJobs.includes(job.id);
+        const isSaved = savedJobs.includes(job.id.toString());
         return (
           <div key={job.id} className="relative group">
             <Link to={`/jobs/${job.id}`} className="block">

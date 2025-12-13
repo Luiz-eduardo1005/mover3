@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import LoadingPage from './LoadingPage';
 
 // Dados completos das vagas com todas as informações
@@ -229,22 +231,40 @@ const JobDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [savedJobs, setSavedJobs] = useState<number[]>([]);
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
 
   const jobId = id ? parseInt(id) : null;
   const job = jobId ? jobDetailsData[jobId] : null;
+  const jobIdStr = jobId?.toString() || '';
+
+  // Buscar se a vaga está salva
+  const { data: isSaved = false } = useQuery({
+    queryKey: ['savedJob', user?.id, jobIdStr],
+    queryFn: async () => {
+      if (!user?.id || !jobIdStr) return false;
+      
+      const { data, error } = await supabase
+        .from('saved_jobs')
+        .select('id')
+        .eq('candidate_id', user.id)
+        .eq('job_posting_id', jobIdStr)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao verificar vaga salva:', error);
+        return false;
+      }
+      
+      return !!data;
+    },
+    enabled: !!user?.id && !!jobIdStr,
+  });
 
   useEffect(() => {
     // Simular carregamento
     setTimeout(() => setLoading(false), 300);
-    
-    // Carregar vagas salvas
-    if (user?.id) {
-      const saved = JSON.parse(localStorage.getItem(`saved_jobs_${user.id}`) || '[]');
-      setSavedJobs(saved);
-    }
-  }, [user?.id, id]);
+  }, [id]);
 
   const handleSaveJob = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -255,20 +275,51 @@ const JobDetails = () => {
       return;
     }
 
-    if (!jobId) return;
+    if (!jobIdStr) return;
 
-    const isSaved = savedJobs.includes(jobId);
-    
-    if (isSaved) {
-      const newSaved = savedJobs.filter(id => id !== jobId);
-      setSavedJobs(newSaved);
-      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
-      toast.success('Vaga removida das salvas');
-    } else {
-      const newSaved = [...savedJobs, jobId];
-      setSavedJobs(newSaved);
-      localStorage.setItem(`saved_jobs_${user.id}`, JSON.stringify(newSaved));
-      toast.success('Vaga salva com sucesso!');
+    try {
+      if (isSaved) {
+        // Remover do Supabase
+        const { error } = await supabase
+          .from('saved_jobs')
+          .delete()
+          .eq('candidate_id', user.id)
+          .eq('job_posting_id', jobIdStr);
+        
+        if (error) throw error;
+        
+        // Atualizar cache
+        queryClient.setQueryData(['savedJob', user.id, jobIdStr], false);
+        queryClient.invalidateQueries({ queryKey: ['savedJobs', user.id] });
+        
+        toast.success('Vaga removida das salvas');
+      } else {
+        // Salvar no Supabase
+        const { error } = await supabase
+          .from('saved_jobs')
+          .insert({
+            candidate_id: user.id,
+            job_posting_id: jobIdStr,
+          });
+        
+        if (error) {
+          if (error.code === '23505') {
+            queryClient.setQueryData(['savedJob', user.id, jobIdStr], true);
+            toast.success('Vaga já estava salva');
+            return;
+          }
+          throw error;
+        }
+        
+        // Atualizar cache
+        queryClient.setQueryData(['savedJob', user.id, jobIdStr], true);
+        queryClient.invalidateQueries({ queryKey: ['savedJobs', user.id] });
+        
+        toast.success('Vaga salva com sucesso!');
+      }
+    } catch (error: any) {
+      console.error('Erro ao salvar/remover vaga:', error);
+      toast.error(error.message || 'Erro ao processar ação. Tente novamente.');
     }
   };
 
@@ -310,8 +361,6 @@ const JobDetails = () => {
       </div>
     );
   }
-
-  const isSaved = savedJobs.includes(job.id);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
