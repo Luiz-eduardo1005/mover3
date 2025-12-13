@@ -7,7 +7,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -19,7 +18,6 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
   const { user, profile, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showCard, setShowCard] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Usuário';
 
@@ -29,30 +27,16 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
 
     const checkShouldShow = () => {
       const lastAnswerDate = localStorage.getItem(`job_seeking_last_answer_${user.id}`);
-      const dismissedDate = localStorage.getItem(`job_seeking_dismissed_${user.id}`);
       const hasAnswered = localStorage.getItem(`job_seeking_answered_${user.id}`);
       const jobPreferences = (profile as any)?.job_preferences;
 
-      // Se nunca respondeu, mostrar
+      // Se nunca respondeu, mostrar (fica lá até responder)
       if (!hasAnswered && jobPreferences?.has_answered_job_seeking_question !== true) {
-        // Verificar se foi dispensado hoje
-        if (dismissedDate) {
-          const dismissed = new Date(dismissedDate);
-          const now = new Date();
-          const diffTime = Math.abs(now.getTime() - dismissed.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          // Se foi dispensado hoje, não mostrar
-          if (diffDays < 1) {
-            setShowCard(false);
-            return;
-          }
-        }
         setShowCard(true);
         return;
       }
 
-      // Se já respondeu, verificar se passou 1 semana
+      // Se já respondeu, verificar se passou 1 semana (7 dias)
       if (lastAnswerDate) {
         const lastDate = new Date(lastAnswerDate);
         const now = new Date();
@@ -61,23 +45,12 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
         
         // Se passou 7 dias ou mais, mostrar novamente
         if (diffDays >= 7) {
-          // Verificar se foi dispensado hoje
-          if (dismissedDate) {
-            const dismissed = new Date(dismissedDate);
-            const dismissedDiffTime = Math.abs(now.getTime() - dismissed.getTime());
-            const dismissedDiffDays = Math.ceil(dismissedDiffTime / (1000 * 60 * 60 * 24));
-            
-            // Se foi dispensado hoje, não mostrar
-            if (dismissedDiffDays < 1) {
-              setShowCard(false);
-              return;
-            }
-          }
           setShowCard(true);
           return;
         }
       }
 
+      // Se já respondeu e não passou 1 semana, não mostrar
       setShowCard(false);
     };
 
@@ -124,7 +97,7 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
         onResponse(isLooking);
       }
       
-      setIsDismissed(true);
+      // Esconder o card após responder
       setShowCard(false);
     } catch (error: any) {
       console.error('Erro ao salvar resposta:', error);
@@ -137,21 +110,14 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
         onResponse(isLooking);
       }
       
-      setIsDismissed(true);
+      // Esconder o card após responder
       setShowCard(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    setShowCard(false);
-    // Salvar que foi dispensado por hoje (mostrar novamente amanhã se necessário)
-    localStorage.setItem(`job_seeking_dismissed_${user?.id}`, new Date().toISOString());
-  };
-
-  if (!showCard || isDismissed) {
+  if (!showCard) {
     return null;
   }
 
@@ -200,16 +166,6 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
               </Button>
             </div>
           </div>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDismiss}
-            className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Fechar"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
       </CardContent>
     </Card>
