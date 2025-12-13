@@ -38,7 +38,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import LoadingPage from './LoadingPage';
 import EmailPreferencesComponent from '@/components/notifications/EmailPreferences';
-import JobSeekingDialog from '@/components/profile/JobSeekingDialog';
+import JobSeekingCard from '@/components/profile/JobSeekingCard';
 import JobPreferencesTab from '@/components/profile/JobPreferencesTab';
 
 // Componente para exibir vagas salvas
@@ -686,8 +686,7 @@ const Profile = () => {
   const [newEducation, setNewEducation] = useState({ institution: '', degree: '', field: '', start_date: '', end_date: '', current: false });
   const [newLanguage, setNewLanguage] = useState({ language: '', level: '' });
   
-  // Estados para diálogo de busca de emprego
-  const [showJobSeekingDialog, setShowJobSeekingDialog] = useState(false);
+  // Estados para busca de emprego
   const [isLookingForJob, setIsLookingForJob] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('resume');
 
@@ -716,25 +715,15 @@ const Profile = () => {
       setEducation(Array.isArray(profile.education) ? profile.education : []);
       setLanguages(Array.isArray(profile.languages) ? profile.languages : []);
       
-      // Verificar se já respondeu a pergunta sobre busca de emprego
+      // Carregar resposta sobre busca de emprego
       if (user?.id) {
-        const hasAnswered = localStorage.getItem(`job_seeking_answered_${user.id}`);
         const jobPreferences = (profile as any).job_preferences;
-        
-        // Carregar resposta salva primeiro
         const savedResponse = localStorage.getItem(`job_seeking_response_${user.id}`);
+        
         if (savedResponse) {
           setIsLookingForJob(savedResponse === 'true');
         } else if (jobPreferences?.is_looking_for_job !== null && jobPreferences?.is_looking_for_job !== undefined) {
           setIsLookingForJob(jobPreferences.is_looking_for_job);
-        }
-        
-        // Mostrar diálogo apenas se ainda não respondeu
-        if (!hasAnswered && jobPreferences?.has_answered_job_seeking_question !== true) {
-          // Mostrar diálogo após um pequeno delay para melhor UX
-          setTimeout(() => {
-            setShowJobSeekingDialog(true);
-          }, 500);
         }
       }
     } else {
@@ -861,7 +850,7 @@ const Profile = () => {
     setLanguages(languages.filter((_, i) => i !== index));
   };
 
-  // Handler para resposta do diálogo de busca de emprego
+  // Handler para resposta do card de busca de emprego
   const handleJobSeekingResponse = (isLooking: boolean) => {
     setIsLookingForJob(isLooking);
     if (isLooking) {
@@ -1041,6 +1030,9 @@ const Profile = () => {
             
             {/* Right Column - Details */}
             <div className="lg:col-span-2">
+              {/* Card de busca de emprego */}
+              <JobSeekingCard onResponse={handleJobSeekingResponse} />
+              
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full mb-4 sm:mb-6 h-auto gap-1 sm:gap-0 overflow-x-auto">
                   <TabsTrigger value="resume" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
@@ -1599,13 +1591,6 @@ const Profile = () => {
           </div>
         </div>
       </main>
-      
-      {/* Diálogo de busca de emprego */}
-      <JobSeekingDialog
-        open={showJobSeekingDialog}
-        onOpenChange={setShowJobSeekingDialog}
-        onResponse={handleJobSeekingResponse}
-      />
       
       <Footer />
     </div>
