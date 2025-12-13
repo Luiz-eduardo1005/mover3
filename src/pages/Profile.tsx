@@ -78,9 +78,9 @@ const SavedJobsTab = ({ userId }: { userId?: string }) => {
             console.warn('Tabela saved_jobs ainda não foi criada no Supabase');
             return [];
           }
-          return [];
-        }
-        
+        return [];
+      }
+      
         // Filtrar apenas vagas que ainda existem e estão ativas
         return (data || []).filter((item: any) => 
           item.job_postings && item.job_postings.status === 'active'
@@ -440,16 +440,16 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
 
   return (
     <>
-      <Card className="bg-white dark:bg-gray-800">
-        <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+    <Card className="bg-white dark:bg-gray-800">
+      <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
-                Candidaturas ({applications.length})
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Acompanhe o status de todas as suas candidaturas
-              </CardDescription>
+        <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
+          Candidaturas ({applications.length})
+        </CardTitle>
+        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+          Acompanhe o status de todas as suas candidaturas
+        </CardDescription>
             </div>
             {/* Filtro por status */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -468,8 +468,8 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
               </SelectContent>
             </Select>
           </div>
-        </CardHeader>
-        <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+      </CardHeader>
+      <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
           {filteredApplications.length === 0 ? (
             <div className="text-center py-12">
               <Briefcase className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
@@ -481,47 +481,47 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+        <div className="space-y-4">
               {filteredApplications.map((application: any) => {
-                if (!application.job) return null;
-                
-                return (
-                  <div
-                    key={application.id}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between gap-4">
+            if (!application.job) return null;
+            
+            return (
+              <div
+                key={application.id}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="h-5 w-5 text-gray-400" />
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
-                            <Briefcase className="h-5 w-5 text-gray-400" />
-                          </div>
-                          <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-2">
                               <h3 
                                 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer"
                                 onClick={() => handleViewJob(application.job_id)}
                               >
-                                {application.job.title}
-                              </h3>
-                              {getStatusBadge(application.status)}
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                              {application.job.company_name}
-                            </p>
+                              {application.job.title}
+                            </h3>
+                          {getStatusBadge(application.status)}
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                          {application.job.company_name}
+                        </p>
                             <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2">
-                              {application.job.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  <span>{application.job.location}</span>
-                                </div>
-                              )}
-                              {application.job.employment_type && (
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
+                          {application.job.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>{application.job.location}</span>
+                            </div>
+                          )}
+                          {application.job.employment_type && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
                                   <span className="capitalize">{application.job.employment_type}</span>
-                                </div>
-                              )}
+                            </div>
+                          )}
                               {application.job.work_model && (
                                 <Badge variant="outline" className="text-xs">
                                   {application.job.work_model === 'remoto' ? '🏠 Remoto' : 
@@ -534,19 +534,19 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
                                 <div className="flex items-center gap-1">
                                   <DollarSign className="h-3 w-3" />
                                   <span className="font-medium">{application.job.salary_range}</span>
-                                </div>
+                        </div>
                               )}
-                            </div>
+                      </div>
                             <div className="flex flex-wrap items-center gap-3 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                               <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                                 <Calendar className="h-3 w-3" />
                                 <span>Candidatou-se {formatDate(application.applied_at)}</span>
-                              </div>
+                    </div>
                               {application.updated_at && application.updated_at !== application.applied_at && (
                                 <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                                   <Clock className="h-3 w-3" />
                                   <span>Atualizado {formatDate(application.updated_at)}</span>
-                                </div>
+                  </div>
                               )}
                               {application.cover_letter && (
                                 <Button
@@ -566,14 +566,14 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
+                    <Button
+                      variant="outline"
+                      size="sm"
                           onClick={() => handleViewJob(application.job_id)}
-                          className="text-xs sm:text-sm"
-                        >
-                          Ver vaga
-                        </Button>
+                      className="text-xs sm:text-sm"
+                    >
+                      Ver vaga
+                    </Button>
                         {application.status !== 'withdrawn' && application.status !== 'rejected' && application.status !== 'accepted' && (
                           <Button
                             variant="ghost"
@@ -586,15 +586,15 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
                             Retirar
                           </Button>
                         )}
-                      </div>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
           )}
-        </CardContent>
-      </Card>
+      </CardContent>
+    </Card>
 
       {/* Dialog para ver carta de apresentação */}
       <Dialog open={showCoverLetter} onOpenChange={setShowCoverLetter}>
@@ -1033,9 +1033,9 @@ const Profile = () => {
                           <span>Resumo profissional</span>
                           <Dialog open={editingBio} onOpenChange={setEditingBio}>
                             <DialogTrigger asChild>
-                              <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8">
-                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                              </Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8">
+                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                          </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
                               <DialogHeader>
@@ -1083,9 +1083,9 @@ const Profile = () => {
                           <span>Experiência profissional</span>
                           <Dialog open={editingExperience} onOpenChange={setEditingExperience}>
                             <DialogTrigger asChild>
-                              <Button size="icon" variant="ghost" className="h-8 w-8">
-                                <Plus className="h-4 w-4" />
-                              </Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8">
+                            <Plus className="h-4 w-4" />
+                          </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
@@ -1237,9 +1237,9 @@ const Profile = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                            Nenhuma experiência profissional adicionada ainda. Clique em adicionar para incluir suas experiências.
-                          </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          Nenhuma experiência profissional adicionada ainda. Clique em adicionar para incluir suas experiências.
+                        </p>
                         )}
                       </CardContent>
                     </Card>
@@ -1251,9 +1251,9 @@ const Profile = () => {
                           <span>Educação</span>
                           <Dialog open={editingEducation} onOpenChange={setEditingEducation}>
                             <DialogTrigger asChild>
-                              <Button size="icon" variant="ghost" className="h-8 w-8">
-                                <Plus className="h-4 w-4" />
-                              </Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8">
+                            <Plus className="h-4 w-4" />
+                          </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
@@ -1390,9 +1390,9 @@ const Profile = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                            Nenhuma formação acadêmica adicionada ainda. Clique em adicionar para incluir sua educação.
-                          </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          Nenhuma formação acadêmica adicionada ainda. Clique em adicionar para incluir sua educação.
+                        </p>
                         )}
                       </CardContent>
                     </Card>
@@ -1404,9 +1404,9 @@ const Profile = () => {
                           <span>Idiomas</span>
                           <Dialog open={editingLanguage} onOpenChange={setEditingLanguage}>
                             <DialogTrigger asChild>
-                              <Button size="icon" variant="ghost" className="h-8 w-8">
-                                <Plus className="h-4 w-4" />
-                              </Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8">
+                            <Plus className="h-4 w-4" />
+                          </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
                               <DialogHeader>
@@ -1496,9 +1496,9 @@ const Profile = () => {
                               <div key={lang.id || index} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <Globe className="h-4 w-4 text-gray-400" />
-                                  <span className="font-medium text-gray-900 dark:text-white">
-                                    {lang.language || lang.name || 'Idioma'}
-                                  </span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {lang.language || lang.name || 'Idioma'}
+                                </span>
                                 </div>
                                 <span className="text-gray-600 dark:text-gray-400">
                                   {lang.level || lang.proficiency || 'Não especificado'}

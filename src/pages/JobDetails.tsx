@@ -454,7 +454,7 @@ const JobDetails = () => {
       }
 
       // Sucesso
-      toast.success('Candidatura enviada com sucesso!');
+    toast.success('Candidatura enviada com sucesso!');
       setShowApplyDialog(false);
       setCoverLetter('');
       
@@ -695,14 +695,14 @@ const JobDetails = () => {
                       Já candidatado
                     </Button>
                   ) : (
-                    <Button 
-                      onClick={handleApply}
-                      className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm sm:text-base py-2.5 sm:py-3"
-                      size="lg"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      Candidatar-se
-                    </Button>
+                  <Button 
+                    onClick={handleApply}
+                    className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm sm:text-base py-2.5 sm:py-3"
+                    size="lg"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Candidatar-se
+                  </Button>
                   )}
                   
                   {user && (
