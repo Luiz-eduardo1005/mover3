@@ -61,10 +61,10 @@ const JobPreferencesTab = ({ userId }: { userId?: string }) => {
         }
 
         if (data?.job_preferences) {
-          setPreferences({
-            ...preferences,
+          setPreferences(prev => ({
+            ...prev,
             ...data.job_preferences,
-          });
+          }));
         }
       } catch (error) {
         console.error('Erro ao carregar preferências:', error);
@@ -374,5 +374,7 @@ const JobPreferencesTab = ({ userId }: { userId?: string }) => {
 };
 
 export default JobPreferencesTab;
+
+
 
 

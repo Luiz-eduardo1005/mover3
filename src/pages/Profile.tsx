@@ -38,6 +38,8 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import LoadingPage from './LoadingPage';
 import EmailPreferencesComponent from '@/components/notifications/EmailPreferences';
+import JobSeekingDialog from '@/components/profile/JobSeekingDialog';
+import JobPreferencesTab from '@/components/profile/JobPreferencesTab';
 
 // Componente para exibir vagas salvas
 const SavedJobsTab = ({ userId }: { userId?: string }) => {
@@ -683,6 +685,11 @@ const Profile = () => {
   const [newExperience, setNewExperience] = useState({ title: '', company: '', location: '', start_date: '', end_date: '', current: false, description: '' });
   const [newEducation, setNewEducation] = useState({ institution: '', degree: '', field: '', start_date: '', end_date: '', current: false });
   const [newLanguage, setNewLanguage] = useState({ language: '', level: '' });
+  
+  // Estados para diálogo de busca de emprego
+  const [showJobSeekingDialog, setShowJobSeekingDialog] = useState(false);
+  const [isLookingForJob, setIsLookingForJob] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState('resume');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -708,11 +715,33 @@ const Profile = () => {
       setExperiences(Array.isArray(profile.experiences) ? profile.experiences : []);
       setEducation(Array.isArray(profile.education) ? profile.education : []);
       setLanguages(Array.isArray(profile.languages) ? profile.languages : []);
+      
+      // Verificar se já respondeu a pergunta sobre busca de emprego
+      if (user?.id) {
+        const hasAnswered = localStorage.getItem(`job_seeking_answered_${user.id}`);
+        const jobPreferences = (profile as any).job_preferences;
+        
+        // Carregar resposta salva primeiro
+        const savedResponse = localStorage.getItem(`job_seeking_response_${user.id}`);
+        if (savedResponse) {
+          setIsLookingForJob(savedResponse === 'true');
+        } else if (jobPreferences?.is_looking_for_job !== null && jobPreferences?.is_looking_for_job !== undefined) {
+          setIsLookingForJob(jobPreferences.is_looking_for_job);
+        }
+        
+        // Mostrar diálogo apenas se ainda não respondeu
+        if (!hasAnswered && jobPreferences?.has_answered_job_seeking_question !== true) {
+          // Mostrar diálogo após um pequeno delay para melhor UX
+          setTimeout(() => {
+            setShowJobSeekingDialog(true);
+          }, 500);
+        }
+      }
     } else {
       // Se não há perfil mas há usuário, resetar progresso
       setProfileProgress(0);
     }
-  }, [profile]);
+  }, [profile, user]);
 
   // Função para salvar bio
   const handleSaveBio = async () => {
@@ -830,6 +859,15 @@ const Profile = () => {
 
   const removeLanguage = (index: number) => {
     setLanguages(languages.filter((_, i) => i !== index));
+  };
+
+  // Handler para resposta do diálogo de busca de emprego
+  const handleJobSeekingResponse = (isLooking: boolean) => {
+    setIsLookingForJob(isLooking);
+    if (isLooking) {
+      // Se respondeu "Sim", mudar para a aba de preferências
+      setActiveTab('preferences');
+    }
   };
 
   // Mostrar loading apenas enquanto está verificando autenticação
@@ -1003,8 +1041,8 @@ const Profile = () => {
             
             {/* Right Column - Details */}
             <div className="lg:col-span-2">
-              <Tabs defaultValue="resume" className="w-full">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full mb-4 sm:mb-6 h-auto gap-1 sm:gap-0 overflow-x-auto">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full mb-4 sm:mb-6 h-auto gap-1 sm:gap-0 overflow-x-auto">
                   <TabsTrigger value="resume" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
                     <span className="hidden xs:inline">Currículo</span>
                     <span className="xs:hidden">CV</span>
@@ -1016,6 +1054,10 @@ const Profile = () => {
                   <TabsTrigger value="applications" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
                     <span className="hidden xs:inline">Candidaturas</span>
                     <span className="xs:hidden">Candid.</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="preferences" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
+                    <span className="hidden xs:inline">Preferências</span>
+                    <span className="xs:hidden">Pref.</span>
                   </TabsTrigger>
                   <TabsTrigger value="settings" className="text-[10px] xs:text-xs sm:text-sm py-2 px-1 sm:px-3">
                     <span className="hidden xs:inline">Configurações</span>
@@ -1541,6 +1583,11 @@ const Profile = () => {
                   <ApplicationsTab userId={user?.id} />
                 </TabsContent>
                 
+                {/* Preferences Tab */}
+                <TabsContent value="preferences">
+                  <JobPreferencesTab userId={user?.id} />
+                </TabsContent>
+                
                 {/* Settings Tab */}
                 <TabsContent value="settings">
                   <div className="space-y-6">
@@ -1552,6 +1599,13 @@ const Profile = () => {
           </div>
         </div>
       </main>
+      
+      {/* Diálogo de busca de emprego */}
+      <JobSeekingDialog
+        open={showJobSeekingDialog}
+        onOpenChange={setShowJobSeekingDialog}
+        onResponse={handleJobSeekingResponse}
+      />
       
       <Footer />
     </div>
