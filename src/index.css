@@ -125,6 +125,314 @@
     white-space: nowrap;
     border-width: 0;
   }
+
+  /* Acessibilidade - Tamanhos de fonte personalizados */
+  html.font-normal {
+    font-size: 100%;
+  }
+
+  html.font-large {
+    font-size: 115%;
+  }
+
+  html.font-extra-large {
+    font-size: 130%;
+  }
+
+  html.font-large body,
+  html.font-large * {
+    font-size: inherit;
+  }
+
+  html.font-extra-large body,
+  html.font-extra-large * {
+    font-size: inherit;
+  }
+
+  /* Acessibilidade - Modo de alto contraste */
+  html.high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 205 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 20%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 205 100% 45%;
+  }
+
+  html.high-contrast.dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 205 100% 55%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 0%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 205 100% 55%;
+  }
+
+  html.high-contrast * {
+    border-color: hsl(var(--border)) !important;
+  }
+
+  html.high-contrast a {
+    text-decoration: underline;
+  }
+
+  html.high-contrast button,
+  html.high-contrast [role="button"] {
+    border: 2px solid hsl(var(--border));
+  }
+
+  /* Acessibilidade - Reduzir animações */
+  html.reduce-motion *,
+  html.reduce-motion *::before,
+  html.reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Acessibilidade - Focus melhorado (sempre visível, mesmo com redução de movimento) */
+  html.reduce-motion *:focus-visible {
+    outline: 3px solid hsl(var(--ring)) !important;
+    outline-offset: 3px !important;
+    transition: none !important;
+  }
+
+  /* Acessibilidade - Espaçamento de texto */
+  body.spacing-normal {
+    letter-spacing: normal;
+    line-height: 1.5;
+    word-spacing: normal;
+  }
+
+  body.spacing-large {
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    word-spacing: 0.1em;
+  }
+
+  body.spacing-extra-large {
+    letter-spacing: 0.1em;
+    line-height: 2.2;
+    word-spacing: 0.2em;
+  }
+
+  /* Acessibilidade - Fonte para dislexia */
+  @font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+    font-display: swap;
+  }
+
+  body.font-dyslexia {
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
+  }
+
+  /* Alternativa melhor: usar fontes mais legíveis que não precisam de download */
+  body.font-dyslexia * {
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', 
+                 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 
+                 Arial, sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Acessibilidade - Destacar links */
+  body.highlight-links a:not([role="button"]) {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 4px !important;
+    font-weight: 600 !important;
+    color: hsl(var(--primary)) !important;
+  }
+
+  body.highlight-links a:not([role="button"]):hover,
+  body.highlight-links a:not([role="button"]):focus {
+    text-decoration-thickness: 3px !important;
+    outline: 2px solid hsl(var(--primary)) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Acessibilidade - Destacar botões */
+  body.highlight-buttons button,
+  body.highlight-buttons [role="button"],
+  body.highlight-buttons a[role="button"],
+  body.highlight-buttons input[type="button"],
+  body.highlight-buttons input[type="submit"] {
+    border: 2px solid hsl(var(--primary)) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  body.highlight-buttons button:hover,
+  body.highlight-buttons button:focus,
+  body.highlight-buttons [role="button"]:hover,
+  body.highlight-buttons [role="button"]:focus {
+    border-width: 3px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    outline: 2px solid hsl(var(--ring)) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Acessibilidade - Cursor ampliado */
+  body.large-cursor,
+  body.large-cursor * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%23000000" stroke="%23ffffff" stroke-width="2"/></svg>') 16 16, auto !important;
+  }
+
+  body.large-cursor button,
+  body.large-cursor a,
+  body.large-cursor [role="button"],
+  body.large-cursor input,
+  body.large-cursor textarea,
+  body.large-cursor select {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%23000000" stroke="%23ffffff" stroke-width="2"/></svg>') 16 16, pointer !important;
+  }
+
+  /* Acessibilidade - Modo leitura */
+  body.reading-mode header,
+  body.reading-mode nav,
+  body.reading-mode aside,
+  body.reading-mode footer,
+  body.reading-mode [role="banner"],
+  body.reading-mode [role="navigation"],
+  body.reading-mode [role="complementary"],
+  body.reading-mode [role="contentinfo"] {
+    display: none !important;
+  }
+
+  body.reading-mode main,
+  body.reading-mode [role="main"],
+  body.reading-mode article {
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding: 2rem !important;
+    font-size: 1.125rem !important;
+    line-height: 1.8 !important;
+  }
+
+  body.reading-mode h1,
+  body.reading-mode h2,
+  body.reading-mode h3,
+  body.reading-mode h4,
+  body.reading-mode h5,
+  body.reading-mode h6 {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.4 !important;
+  }
+
+  body.reading-mode p {
+    margin-bottom: 1.5rem !important;
+  }
+
+  body.reading-mode img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Garantir que o conteúdo principal seja visível no modo leitura */
+  body.reading-mode {
+    background: hsl(var(--background)) !important;
+  }
+
+  /* Scrollbar estilizada e sempre visível para menu de acessibilidade */
+  .accessibility-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary)) hsl(var(--muted));
+    overscroll-behavior: contain;
+  }
+
+  .accessibility-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .accessibility-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  .accessibility-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.8);
+    border-radius: 4px;
+    border: 1px solid hsl(var(--muted));
+  }
+
+  .accessibility-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+
+  .accessibility-scrollbar::-webkit-scrollbar-thumb:active {
+    background: hsl(var(--primary));
+  }
+
+  /* No mobile, garantir que a scrollbar seja mais visível e funcional */
+  @media (max-width: 768px) {
+    .accessibility-scrollbar {
+      scrollbar-width: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .accessibility-scrollbar::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    /* Ajustar z-index para não conflitar com outros elementos */
+    [role="region"][aria-label="Controles de acessibilidade"] {
+      z-index: 9999;
+      top: 80px !important;
+    }
+
+    /* Garantir padding suficiente no mobile */
+    [role="toolbar"][aria-label="Ferramentas de acessibilidade"] {
+      max-height: calc(100vh - 100px) !important;
+    }
+
+    [role="toolbar"][aria-label="Ferramentas de acessibilidade"] > div {
+      padding-bottom: 2rem !important;
+    }
+  }
+
+  /* Garantir que a scrollbar seja sempre visível quando necessário */
+  .accessibility-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  /* Melhorar acessibilidade da scrollbar */
+  .accessibility-scrollbar:focus-within::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary-foreground));
+  }
+
+  /* Forçar scrollbar sempre visível no WebKit quando o conteúdo excede */
+  .accessibility-scrollbar {
+    scrollbar-gutter: stable;
+  }
 }
 
 @layer components {
@@ -142,5 +450,15 @@
   
   .card-hover {
     @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+  }
+
+  /* Esconder scrollbar mas manter funcionalidade */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

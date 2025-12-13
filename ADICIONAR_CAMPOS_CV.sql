@@ -37,3 +37,6 @@ BEGIN
     RAISE NOTICE 'Default adicionado para languages';
   END IF;
 END $$;
+
+
+
