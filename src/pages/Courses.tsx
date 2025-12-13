@@ -137,15 +137,61 @@ const CourseCard = ({ course }) => {
 const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedLevels, setSelectedLevels] = useState([]);
+  const [selectedPrices, setSelectedPrices] = useState([]);
+
+  // Função auxiliar para extrair valor numérico do preço
+  const extractPrice = (priceString) => {
+    if (priceString === "Gratuito") return 0;
+    const match = priceString.match(/R\$\s*([\d,]+)/);
+    if (match) {
+      return parseFloat(match[1].replace(',', '.'));
+    }
+    return 0;
+  };
+
+  // Função auxiliar para verificar se o nível do curso corresponde aos filtros
+  const matchesLevel = (courseLevel) => {
+    if (selectedLevels.length === 0) return true;
+    
+    const levelMap = {
+      "Iniciante": ["Iniciante", "Iniciante a Avançado"],
+      "Intermediário": ["Intermediário", "Iniciante a Avançado"],
+      "Avançado": ["Avançado", "Iniciante a Avançado"]
+    };
+    
+    return selectedLevels.some(selectedLevel => {
+      const validLevels = levelMap[selectedLevel] || [];
+      return validLevels.includes(courseLevel);
+    });
+  };
+
+  // Função auxiliar para verificar se o preço corresponde aos filtros
+  const matchesPrice = (coursePrice) => {
+    if (selectedPrices.length === 0) return true;
+    
+    const price = extractPrice(coursePrice);
+    
+    return selectedPrices.some(priceFilter => {
+      if (priceFilter === "Gratuito") return price === 0;
+      if (priceFilter === "Até R$ 29,90") return price > 0 && price <= 29.90;
+      if (priceFilter === "R$ 30 - R$ 49,90") return price >= 30 && price <= 49.90;
+      return true;
+    });
+  };
 
   const filteredCourses = coursesData.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = searchTerm === "" || 
+                          course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           course.provider.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCategory = selectedCategories.length === 0 || 
                            course.categories.some(cat => selectedCategories.includes(cat));
     
-    return matchesSearch && matchesCategory;
+    const matchesLevelFilter = matchesLevel(course.level);
+    const matchesPriceFilter = matchesPrice(course.price);
+    
+    return matchesSearch && matchesCategory && matchesLevelFilter && matchesPriceFilter;
   });
 
   const handleCategoryToggle = (category) => {
@@ -155,6 +201,34 @@ const Courses = () => {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
+
+  const handleLevelToggle = (level) => {
+    if (selectedLevels.includes(level)) {
+      setSelectedLevels(selectedLevels.filter(l => l !== level));
+    } else {
+      setSelectedLevels([...selectedLevels, level]);
+    }
+  };
+
+  const handlePriceToggle = (price) => {
+    if (selectedPrices.includes(price)) {
+      setSelectedPrices(selectedPrices.filter(p => p !== price));
+    } else {
+      setSelectedPrices([...selectedPrices, price]);
+    }
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSelectedLevels([]);
+    setSelectedPrices([]);
+    setSearchTerm("");
+  };
+
+  const hasActiveFilters = selectedCategories.length > 0 || 
+                          selectedLevels.length > 0 || 
+                          selectedPrices.length > 0 || 
+                          searchTerm !== "";
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
@@ -209,15 +283,33 @@ const Courses = () => {
               <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Nível</h3>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <input type="checkbox" id="beginner" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="beginner" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedLevels.includes("Iniciante")}
+                    onChange={() => handleLevelToggle("Iniciante")}
+                  />
                   <label htmlFor="beginner" className="text-sm text-gray-700 dark:text-gray-300">Iniciante</label>
                 </div>
                 <div className="flex items-center">
-                  <input type="checkbox" id="intermediate" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="intermediate" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedLevels.includes("Intermediário")}
+                    onChange={() => handleLevelToggle("Intermediário")}
+                  />
                   <label htmlFor="intermediate" className="text-sm text-gray-700 dark:text-gray-300">Intermediário</label>
                 </div>
                 <div className="flex items-center">
-                  <input type="checkbox" id="advanced" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="advanced" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedLevels.includes("Avançado")}
+                    onChange={() => handleLevelToggle("Avançado")}
+                  />
                   <label htmlFor="advanced" className="text-sm text-gray-700 dark:text-gray-300">Avançado</label>
                 </div>
               </div>
@@ -227,18 +319,49 @@ const Courses = () => {
               <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Preço</h3>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <input type="checkbox" id="free" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="free" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedPrices.includes("Gratuito")}
+                    onChange={() => handlePriceToggle("Gratuito")}
+                  />
                   <label htmlFor="free" className="text-sm text-gray-700 dark:text-gray-300">Gratuito</label>
                 </div>
                 <div className="flex items-center">
-                  <input type="checkbox" id="low-price" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="low-price" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedPrices.includes("Até R$ 29,90")}
+                    onChange={() => handlePriceToggle("Até R$ 29,90")}
+                  />
                   <label htmlFor="low-price" className="text-sm text-gray-700 dark:text-gray-300">Até R$ 29,90</label>
                 </div>
                 <div className="flex items-center">
-                  <input type="checkbox" id="mid-price" className="rounded text-brand-600 focus:ring-brand-500 mr-2" />
+                  <input 
+                    type="checkbox" 
+                    id="mid-price" 
+                    className="rounded text-brand-600 focus:ring-brand-500 mr-2"
+                    checked={selectedPrices.includes("R$ 30 - R$ 49,90")}
+                    onChange={() => handlePriceToggle("R$ 30 - R$ 49,90")}
+                  />
                   <label htmlFor="mid-price" className="text-sm text-gray-700 dark:text-gray-300">R$ 30 - R$ 49,90</label>
                 </div>
               </div>
+
+              {hasActiveFilters && (
+                <>
+                  <Separator className="my-4" />
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={clearAllFilters}
+                  >
+                    Limpar Filtros
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -268,22 +391,39 @@ const Courses = () => {
               </TabsContent>
 
               <TabsContent value="popular" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {coursesData
-                    .sort((a, b) => b.rating - a.rating)
-                    .slice(0, 6)
-                    .map(course => (
-                      <CourseCard key={course.id} course={course} />
-                    ))}
-                </div>
+                {filteredCourses
+                  .sort((a, b) => b.rating - a.rating)
+                  .length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCourses
+                      .sort((a, b) => b.rating - a.rating)
+                      .map(course => (
+                        <CourseCard key={course.id} course={course} />
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <BookOpen className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500" />
+                    <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">Nenhum curso encontrado</h3>
+                    <p className="mt-1 text-gray-500 dark:text-gray-400">Tente ajustar os filtros ou termos de busca.</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="recent" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {coursesData.slice(0, 6).map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
+                {filteredCourses.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCourses.map(course => (
+                      <CourseCard key={course.id} course={course} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <BookOpen className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500" />
+                    <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">Nenhum curso encontrado</h3>
+                    <p className="mt-1 text-gray-500 dark:text-gray-400">Tente ajustar os filtros ou termos de busca.</p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
 
