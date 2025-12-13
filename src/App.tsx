@@ -20,6 +20,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import CookieConsent from "@/components/CookieConsent";
 import AccessibilityControls from "@/components/AccessibilityControls";
+import QuickNavigation from "@/components/navigation/QuickNavigation";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -69,6 +70,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <QuickNavigation />
             <CookieConsent />
             <AccessibilityControls />
           </AuthProvider>
