@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
   Briefcase, MapPin, Mail, Phone, 
-  Edit, Plus, X, Download, Bookmark, BookmarkCheck, Clock, Trash2, Save, Calendar, GraduationCap, Globe
+  Edit, Plus, X, Download, Bookmark, BookmarkCheck, Clock, Trash2, Save, Calendar, GraduationCap, Globe, DollarSign
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -260,6 +260,10 @@ const SavedJobsTab = ({ userId }: { userId?: string }) => {
 // Componente para exibir candidaturas
 const ApplicationsTab = ({ userId }: { userId?: string }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [showCoverLetter, setShowCoverLetter] = useState(false);
 
   // Buscar candidaturas do Supabase
   const { data: applications, isLoading } = useQuery({
@@ -282,7 +286,8 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
             company_name,
             location,
             employment_type,
-            salary_range
+            salary_range,
+            work_model
           )
         `)
         .eq('candidate_id', userId)
@@ -301,7 +306,8 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
           company_name: app.job_postings.company_name,
           location: app.job_postings.location,
           employment_type: app.job_postings.employment_type,
-          salary_range: app.job_postings.salary_range
+          salary_range: app.job_postings.salary_range,
+          work_model: app.job_postings.work_model
         } : null,
         status: app.status,
         cover_letter: app.cover_letter,
@@ -311,6 +317,47 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
     },
     enabled: !!userId,
   });
+
+  // Filtrar candidaturas por status
+  const filteredApplications = applications?.filter((app: any) => {
+    if (statusFilter === 'all') return true;
+    return app.status === statusFilter;
+  }) || [];
+
+  // Função para retirar candidatura
+  const handleWithdrawApplication = async (applicationId: string) => {
+    if (!confirm('Tem certeza que deseja retirar esta candidatura? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .update({ status: 'withdrawn' })
+        .eq('id', applicationId);
+
+      if (error) throw error;
+
+      // Invalidar cache e recarregar
+      queryClient.invalidateQueries({ queryKey: ['applications', userId] });
+      toast.success('Candidatura retirada com sucesso');
+    } catch (error: any) {
+      console.error('Erro ao retirar candidatura:', error);
+      toast.error(error.message || 'Erro ao retirar candidatura. Tente novamente.');
+    }
+  };
+
+  // Função para navegar para a vaga (lidar com UUIDs e IDs numéricos)
+  const handleViewJob = (jobId: string) => {
+    // Se for UUID, navegar diretamente
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(jobId)) {
+      navigate(`/jobs/${jobId}`);
+    } else {
+      // Se for ID numérico (vaga mockada), ainda pode navegar
+      navigate(`/jobs/${jobId}`);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; color: string }> = {
@@ -367,18 +414,22 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-          <div className="text-center py-8">
-            <Briefcase className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12">
+            <Briefcase className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Nenhuma candidatura ainda
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
               Você ainda não se candidatou a nenhuma vaga.
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
               Explore as vagas disponíveis e envie sua candidatura.
             </p>
             <Button 
-              className="mt-4 bg-brand-500 hover:bg-brand-600"
+              className="bg-brand-500 hover:bg-brand-600 text-white"
               onClick={() => navigate('/jobs')}
             >
+              <Briefcase className="h-4 w-4 mr-2" />
               Explorar vagas
             </Button>
           </div>
@@ -388,80 +439,221 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
   }
 
   return (
-    <Card className="bg-white dark:bg-gray-800">
-      <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
-        <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
-          Candidaturas ({applications.length})
-        </CardTitle>
-        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-          Acompanhe o status de todas as suas candidaturas
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-        <div className="space-y-4">
-          {applications.map((application: any) => {
-            if (!application.job) return null;
-            
-            return (
-              <div
-                key={application.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
-                        <Briefcase className="h-5 w-5 text-gray-400" />
-                      </div>
+    <>
+      <Card className="bg-white dark:bg-gray-800">
+        <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
+                Candidaturas ({applications.length})
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                Acompanhe o status de todas as suas candidaturas
+              </CardDescription>
+            </div>
+            {/* Filtro por status */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filtrar por status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas ({applications.length})</SelectItem>
+                <SelectItem value="pending">Pendente ({applications.filter((a: any) => a.status === 'pending').length})</SelectItem>
+                <SelectItem value="viewed">Visualizada ({applications.filter((a: any) => a.status === 'viewed').length})</SelectItem>
+                <SelectItem value="in_review">Em análise ({applications.filter((a: any) => a.status === 'in_review').length})</SelectItem>
+                <SelectItem value="interview">Entrevista ({applications.filter((a: any) => a.status === 'interview').length})</SelectItem>
+                <SelectItem value="accepted">Aceita ({applications.filter((a: any) => a.status === 'accepted').length})</SelectItem>
+                <SelectItem value="rejected">Recusada ({applications.filter((a: any) => a.status === 'rejected').length})</SelectItem>
+                <SelectItem value="withdrawn">Retirada ({applications.filter((a: any) => a.status === 'withdrawn').length})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+          {filteredApplications.length === 0 ? (
+            <div className="text-center py-12">
+              <Briefcase className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Nenhuma candidatura encontrada
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Tente alterar o filtro de status para ver outras candidaturas.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredApplications.map((application: any) => {
+                if (!application.job) return null;
+                
+                return (
+                  <div
+                    key={application.id}
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Link to={`/jobs/${application.job_id}`}>
-                            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400">
-                              {application.job.title}
-                            </h3>
-                          </Link>
-                          {getStatusBadge(application.status)}
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                          {application.job.company_name}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                          {application.job.location && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              <span>{application.job.location}</span>
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0">
+                            <Briefcase className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <h3 
+                                className="text-base sm:text-lg font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer"
+                                onClick={() => handleViewJob(application.job_id)}
+                              >
+                                {application.job.title}
+                              </h3>
+                              {getStatusBadge(application.status)}
                             </div>
-                          )}
-                          {application.job.employment_type && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{application.job.employment_type}</span>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                              {application.job.company_name}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2">
+                              {application.job.location && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  <span>{application.job.location}</span>
+                                </div>
+                              )}
+                              {application.job.employment_type && (
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span className="capitalize">{application.job.employment_type}</span>
+                                </div>
+                              )}
+                              {application.job.work_model && (
+                                <Badge variant="outline" className="text-xs">
+                                  {application.job.work_model === 'remoto' ? '🏠 Remoto' : 
+                                   application.job.work_model === 'presencial' ? '🏢 Presencial' : 
+                                   application.job.work_model === 'hibrido' ? '🔄 Híbrido' : 
+                                   application.job.work_model}
+                                </Badge>
+                              )}
+                              {application.job.salary_range && (
+                                <div className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />
+                                  <span className="font-medium">{application.job.salary_range}</span>
+                                </div>
+                              )}
                             </div>
-                          )}
+                            <div className="flex flex-wrap items-center gap-3 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                              <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                                <Calendar className="h-3 w-3" />
+                                <span>Candidatou-se {formatDate(application.applied_at)}</span>
+                              </div>
+                              {application.updated_at && application.updated_at !== application.applied_at && (
+                                <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                                  <Clock className="h-3 w-3" />
+                                  <span>Atualizado {formatDate(application.updated_at)}</span>
+                                </div>
+                              )}
+                              {application.cover_letter && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-3 text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20"
+                                  onClick={() => {
+                                    setSelectedApplication(application);
+                                    setShowCoverLetter(true);
+                                  }}
+                                >
+                                  Ver carta de apresentação
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                          Candidatou-se {formatDate(application.applied_at)}
-                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewJob(application.job_id)}
+                          className="text-xs sm:text-sm"
+                        >
+                          Ver vaga
+                        </Button>
+                        {application.status !== 'withdrawn' && application.status !== 'rejected' && application.status !== 'accepted' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleWithdrawApplication(application.id)}
+                            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            aria-label="Retirar candidatura"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Retirar
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/jobs/${application.job_id}`)}
-                      className="text-xs sm:text-sm"
-                    >
-                      Ver vaga
-                    </Button>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog para ver carta de apresentação */}
+      <Dialog open={showCoverLetter} onOpenChange={setShowCoverLetter}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Carta de Apresentação</DialogTitle>
+          </DialogHeader>
+          {selectedApplication && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Briefcase className="h-5 w-5 text-brand-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1">
+                      {selectedApplication.job?.title}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {selectedApplication.job?.company_name}
+                    </p>
+                    {selectedApplication.job?.location && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-500">
+                        <MapPin className="h-3 w-3" />
+                        <span>{selectedApplication.job.location}</span>
+                      </div>
+                    )}
                   </div>
+                  {getStatusBadge(selectedApplication.status)}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              <Separator />
+              <div>
+                <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sua carta de apresentação:
+                </h5>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                    {selectedApplication.cover_letter || (
+                      <span className="text-gray-400 dark:text-gray-500 italic">
+                        Nenhuma carta de apresentação foi enviada com esta candidatura.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-2">
+                <Calendar className="h-3 w-3" />
+                <span>Enviada em {new Date(selectedApplication.applied_at).toLocaleDateString('pt-BR', { 
+                  day: '2-digit', 
+                  month: 'long', 
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

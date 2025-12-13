@@ -20,8 +20,11 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Briefcase, MapPin, Clock, DollarSign, Calendar, 
   ArrowLeft, Bookmark, BookmarkCheck, CheckCircle2,
-  Building2, Send, Share2
+  Building2, Send, Share2, X
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -233,6 +236,9 @@ const JobDetails = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
 
   const jobId = id ? parseInt(id) : null;
   const job = jobId ? jobDetailsData[jobId] : null;
@@ -265,6 +271,34 @@ const JobDetails = () => {
       
       if (error && error.code !== 'PGRST116') {
         console.error('Erro ao verificar vaga salva:', error);
+        return false;
+      }
+      
+      return !!data;
+    },
+    enabled: !!user?.id && !!jobIdStr && isValidUUIDForQuery(jobIdStr),
+  });
+
+  // Verificar se já se candidatou
+  const { data: hasApplied = false } = useQuery({
+    queryKey: ['hasApplied', user?.id, jobIdStr],
+    queryFn: async () => {
+      if (!user?.id || !jobIdStr) return false;
+      
+      // Não tentar buscar se não for UUID válido
+      if (!isValidUUIDForQuery(jobIdStr)) {
+        return false;
+      }
+      
+      const { data, error } = await supabase
+        .from('job_applications')
+        .select('id')
+        .eq('candidate_id', user.id)
+        .eq('job_posting_id', jobIdStr)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao verificar candidatura:', error);
         return false;
       }
       
@@ -367,8 +401,81 @@ const JobDetails = () => {
       navigate('/login');
       return;
     }
-    // TODO: Implementar candidatura
-    toast.success('Candidatura enviada com sucesso!');
+
+    // Validar se é UUID válido (vagas mockadas não podem receber candidaturas)
+    if (!isValidUUID(jobIdStr)) {
+      toast.error('Esta vaga é apenas uma demonstração. As vagas reais precisam ser criadas no Supabase para receber candidaturas.', {
+        duration: 5000,
+      });
+      return;
+    }
+
+    // Verificar se já se candidatou
+    if (hasApplied) {
+      toast.info('Você já se candidatou para esta vaga. Acompanhe o status no seu perfil.');
+      return;
+    }
+
+    // Abrir dialog para carta de apresentação
+    setShowApplyDialog(true);
+  };
+
+  const handleSubmitApplication = async () => {
+    if (!user || !jobIdStr) return;
+
+    // Validar UUID novamente
+    if (!isValidUUID(jobIdStr)) {
+      toast.error('Erro: ID da vaga inválido.');
+      return;
+    }
+
+    setIsApplying(true);
+
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .insert({
+          candidate_id: user.id,
+          job_posting_id: jobIdStr,
+          cover_letter: coverLetter.trim() || null,
+          status: 'pending',
+        });
+
+      if (error) {
+        // Se já existe candidatura
+        if (error.code === '23505') {
+          toast.info('Você já se candidatou para esta vaga.');
+          setShowApplyDialog(false);
+          queryClient.invalidateQueries({ queryKey: ['hasApplied', user.id, jobIdStr] });
+          queryClient.invalidateQueries({ queryKey: ['applications', user.id] });
+          return;
+        }
+        throw error;
+      }
+
+      // Sucesso
+      toast.success('Candidatura enviada com sucesso!');
+      setShowApplyDialog(false);
+      setCoverLetter('');
+      
+      // Atualizar cache
+      queryClient.invalidateQueries({ queryKey: ['hasApplied', user.id, jobIdStr] });
+      queryClient.invalidateQueries({ queryKey: ['applications', user.id] });
+    } catch (error: any) {
+      console.error('Erro ao enviar candidatura:', error);
+      
+      // Tratar especificamente erros de UUID inválido
+      if (error.message && error.message.includes('invalid input syntax for type uuid')) {
+        toast.error('Erro: Esta vaga não pode receber candidaturas porque não é uma vaga real do banco de dados.', {
+          duration: 6000,
+        });
+        return;
+      }
+      
+      toast.error(error.message || 'Erro ao enviar candidatura. Tente novamente.');
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   if (loading) {
@@ -578,14 +685,25 @@ const JobDetails = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 space-y-2 sm:space-y-3">
-                  <Button 
-                    onClick={handleApply}
-                    className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm sm:text-base py-2.5 sm:py-3"
-                    size="lg"
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Candidatar-se
-                  </Button>
+                  {hasApplied ? (
+                    <Button 
+                      disabled
+                      className="w-full bg-green-600 text-white text-sm sm:text-base py-2.5 sm:py-3 cursor-not-allowed"
+                      size="lg"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Já candidatado
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleApply}
+                      className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm sm:text-base py-2.5 sm:py-3"
+                      size="lg"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Candidatar-se
+                    </Button>
+                  )}
                   
                   {user && (
                     <Button
@@ -667,6 +785,75 @@ const JobDetails = () => {
       </main>
       
       <Footer />
+
+      {/* Dialog para candidatura */}
+      <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Candidatar-se para a vaga</DialogTitle>
+            <DialogDescription>
+              {job?.title} - {job?.company}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="coverLetter" className="text-sm font-medium">
+                Carta de Apresentação (Opcional)
+              </Label>
+              <Textarea
+                id="coverLetter"
+                placeholder="Conte-nos por que você é a pessoa ideal para esta vaga..."
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                className="mt-2 min-h-[150px]"
+                maxLength={2000}
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {coverLetter.length}/2000 caracteres
+              </p>
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+              <p className="text-xs text-blue-800 dark:text-blue-200">
+                <strong>Dica:</strong> Uma boa carta de apresentação pode aumentar suas chances de ser selecionado. 
+                Destaque suas principais qualificações e o que te motiva a trabalhar nesta empresa.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowApplyDialog(false);
+                setCoverLetter('');
+              }}
+              disabled={isApplying}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSubmitApplication}
+              disabled={isApplying}
+              className="bg-brand-500 hover:bg-brand-600"
+            >
+              {isApplying ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Enviar Candidatura
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
