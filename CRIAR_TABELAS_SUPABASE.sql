@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS profiles (
   linkedin_url TEXT,
   portfolio_url TEXT,
   skills TEXT[],
-  languages JSONB,
+  languages JSONB DEFAULT '[]'::jsonb,
+  experiences JSONB DEFAULT '[]'::jsonb,
+  education JSONB DEFAULT '[]'::jsonb,
   company_name TEXT,
   company_size TEXT,
   company_description TEXT,
@@ -235,4 +237,5 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW 
   EXECUTE FUNCTION public.handle_new_user();
+
 

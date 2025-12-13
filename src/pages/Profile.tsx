@@ -26,8 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
   Briefcase, MapPin, Mail, Phone, 
-  Edit, Plus, X, Download, Bookmark, BookmarkCheck, Clock, Trash2
+  Edit, Plus, X, Download, Bookmark, BookmarkCheck, Clock, Trash2, Save, Calendar, GraduationCap, Globe
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -462,7 +466,7 @@ const ApplicationsTab = ({ userId }: { userId?: string }) => {
 };
 
 const Profile = () => {
-  const { user, profile, session, loading } = useAuth();
+  const { user, profile, session, loading, refreshProfile } = useAuth();
   
   // Verificar se há sessão válida
   const isAuthenticated = !loading && user && session;
@@ -470,6 +474,23 @@ const Profile = () => {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [profileProgress, setProfileProgress] = useState(0);
+  
+  // Estados para edição inline
+  const [editingBio, setEditingBio] = useState(false);
+  const [editingExperience, setEditingExperience] = useState(false);
+  const [editingEducation, setEditingEducation] = useState(false);
+  const [editingLanguage, setEditingLanguage] = useState(false);
+  
+  // Estados para formulários
+  const [bioText, setBioText] = useState('');
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [education, setEducation] = useState<any[]>([]);
+  const [languages, setLanguages] = useState<any[]>([]);
+  
+  // Estado para novo item sendo adicionado
+  const [newExperience, setNewExperience] = useState({ title: '', company: '', location: '', start_date: '', end_date: '', current: false, description: '' });
+  const [newEducation, setNewEducation] = useState({ institution: '', degree: '', field: '', start_date: '', end_date: '', current: false });
+  const [newLanguage, setNewLanguage] = useState({ language: '', level: '' });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -489,11 +510,135 @@ const Profile = () => {
       ];
       const filledFields = fields.filter(Boolean).length;
       setProfileProgress(Math.round((filledFields / fields.length) * 100));
+      
+      // Carregar dados para edição
+      setBioText(profile.bio || '');
+      setExperiences(Array.isArray(profile.experiences) ? profile.experiences : []);
+      setEducation(Array.isArray(profile.education) ? profile.education : []);
+      setLanguages(Array.isArray(profile.languages) ? profile.languages : []);
     } else {
       // Se não há perfil mas há usuário, resetar progresso
       setProfileProgress(0);
     }
   }, [profile]);
+
+  // Função para salvar bio
+  const handleSaveBio = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ bio: bioText })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      await refreshProfile();
+      setEditingBio(false);
+      toast.success('Resumo profissional atualizado!');
+    } catch (error: any) {
+      console.error('Erro ao salvar resumo:', error);
+      toast.error('Erro ao salvar resumo. Tente novamente.');
+    }
+  };
+
+  // Função para salvar experiências
+  const handleSaveExperiences = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ experiences })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      await refreshProfile();
+      setEditingExperience(false);
+      toast.success('Experiências atualizadas!');
+    } catch (error: any) {
+      console.error('Erro ao salvar experiências:', error);
+      toast.error('Erro ao salvar experiências. Tente novamente.');
+    }
+  };
+
+  // Função para salvar educação
+  const handleSaveEducation = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ education })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      await refreshProfile();
+      setEditingEducation(false);
+      toast.success('Formação acadêmica atualizada!');
+    } catch (error: any) {
+      console.error('Erro ao salvar educação:', error);
+      toast.error('Erro ao salvar educação. Tente novamente.');
+    }
+  };
+
+  // Função para salvar idiomas
+  const handleSaveLanguages = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ languages })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      await refreshProfile();
+      setEditingLanguage(false);
+      toast.success('Idiomas atualizados!');
+    } catch (error: any) {
+      console.error('Erro ao salvar idiomas:', error);
+      toast.error('Erro ao salvar idiomas. Tente novamente.');
+    }
+  };
+
+  // Funções para adicionar/remover itens
+  const addExperience = () => {
+    if (newExperience.title && newExperience.company) {
+      setExperiences([...experiences, { ...newExperience, id: Date.now() }]);
+      setNewExperience({ title: '', company: '', location: '', start_date: '', end_date: '', current: false, description: '' });
+    }
+  };
+
+  const removeExperience = (index: number) => {
+    setExperiences(experiences.filter((_, i) => i !== index));
+  };
+
+  const addEducation = () => {
+    if (newEducation.institution && newEducation.degree) {
+      setEducation([...education, { ...newEducation, id: Date.now() }]);
+      setNewEducation({ institution: '', degree: '', field: '', start_date: '', end_date: '', current: false });
+    }
+  };
+
+  const removeEducation = (index: number) => {
+    setEducation(education.filter((_, i) => i !== index));
+  };
+
+  const addLanguage = () => {
+    if (newLanguage.language && newLanguage.level) {
+      setLanguages([...languages, { ...newLanguage, id: Date.now() }]);
+      setNewLanguage({ language: '', level: '' });
+    }
+  };
+
+  const removeLanguage = (index: number) => {
+    setLanguages(languages.filter((_, i) => i !== index));
+  };
 
   // Mostrar loading apenas enquanto está verificando autenticação
   if (loading) {
@@ -694,14 +839,41 @@ const Profile = () => {
                       <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
                         <CardTitle className="text-base sm:text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Resumo profissional</span>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8">
-                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
+                          <Dialog open={editingBio} onOpenChange={setEditingBio}>
+                            <DialogTrigger asChild>
+                              <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8">
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Editar Resumo Profissional</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <Textarea
+                                  value={bioText}
+                                  onChange={(e) => setBioText(e.target.value)}
+                                  placeholder="Descreva sua experiência profissional, objetivos de carreira e principais conquistas..."
+                                  rows={8}
+                                  className="min-h-[200px]"
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline" onClick={() => setEditingBio(false)}>
+                                    Cancelar
+                                  </Button>
+                                  <Button onClick={handleSaveBio} className="bg-brand-500 hover:bg-brand-600">
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Salvar
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
                         {profile?.bio ? (
-                          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                          <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                             {profile.bio}
                           </p>
                         ) : (
@@ -717,15 +889,166 @@ const Profile = () => {
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Experiência profissional</span>
-                          <Button size="icon" variant="ghost" className="h-8 w-8">
-                            <Plus className="h-4 w-4" />
-                          </Button>
+                          <Dialog open={editingExperience} onOpenChange={setEditingExperience}>
+                            <DialogTrigger asChild>
+                              <Button size="icon" variant="ghost" className="h-8 w-8">
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Gerenciar Experiências Profissionais</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-6 py-4">
+                                {/* Lista de experiências existentes */}
+                                {experiences.length > 0 && (
+                                  <div className="space-y-4">
+                                    {experiences.map((exp, index) => (
+                                      <div key={exp.id || index} className="border rounded-lg p-4 space-y-2">
+                                        <div className="flex items-start justify-between">
+                                          <div className="flex-1">
+                                            <h4 className="font-semibold text-gray-900 dark:text-white">{exp.title}</h4>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">{exp.company}</p>
+                                            {exp.location && (
+                                              <p className="text-xs text-gray-500 dark:text-gray-500">{exp.location}</p>
+                                            )}
+                                            {exp.start_date && (
+                                              <p className="text-xs text-gray-500 dark:text-gray-500">
+                                                {exp.start_date} - {exp.current ? 'Atual' : exp.end_date || 'Presente'}
+                                              </p>
+                                            )}
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => removeExperience(index)}
+                                            className="text-red-600 hover:text-red-700"
+                                          >
+                                            <X className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Formulário para adicionar nova experiência */}
+                                <div className="border-t pt-4 space-y-4">
+                                  <h4 className="font-medium text-gray-900 dark:text-white">Adicionar Nova Experiência</h4>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label>Cargo *</Label>
+                                      <Input
+                                        value={newExperience.title}
+                                        onChange={(e) => setNewExperience({ ...newExperience, title: e.target.value })}
+                                        placeholder="Ex: Desenvolvedor Full Stack"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Empresa *</Label>
+                                      <Input
+                                        value={newExperience.company}
+                                        onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
+                                        placeholder="Ex: TechSolutions"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Localização</Label>
+                                      <Input
+                                        value={newExperience.location}
+                                        onChange={(e) => setNewExperience({ ...newExperience, location: e.target.value })}
+                                        placeholder="Ex: Manaus, AM"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Data de Início</Label>
+                                      <Input
+                                        type="month"
+                                        value={newExperience.start_date}
+                                        onChange={(e) => setNewExperience({ ...newExperience, start_date: e.target.value })}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Data de Término</Label>
+                                      <Input
+                                        type="month"
+                                        value={newExperience.end_date}
+                                        onChange={(e) => setNewExperience({ ...newExperience, end_date: e.target.value })}
+                                        disabled={newExperience.current}
+                                      />
+                                    </div>
+                                    <div className="space-y-2 flex items-end">
+                                      <div className="flex items-center space-x-2">
+                                        <input
+                                          type="checkbox"
+                                          id="current-exp"
+                                          checked={newExperience.current}
+                                          onChange={(e) => setNewExperience({ ...newExperience, current: e.target.checked, end_date: '' })}
+                                          className="rounded"
+                                        />
+                                        <Label htmlFor="current-exp" className="cursor-pointer">Trabalho atual</Label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Descrição</Label>
+                                    <Textarea
+                                      value={newExperience.description}
+                                      onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
+                                      placeholder="Descreva suas responsabilidades e conquistas..."
+                                      rows={4}
+                                    />
+                                  </div>
+                                  <Button onClick={addExperience} variant="outline" className="w-full">
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Adicionar Experiência
+                                  </Button>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2 border-t pt-4">
+                                  <Button variant="outline" onClick={() => setEditingExperience(false)}>
+                                    Cancelar
+                                  </Button>
+                                  <Button onClick={handleSaveExperiences} className="bg-brand-500 hover:bg-brand-600">
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Salvar Todas
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                          Nenhuma experiência profissional adicionada ainda. Clique em adicionar para incluir suas experiências.
-                        </p>
+                        {experiences.length > 0 ? (
+                          <div className="space-y-4">
+                            {experiences.map((exp: any, index: number) => (
+                              <div key={exp.id || index} className="border-l-4 border-brand-500 pl-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{exp.title}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{exp.company}</p>
+                                {exp.location && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {exp.location}
+                                  </p>
+                                )}
+                                {exp.start_date && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1 mt-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {exp.start_date} - {exp.current ? 'Atual' : exp.end_date || 'Presente'}
+                                  </p>
+                                )}
+                                {exp.description && (
+                                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">{exp.description}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                            Nenhuma experiência profissional adicionada ainda. Clique em adicionar para incluir suas experiências.
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                     
@@ -734,15 +1057,151 @@ const Profile = () => {
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Educação</span>
-                          <Button size="icon" variant="ghost" className="h-8 w-8">
-                            <Plus className="h-4 w-4" />
-                          </Button>
+                          <Dialog open={editingEducation} onOpenChange={setEditingEducation}>
+                            <DialogTrigger asChild>
+                              <Button size="icon" variant="ghost" className="h-8 w-8">
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Gerenciar Formação Acadêmica</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-6 py-4">
+                                {/* Lista de formações existentes */}
+                                {education.length > 0 && (
+                                  <div className="space-y-4">
+                                    {education.map((edu, index) => (
+                                      <div key={edu.id || index} className="border rounded-lg p-4 space-y-2">
+                                        <div className="flex items-start justify-between">
+                                          <div className="flex-1">
+                                            <h4 className="font-semibold text-gray-900 dark:text-white">{edu.degree}</h4>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">{edu.institution}</p>
+                                            {edu.field && (
+                                              <p className="text-xs text-gray-500 dark:text-gray-500">{edu.field}</p>
+                                            )}
+                                            {edu.start_date && (
+                                              <p className="text-xs text-gray-500 dark:text-gray-500">
+                                                {edu.start_date} - {edu.current ? 'Cursando' : edu.end_date || 'Concluído'}
+                                              </p>
+                                            )}
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => removeEducation(index)}
+                                            className="text-red-600 hover:text-red-700"
+                                          >
+                                            <X className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Formulário para adicionar nova formação */}
+                                <div className="border-t pt-4 space-y-4">
+                                  <h4 className="font-medium text-gray-900 dark:text-white">Adicionar Nova Formação</h4>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label>Instituição *</Label>
+                                      <Input
+                                        value={newEducation.institution}
+                                        onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
+                                        placeholder="Ex: FAMETRO"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Grau/Diploma *</Label>
+                                      <Input
+                                        value={newEducation.degree}
+                                        onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
+                                        placeholder="Ex: Bacharelado em ADS"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Área de Estudo</Label>
+                                      <Input
+                                        value={newEducation.field}
+                                        onChange={(e) => setNewEducation({ ...newEducation, field: e.target.value })}
+                                        placeholder="Ex: Análise e Desenvolvimento de Sistemas"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Data de Início</Label>
+                                      <Input
+                                        type="month"
+                                        value={newEducation.start_date}
+                                        onChange={(e) => setNewEducation({ ...newEducation, start_date: e.target.value })}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Data de Conclusão</Label>
+                                      <Input
+                                        type="month"
+                                        value={newEducation.end_date}
+                                        onChange={(e) => setNewEducation({ ...newEducation, end_date: e.target.value })}
+                                        disabled={newEducation.current}
+                                      />
+                                    </div>
+                                    <div className="space-y-2 flex items-end">
+                                      <div className="flex items-center space-x-2">
+                                        <input
+                                          type="checkbox"
+                                          id="current-edu"
+                                          checked={newEducation.current}
+                                          onChange={(e) => setNewEducation({ ...newEducation, current: e.target.checked, end_date: '' })}
+                                          className="rounded"
+                                        />
+                                        <Label htmlFor="current-edu" className="cursor-pointer">Cursando</Label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button onClick={addEducation} variant="outline" className="w-full">
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Adicionar Formação
+                                  </Button>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2 border-t pt-4">
+                                  <Button variant="outline" onClick={() => setEditingEducation(false)}>
+                                    Cancelar
+                                  </Button>
+                                  <Button onClick={handleSaveEducation} className="bg-brand-500 hover:bg-brand-600">
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Salvar Todas
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                          Nenhuma formação acadêmica adicionada ainda. Clique em adicionar para incluir sua educação.
-                        </p>
+                        {education.length > 0 ? (
+                          <div className="space-y-4">
+                            {education.map((edu: any, index: number) => (
+                              <div key={edu.id || index} className="border-l-4 border-brand-500 pl-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{edu.degree}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{edu.institution}</p>
+                                {edu.field && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{edu.field}</p>
+                                )}
+                                {edu.start_date && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1 mt-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {edu.start_date} - {edu.current ? 'Cursando' : edu.end_date || 'Concluído'}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                            Nenhuma formação acadêmica adicionada ainda. Clique em adicionar para incluir sua educação.
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                     
@@ -751,19 +1210,104 @@ const Profile = () => {
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
                           <span>Idiomas</span>
-                          <Button size="icon" variant="ghost" className="h-8 w-8">
-                            <Plus className="h-4 w-4" />
-                          </Button>
+                          <Dialog open={editingLanguage} onOpenChange={setEditingLanguage}>
+                            <DialogTrigger asChild>
+                              <Button size="icon" variant="ghost" className="h-8 w-8">
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Gerenciar Idiomas</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-6 py-4">
+                                {/* Lista de idiomas existentes */}
+                                {languages.length > 0 && (
+                                  <div className="space-y-3">
+                                    {languages.map((lang, index) => (
+                                      <div key={lang.id || index} className="flex items-center justify-between border rounded-lg p-3">
+                                        <div className="flex items-center gap-3">
+                                          <Globe className="h-5 w-5 text-gray-400" />
+                                          <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">{lang.language}</p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">{lang.level}</p>
+                                          </div>
+                                        </div>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => removeLanguage(index)}
+                                          className="text-red-600 hover:text-red-700"
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Formulário para adicionar novo idioma */}
+                                <div className="border-t pt-4 space-y-4">
+                                  <h4 className="font-medium text-gray-900 dark:text-white">Adicionar Novo Idioma</h4>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label>Idioma *</Label>
+                                      <Input
+                                        value={newLanguage.language}
+                                        onChange={(e) => setNewLanguage({ ...newLanguage, language: e.target.value })}
+                                        placeholder="Ex: Inglês, Espanhol, Francês"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Nível *</Label>
+                                      <Select
+                                        value={newLanguage.level}
+                                        onValueChange={(value) => setNewLanguage({ ...newLanguage, level: value })}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Selecione o nível" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Básico">Básico</SelectItem>
+                                          <SelectItem value="Intermediário">Intermediário</SelectItem>
+                                          <SelectItem value="Avançado">Avançado</SelectItem>
+                                          <SelectItem value="Fluente">Fluente</SelectItem>
+                                          <SelectItem value="Nativo">Nativo</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                  <Button onClick={addLanguage} variant="outline" className="w-full">
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Adicionar Idioma
+                                  </Button>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2 border-t pt-4">
+                                  <Button variant="outline" onClick={() => setEditingLanguage(false)}>
+                                    Cancelar
+                                  </Button>
+                                  <Button onClick={handleSaveLanguages} className="bg-brand-500 hover:bg-brand-600">
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Salvar Todos
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        {profile?.languages && Array.isArray(profile.languages) && profile.languages.length > 0 ? (
+                        {languages.length > 0 ? (
                           <div className="space-y-3">
-                            {profile.languages.map((lang: any, index: number) => (
-                              <div key={index} className="flex items-center justify-between">
-                                <span className="font-medium text-gray-900 dark:text-white">
-                                  {lang.language || lang.name || 'Idioma'}
-                                </span>
+                            {languages.map((lang: any, index: number) => (
+                              <div key={lang.id || index} className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Globe className="h-4 w-4 text-gray-400" />
+                                  <span className="font-medium text-gray-900 dark:text-white">
+                                    {lang.language || lang.name || 'Idioma'}
+                                  </span>
+                                </div>
                                 <span className="text-gray-600 dark:text-gray-400">
                                   {lang.level || lang.proficiency || 'Não especificado'}
                                 </span>

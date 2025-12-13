@@ -238,11 +238,23 @@ const JobDetails = () => {
   const job = jobId ? jobDetailsData[jobId] : null;
   const jobIdStr = jobId?.toString() || '';
 
-  // Buscar se a vaga está salva
+  // Função para validar UUID (definir antes de usar)
+  const isValidUUIDForQuery = (str: string): boolean => {
+    if (!str || typeof str !== 'string') return false;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
+
+  // Buscar se a vaga está salva (apenas se for UUID válido)
   const { data: isSaved = false } = useQuery({
     queryKey: ['savedJob', user?.id, jobIdStr],
     queryFn: async () => {
       if (!user?.id || !jobIdStr) return false;
+      
+      // Não tentar buscar se não for UUID válido
+      if (!isValidUUIDForQuery(jobIdStr)) {
+        return false;
+      }
       
       const { data, error } = await supabase
         .from('saved_jobs')
@@ -258,13 +270,20 @@ const JobDetails = () => {
       
       return !!data;
     },
-    enabled: !!user?.id && !!jobIdStr,
+    enabled: !!user?.id && !!jobIdStr && isValidUUIDForQuery(jobIdStr),
   });
 
   useEffect(() => {
     // Simular carregamento
     setTimeout(() => setLoading(false), 300);
   }, [id]);
+
+  // Função para validar se é UUID
+  const isValidUUID = (str: string): boolean => {
+    if (!str || typeof str !== 'string') return false;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
 
   const handleSaveJob = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -276,6 +295,16 @@ const JobDetails = () => {
     }
 
     if (!jobIdStr) return;
+
+    // Validar se é UUID válido ANTES de qualquer operação
+    // Vagas mockadas têm IDs numéricos (1, 2, 3...) que não são UUIDs
+    if (!isValidUUID(jobIdStr)) {
+      console.warn('Tentativa de salvar vaga mockada com ID:', jobIdStr);
+      toast.error('Esta vaga é apenas uma demonstração. As vagas reais precisam ser criadas no Supabase para serem salvas.', {
+        duration: 5000,
+      });
+      return; // IMPORTANTE: retornar aqui para não tentar salvar
+    }
 
     try {
       if (isSaved) {
@@ -319,6 +348,15 @@ const JobDetails = () => {
       }
     } catch (error: any) {
       console.error('Erro ao salvar/remover vaga:', error);
+      
+      // Tratar especificamente erros de UUID inválido
+      if (error.message && error.message.includes('invalid input syntax for type uuid')) {
+        toast.error('Erro: Esta vaga não pode ser salva porque não é uma vaga real do banco de dados. As vagas de demonstração não podem ser salvas.', {
+          duration: 6000,
+        });
+        return;
+      }
+      
       toast.error(error.message || 'Erro ao processar ação. Tente novamente.');
     }
   };

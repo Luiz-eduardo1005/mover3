@@ -98,6 +98,14 @@ const JobList = () => {
     enabled: !!user?.id,
   });
 
+  // Função para validar se é UUID
+  const isValidUUID = (str: string): boolean => {
+    if (!str || typeof str !== 'string') return false;
+    // UUID tem formato: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
+
   const handleSaveJob = async (e: React.MouseEvent, jobId: number | string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -107,7 +115,18 @@ const JobList = () => {
       return;
     }
 
-    const jobIdStr = jobId.toString();
+    const jobIdStr = String(jobId);
+    
+    // Validar se é UUID válido ANTES de qualquer operação
+    // Vagas mockadas têm IDs numéricos (1, 2, 3...) que não são UUIDs
+    if (!isValidUUID(jobIdStr)) {
+      console.warn('Tentativa de salvar vaga mockada com ID:', jobIdStr);
+      toast.error('Esta vaga é apenas uma demonstração. As vagas reais precisam ser criadas no Supabase para serem salvas.', {
+        duration: 5000,
+      });
+      return; // IMPORTANTE: retornar aqui para não tentar salvar
+    }
+
     const isSaved = savedJobs.includes(jobIdStr);
     
     try {
@@ -125,6 +144,7 @@ const JobList = () => {
         queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
           old.filter(id => id !== jobIdStr)
         );
+        queryClient.invalidateQueries({ queryKey: ['savedJobs', user.id] });
         
         toast.success('Vaga removida das salvas');
       } else {
@@ -142,6 +162,7 @@ const JobList = () => {
             queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
               [...old, jobIdStr]
             );
+            queryClient.invalidateQueries({ queryKey: ['savedJobs', user.id] });
             toast.success('Vaga já estava salva');
             return;
           }
@@ -152,11 +173,21 @@ const JobList = () => {
         queryClient.setQueryData(['savedJobs', user.id], (old: string[] = []) => 
           [...old, jobIdStr]
         );
+        queryClient.invalidateQueries({ queryKey: ['savedJobs', user.id] });
         
         toast.success('Vaga salva com sucesso!');
       }
     } catch (error: any) {
       console.error('Erro ao salvar/remover vaga:', error);
+      
+      // Tratar especificamente erros de UUID inválido
+      if (error.message && error.message.includes('invalid input syntax for type uuid')) {
+        toast.error('Erro: Esta vaga não pode ser salva porque não é uma vaga real do banco de dados. As vagas de demonstração não podem ser salvas.', {
+          duration: 6000,
+        });
+        return;
+      }
+      
       toast.error(error.message || 'Erro ao processar ação. Tente novamente.');
     }
   };

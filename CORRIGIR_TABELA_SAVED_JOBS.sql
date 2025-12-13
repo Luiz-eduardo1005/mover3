@@ -79,3 +79,4 @@ CREATE POLICY "Candidates can manage own saved jobs" ON saved_jobs
 -- ============================================
 -- FIM DO SCRIPT DE CORREÇÃO
 -- ============================================
+

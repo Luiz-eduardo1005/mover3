@@ -27,6 +27,8 @@ interface Profile {
   portfolio_url: string | null;
   skills: string[] | null;
   languages: any;
+  experiences: any;
+  education: any;
   company_name: string | null;
   company_size: string | null;
   company_description: string | null;
