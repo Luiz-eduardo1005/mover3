@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,73 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-
-// Mock data for courses with more affordable pricing
-const coursesData = [
-  {
-    id: 1,
-    title: "Desenvolvimento Web Full Stack",
-    provider: "Tech Academy",
-    duration: "120 horas",
-    level: "Intermediário",
-    price: "R$ 49,90",
-    rating: 4.8,
-    certificationIncluded: true,
-    image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
-    categories: ["Programação", "Web", "JavaScript"]
-  },
-  {
-    id: 2,
-    title: "Excel Avançado para Análise de Dados",
-    provider: "Business Skills",
-    duration: "40 horas",
-    level: "Avançado",
-    price: "R$ 29,90",
-    rating: 4.5,
-    certificationIncluded: true,
-    image: "https://images.unsplash.com/photo-1606337321936-02d1b1a4d5ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
-    categories: ["Excel", "Análise de Dados", "Negócios"]
-  },
-  {
-    id: 3,
-    title: "Marketing Digital Completo",
-    provider: "Marketing Pro",
-    duration: "80 horas",
-    level: "Iniciante a Avançado",
-    price: "R$ 39,90",
-    rating: 4.7,
-    certificationIncluded: true,
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
-    categories: ["Marketing", "Digital", "Social Media"]
-  },
-  {
-    id: 4,
-    title: "Gestão de Projetos com Metodologias Ágeis",
-    provider: "PM Academy",
-    duration: "60 horas",
-    level: "Intermediário",
-    price: "R$ 34,90",
-    rating: 4.6,
-    certificationIncluded: true,
-    image: "https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
-    categories: ["Gestão", "Agile", "Scrum"]
-  },
-  {
-    id: 5,
-    title: "Design UX/UI Profissional",
-    provider: "Design School",
-    duration: "100 horas",
-    level: "Iniciante a Avançado",
-    price: "R$ 49,90",
-    rating: 4.9,
-    certificationIncluded: true,
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
-    categories: ["Design", "UX", "UI"]
-  }
-];
-
-// Course categories for filtering
-const categories = ["Programação", "Web", "JavaScript", "Excel", "Análise de Dados", "Negócios", "Marketing", "Digital", "Social Media", "Gestão", "Agile", "Scrum", "Design", "UX", "UI"];
+import { supabase } from '@/lib/supabase';
 
 // Course Card Component
 const CourseCard = ({ course }) => {
@@ -139,6 +74,46 @@ const Courses = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLevels, setSelectedLevels] = useState([]);
   const [selectedPrices, setSelectedPrices] = useState([]);
+
+  // Buscar cursos do banco de dados
+  const { data: coursesData = [], isLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Erro ao buscar cursos:', error);
+        return [];
+      }
+      
+      // Transformar dados do banco para o formato esperado
+      return data.map(course => ({
+        id: course.id,
+        title: course.title,
+        provider: course.provider,
+        duration: course.duration || '',
+        level: course.level || '',
+        price: course.price || 'Gratuito',
+        rating: course.rating || 0,
+        certificationIncluded: course.certification_included || false,
+        image: course.image_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500',
+        categories: course.categories || [],
+      }));
+    },
+  });
+
+  // Extrair categorias únicas dos cursos
+  const categories = React.useMemo(() => {
+    const cats = new Set<string>();
+    coursesData.forEach(course => {
+      course.categories?.forEach((cat: string) => cats.add(cat));
+    });
+    return Array.from(cats).sort();
+  }, [coursesData]);
 
   // Função auxiliar para extrair valor numérico do preço
   const extractPrice = (priceString) => {
@@ -375,7 +350,12 @@ const Courses = () => {
               </TabsList>
 
               <TabsContent value="all" className="mt-4">
-                {filteredCourses.length > 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-gray-500 dark:text-gray-400">Carregando cursos...</p>
+                  </div>
+                ) : filteredCourses.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredCourses.map(course => (
                       <CourseCard key={course.id} course={course} />
@@ -391,7 +371,12 @@ const Courses = () => {
               </TabsContent>
 
               <TabsContent value="popular" className="mt-4">
-                {filteredCourses
+                {isLoading ? (
+                  <div className="text-center py-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-gray-500 dark:text-gray-400">Carregando cursos...</p>
+                  </div>
+                ) : filteredCourses
                   .sort((a, b) => b.rating - a.rating)
                   .length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -411,7 +396,12 @@ const Courses = () => {
               </TabsContent>
 
               <TabsContent value="recent" className="mt-4">
-                {filteredCourses.length > 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-gray-500 dark:text-gray-400">Carregando cursos...</p>
+                  </div>
+                ) : filteredCourses.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredCourses.map(course => (
                       <CourseCard key={course.id} course={course} />
