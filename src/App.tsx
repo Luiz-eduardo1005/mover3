@@ -17,7 +17,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import CookieConsent from "@/components/CookieConsent";
+import AccessibilityControls from "@/components/AccessibilityControls";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -45,29 +47,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/advertise" element={<Advertise />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/curriculum" element={<CurriculumRegistration />} />
-            <Route path="/courses" element={<Courses />} />
-              <Route path="/applications" element={<Applications />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/companies" element={<Companies />} />
-              <Route path="/company/:id" element={<CompanyProfile />} />
-              <Route path="/jobs/:id" element={<JobDetails />} />
-            <Route path="/loading" element={<LoadingPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <CookieConsent />
-        </AuthProvider>
+        <AccessibilityProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/advertise" element={<Advertise />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/curriculum" element={<CurriculumRegistration />} />
+              <Route path="/courses" element={<Courses />} />
+                <Route path="/applications" element={<Applications />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/companies" element={<Companies />} />
+                <Route path="/company/:id" element={<CompanyProfile />} />
+                <Route path="/jobs/:id" element={<JobDetails />} />
+              <Route path="/loading" element={<LoadingPage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <CookieConsent />
+            <AccessibilityControls />
+          </AuthProvider>
+        </AccessibilityProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
