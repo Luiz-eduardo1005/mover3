@@ -80,59 +80,48 @@ const Applications = () => {
     queryFn: async () => {
       if (!user?.id) return [];
       
-      // Mock data por enquanto - substituir por query real do Supabase quando tabela estiver criada
-      const mockApplications = [
-        {
-          id: '1',
-          job_id: '1',
-          job: {
-            title: 'Desenvolvedor Full Stack',
-            company_name: 'TechSolutions',
-            location: 'Manaus, AM'
-          },
-          status: 'reviewing',
-          applied_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '2',
-          job_id: '2',
-          job: {
-            title: 'Analista de Marketing Digital',
-            company_name: 'Empresa Inovadora',
-            location: 'Manaus, AM'
-          },
-          status: 'viewed',
-          applied_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '3',
-          job_id: '3',
-          job: {
-            title: 'Gerente de Vendas',
-            company_name: 'VendaMais',
-            location: 'Manaus, AM'
-          },
-          status: 'pending',
-          applied_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '4',
-          job_id: '4',
-          job: {
-            title: 'Assistente Administrativo',
-            company_name: 'AdminPro',
-            location: 'Manaus, AM'
-          },
-          status: 'rejected',
-          applied_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
+      const { data, error } = await supabase
+        .from('job_applications')
+        .select(`
+          id,
+          status,
+          cover_letter,
+          created_at,
+          updated_at,
+          job_posting_id,
+          job_postings (
+            id,
+            title,
+            company_name,
+            location,
+            employment_type,
+            salary_range
+          )
+        `)
+        .eq('candidate_id', user.id)
+        .order('created_at', { ascending: false });
       
-      return mockApplications;
+      if (error) {
+        console.error('Erro ao buscar candidaturas:', error);
+        return [];
+      }
+      
+      // Transformar dados para o formato esperado
+      return (data || []).map((app: any) => ({
+        id: app.id,
+        job_id: app.job_posting_id,
+        job: app.job_postings ? {
+          title: app.job_postings.title,
+          company_name: app.job_postings.company_name,
+          location: app.job_postings.location,
+          employment_type: app.job_postings.employment_type,
+          salary_range: app.job_postings.salary_range
+        } : null,
+        status: app.status,
+        cover_letter: app.cover_letter,
+        applied_at: app.created_at,
+        updated_at: app.updated_at
+      }));
     },
     enabled: !!user?.id
   });
