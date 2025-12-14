@@ -98,7 +98,10 @@ const Header = () => {
               <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
               <Link to="/companies" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver empresas">Empresas</Link>
               {isAuthenticated && profile?.user_type === 'employer' && (
-                <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
+                <>
+                  <Link to="/company/dashboard" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Dashboard da empresa">Dashboard</Link>
+                  <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
+                </>
               )}
               <Link to="/courses" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
               {isAuthenticated && profile?.user_type === 'candidate' && (
@@ -185,13 +188,22 @@ const Header = () => {
                     </DropdownMenuItem>
                   )}
                   {profile?.user_type === 'employer' && (
-                    <DropdownMenuItem 
-                      onSelect={() => navigate('/advertise')}
-                      className="cursor-pointer"
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      <span>Anunciar Vaga</span>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/company/dashboard')}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/advertise')}
+                        className="cursor-pointer"
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        <span>Anunciar Vaga</span>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuItem 
                     onSelect={() => navigate('/messages')}
@@ -413,13 +425,22 @@ const Header = () => {
                     Empresas
                   </Link>
                   {isAuthenticated && profile?.user_type === 'employer' && (
-                    <Link 
-                      to="/advertise" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
-                    >
-                      Anuncie
-                    </Link>
+                    <>
+                      <Link 
+                        to="/company/dashboard" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link 
+                        to="/advertise" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
+                      >
+                        Anuncie
+                      </Link>
+                    </>
                   )}
                   <Link 
                     to="/courses" 

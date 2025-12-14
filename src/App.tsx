@@ -43,6 +43,9 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Applications = lazy(() => import("./pages/Applications"));
 const Messages = lazy(() => import("./pages/Messages"));
 const CompanyProfile = lazy(() => import("./pages/CompanyProfile"));
+const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
+const CompanyJobs = lazy(() => import("./pages/CompanyJobs"));
+const CompanyApplications = lazy(() => import("./pages/CompanyApplications"));
 const JobDetails = lazy(() => import("./pages/JobDetails"));
 const Companies = lazy(() => import("./pages/Companies"));
 
@@ -98,6 +101,36 @@ const App = () => (
                   <Route path="/auth/callback" element={<SuspenseWrapper><AuthCallback /></SuspenseWrapper>} />
                   <Route path="/jobs" element={<SuspenseWrapper><Jobs /></SuspenseWrapper>} />
                   <Route path="/profile" element={<SuspenseWrapper><Profile /></SuspenseWrapper>} />
+                  <Route 
+                    path="/company/dashboard" 
+                    element={
+                      <SuspenseWrapper>
+                        <ProtectedRoute allowedUserTypes={['employer']}>
+                          <CompanyDashboard />
+                        </ProtectedRoute>
+                      </SuspenseWrapper>
+                    } 
+                  />
+                  <Route 
+                    path="/company/jobs" 
+                    element={
+                      <SuspenseWrapper>
+                        <ProtectedRoute allowedUserTypes={['employer']}>
+                          <CompanyJobs />
+                        </ProtectedRoute>
+                      </SuspenseWrapper>
+                    } 
+                  />
+                  <Route 
+                    path="/company/applications" 
+                    element={
+                      <SuspenseWrapper>
+                        <ProtectedRoute allowedUserTypes={['employer']}>
+                          <CompanyApplications />
+                        </ProtectedRoute>
+                      </SuspenseWrapper>
+                    } 
+                  />
                   <Route 
                     path="/advertise" 
                     element={

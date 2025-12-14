@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FileText } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -868,6 +869,133 @@ const Profile = () => {
   // Se não há sessão válida após loading, não renderizar nada
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Se for empresa, redirecionar para dashboard da empresa
+  if (profile?.user_type === 'employer') {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow bg-gray-50 dark:bg-gray-900 py-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Perfil da Empresa
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Gerencie as informações da sua empresa
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Informações da Empresa */}
+              <div className="lg:col-span-2 space-y-6">
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-gray-900 dark:text-white">Informações da Empresa</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-sm text-gray-600 dark:text-gray-400">Nome da Empresa</Label>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">
+                        {profile?.company_name || 'Não informado'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-600 dark:text-gray-400">Email</Label>
+                      <p className="text-gray-900 dark:text-white mt-1">{user?.email || 'Não informado'}</p>
+                    </div>
+                    {profile?.phone && (
+                      <div>
+                        <Label className="text-sm text-gray-600 dark:text-gray-400">Telefone</Label>
+                        <p className="text-gray-900 dark:text-white mt-1">{profile.phone}</p>
+                      </div>
+                    )}
+                    {profile?.company_size && (
+                      <div>
+                        <Label className="text-sm text-gray-600 dark:text-gray-400">Tamanho da Empresa</Label>
+                        <p className="text-gray-900 dark:text-white mt-1">{profile.company_size}</p>
+                      </div>
+                    )}
+                    {profile?.company_description && (
+                      <div>
+                        <Label className="text-sm text-gray-600 dark:text-gray-400">Descrição</Label>
+                        <p className="text-gray-900 dark:text-white mt-1">{profile.company_description}</p>
+                      </div>
+                    )}
+                    <Button 
+                      className="mt-4 bg-brand-500 hover:bg-brand-600"
+                      onClick={() => setEditing(true)}
+                    >
+                      <Edit className="mr-2 h-4 w-4" /> Editar informações
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-gray-900 dark:text-white">Ações Rápidas</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button
+                      className="w-full"
+                      onClick={() => navigate('/advertise')}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Publicar Nova Vaga
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate('/company/dashboard')}
+                    >
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      Ver Dashboard
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate('/company/jobs')}
+                    >
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      Gerenciar Vagas
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate('/company/applications')}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Ver Candidaturas
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-6">
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-gray-900 dark:text-white">Estatísticas</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Vagas Publicadas</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">-</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Candidaturas Recebidas</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">-</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Usuário';
