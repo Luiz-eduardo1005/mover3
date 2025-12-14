@@ -66,33 +66,50 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
   }, []);
 
-  // Função auxiliar para dividir texto em frases
+  // Função auxiliar para dividir texto em chunks menores para troca de voz suave
   const splitIntoChunks = useCallback((text: string): string[] => {
-    // Dividir por pontuação final (., !, ?) seguida de espaço ou nova linha
-    const sentences = text.split(/([.!?]\s+|[.!?]\n+)/);
+    // Dividir por vírgulas, pontos, exclamações, interrogações e quebras de linha
+    // Isso cria chunks menores para troca de voz mais suave
     const chunks: string[] = [];
     
-    for (let i = 0; i < sentences.length; i += 2) {
-      if (sentences[i]) {
-        const chunk = sentences[i] + (sentences[i + 1] || '');
-        if (chunk.trim()) {
-          chunks.push(chunk.trim());
+    // Primeiro, dividir por pontuação final (., !, ?)
+    let parts = text.split(/([.!?]\s+|[.!?]\n+)/);
+    
+    // Se não encontrou pontuação final, dividir por vírgulas
+    if (parts.length <= 1) {
+      parts = text.split(/([,;]\s+)/);
+    }
+    
+    // Se ainda não dividiu, dividir por quebras de linha
+    if (parts.length <= 1) {
+      parts = text.split(/(\n+)/);
+    }
+    
+    // Reconstruir chunks mantendo pontuação
+    for (let i = 0; i < parts.length; i += 2) {
+      if (parts[i]) {
+        const chunk = parts[i] + (parts[i + 1] || '');
+        const trimmed = chunk.trim();
+        if (trimmed) {
+          chunks.push(trimmed);
         }
       }
     }
     
-    // Se não encontrou pontuação, dividir por parágrafos ou linhas
-    if (chunks.length === 0 || chunks.length === 1) {
-      const paragraphs = text.split(/\n\n+/);
-      if (paragraphs.length > 1) {
-        return paragraphs.filter(p => p.trim());
+    // Se ainda não dividiu bem, dividir por espaços (último recurso)
+    if (chunks.length <= 1 && text.length > 100) {
+      // Dividir em pedaços de aproximadamente 50 caracteres
+      const chunkSize = 50;
+      for (let i = 0; i < text.length; i += chunkSize) {
+        const chunk = text.slice(i, i + chunkSize).trim();
+        if (chunk) {
+          chunks.push(chunk);
+        }
       }
-      // Se ainda não dividiu, dividir por linhas
-      const lines = text.split(/\n+/);
-      return lines.filter(l => l.trim());
     }
     
-    return chunks;
+    // Se ainda não dividiu, retornar o texto inteiro
+    return chunks.length > 0 ? chunks : [text];
   }, []);
 
   // Função auxiliar para selecionar voz baseada no gênero
@@ -142,7 +159,8 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
 
   // Função para falar um chunk específico (definida primeiro para ser usada em speak)
   const speakChunk = useCallback((chunkIndex: number, chunks: string[], options?: SpeechOptions) => {
-    if (chunkIndex >= chunks.length) {
+    // Validar índice
+    if (chunkIndex < 0 || chunkIndex >= chunks.length) {
       setIsSpeaking(false);
       currentChunkIndexRef.current = 0;
       setCurrentUtterance(null);
@@ -150,13 +168,20 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
 
     const chunk = chunks[chunkIndex];
-    if (!chunk.trim()) {
+    if (!chunk || !chunk.trim()) {
       // Se chunk vazio, pular para o próximo
-      speakChunk(chunkIndex + 1, chunks, options);
+      const nextIndex = chunkIndex + 1;
+      if (nextIndex < chunks.length) {
+        speakChunk(nextIndex, chunks, options);
+      } else {
+        setIsSpeaking(false);
+        currentChunkIndexRef.current = 0;
+        setCurrentUtterance(null);
+      }
       return;
     }
 
-    // Atualizar refs para rastreamento confiável
+    // Atualizar refs para rastreamento confiável ANTES de criar utterance
     currentChunkIndexRef.current = chunkIndex;
     textChunksRef.current = chunks;
     if (options) {
@@ -165,6 +190,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
 
     const utterance = new SpeechSynthesisUtterance(chunk);
     
+    // Usar opções mais atualizadas
     const finalOptions = options || currentOptionsRef.current || {};
     utterance.lang = finalOptions.lang || 'pt-BR';
     utterance.rate = finalOptions.rate || 1;
@@ -190,6 +216,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       if (nextIndex < chunks.length) {
         // Sempre usar as opções mais recentes do ref (que podem ter sido atualizadas durante a leitura)
         const optionsToUse = currentOptionsRef.current || options || {};
+        // Garantir que continuamos na ordem correta
         speakChunk(nextIndex, chunks, optionsToUse);
       } else {
         // Leitura completa
@@ -205,6 +232,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       setCurrentUtterance(null);
     };
 
+    // Falar imediatamente
     window.speechSynthesis.speak(utterance);
   }, [selectVoice]);
 
@@ -270,41 +298,42 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     const chunks = textChunksRef.current.length > 0 ? textChunksRef.current : textChunks;
     const currentIndex = currentChunkIndexRef.current;
     
-    if (chunks.length === 0) {
+    // Validar chunks e índice
+    if (chunks.length === 0 || currentIndex < 0) {
       isChangingVoiceRef.current = false;
       return;
     }
 
     // Se não está mais falando, não fazer nada
-    if (!isSpeaking && currentIndex >= chunks.length) {
+    if (!isSpeaking) {
       isChangingVoiceRef.current = false;
       return;
     }
 
-    // Parar leitura atual imediatamente (chunk que está sendo lido agora)
-    window.speechSynthesis.cancel();
-    
-    // Mesclar opções: manter as atuais e aplicar as novas
+    // Mesclar opções ANTES de cancelar para garantir sincronização
     const mergedOptions = { 
       ...currentOptionsRef.current, 
       ...currentOptions,
       ...newOptions 
     };
-    setCurrentOptions(mergedOptions);
     currentOptionsRef.current = mergedOptions;
+    setCurrentOptions(mergedOptions);
+    
+    // Parar leitura atual imediatamente (chunk que está sendo lido agora)
+    window.speechSynthesis.cancel();
     
     // Continuar do próximo chunk que ainda não foi lido
-    // O chunk atual foi cancelado, então continuamos do próximo
+    // Validar que o próximo índice é válido
     const nextChunkIndex = currentIndex + 1;
     
-    // Transição imediata (sem delay perceptível) para troca suave
-    // Usar requestAnimationFrame para garantir que a troca seja instantânea
-    requestAnimationFrame(() => {
+    // Transição IMEDIATA - usar microtask para garantir ordem
+    Promise.resolve().then(() => {
       isChangingVoiceRef.current = false;
-      if (nextChunkIndex < chunks.length) {
-        // Continuar do próximo chunk com a nova voz
+      // Validar novamente antes de continuar
+      if (nextChunkIndex >= 0 && nextChunkIndex < chunks.length) {
+        // Continuar do próximo chunk com a nova voz - garantindo ordem correta
         speakChunk(nextChunkIndex, chunks, mergedOptions);
-      } else {
+      } else if (nextChunkIndex >= chunks.length) {
         // Se já estava no último chunk, apenas finalizar
         setIsSpeaking(false);
         currentChunkIndexRef.current = 0;
