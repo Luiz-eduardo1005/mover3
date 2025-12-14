@@ -224,17 +224,345 @@
     --ring: 205 100% 55%;
   }
 
+  /* Alto contraste - aplicar em TODOS os elementos */
   html.high-contrast * {
     border-color: hsl(var(--border)) !important;
   }
 
+  /* Links sempre sublinhados e com contraste alto */
   html.high-contrast a {
-    text-decoration: underline;
+    text-decoration: underline !important;
+    color: hsl(var(--foreground)) !important;
   }
 
+  html.high-contrast a:hover,
+  html.high-contrast a:focus {
+    color: hsl(var(--primary)) !important;
+    text-decoration-thickness: 2px !important;
+  }
+
+  /* Botões sempre com borda visível */
   html.high-contrast button,
-  html.high-contrast [role="button"] {
-    border: 2px solid hsl(var(--border));
+  html.high-contrast [role="button"],
+  html.high-contrast input[type="button"],
+  html.high-contrast input[type="submit"],
+  html.high-contrast input[type="reset"] {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  html.high-contrast button:hover,
+  html.high-contrast button:focus,
+  html.high-contrast [role="button"]:hover,
+  html.high-contrast [role="button"]:focus {
+    border-color: hsl(var(--primary)) !important;
+    outline: 2px solid hsl(var(--primary)) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Inputs e campos de formulário */
+  html.high-contrast input,
+  html.high-contrast textarea,
+  html.high-contrast select {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  html.high-contrast input:focus,
+  html.high-contrast textarea:focus,
+  html.high-contrast select:focus {
+    border-color: hsl(var(--primary)) !important;
+    outline: 2px solid hsl(var(--primary)) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Cards e containers */
+  html.high-contrast .card,
+  html.high-contrast [class*="card"],
+  html.high-contrast article,
+  html.high-contrast section {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+
+  /* Badges e tags */
+  html.high-contrast [class*="badge"],
+  html.high-contrast [class*="tag"],
+  html.high-contrast span[class*="badge"] {
+    border: 1px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Tabelas */
+  html.high-contrast table,
+  html.high-contrast th,
+  html.high-contrast td {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  html.high-contrast th {
+    background-color: hsl(var(--muted)) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Imagens com borda para melhor visibilidade */
+  html.high-contrast img {
+    border: 2px solid hsl(var(--border)) !important;
+  }
+
+  /* Separadores e divisores */
+  html.high-contrast hr,
+  html.high-contrast [class*="separator"] {
+    border-color: hsl(var(--border)) !important;
+    border-width: 2px !important;
+    background-color: hsl(var(--border)) !important;
+  }
+
+  /* Texto sempre com contraste máximo */
+  html.high-contrast p,
+  html.high-contrast span,
+  html.high-contrast div,
+  html.high-contrast h1,
+  html.high-contrast h2,
+  html.high-contrast h3,
+  html.high-contrast h4,
+  html.high-contrast h5,
+  html.high-contrast h6,
+  html.high-contrast li {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Overlay e modais */
+  html.high-contrast [class*="overlay"],
+  html.high-contrast [class*="modal"],
+  html.high-contrast [class*="dialog"],
+  html.high-contrast [role="dialog"] {
+    border: 3px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Dropdowns e menus */
+  html.high-contrast [class*="dropdown"],
+  html.high-contrast [class*="menu"],
+  html.high-contrast [role="menu"] {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+  }
+
+  html.high-contrast [class*="dropdown"] *,
+  html.high-contrast [class*="menu"] *,
+  html.high-contrast [role="menu"] * {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Tooltips */
+  html.high-contrast [class*="tooltip"],
+  html.high-contrast [role="tooltip"] {
+    border: 2px solid hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Scrollbars mais visíveis */
+  html.high-contrast ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  html.high-contrast ::-webkit-scrollbar-track {
+    background-color: hsl(var(--muted)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  /* Remover transparências e opacidades */
+  html.high-contrast * {
+    opacity: 1 !important;
+  }
+
+  html.high-contrast [class*="opacity"],
+  html.high-contrast [style*="opacity"] {
+    opacity: 1 !important;
+  }
+
+  /* Garantir que backgrounds sempre tenham contraste */
+  html.high-contrast [class*="bg-"]:not([class*="bg-background"]):not([class*="bg-foreground"]) {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  /* Forçar cores de texto para alto contraste em classes Tailwind comuns */
+  html.high-contrast .text-gray-900,
+  html.high-contrast .text-gray-800,
+  html.high-contrast .text-gray-700,
+  html.high-contrast .text-gray-600,
+  html.high-contrast .text-gray-500,
+  html.high-contrast .text-gray-400,
+  html.high-contrast .text-gray-300,
+  html.high-contrast .text-gray-200,
+  html.high-contrast .text-gray-100,
+  html.high-contrast .text-white,
+  html.high-contrast .text-black {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Forçar backgrounds para alto contraste */
+  html.high-contrast .bg-white,
+  html.high-contrast .bg-gray-50,
+  html.high-contrast .bg-gray-100,
+  html.high-contrast .bg-gray-200,
+  html.high-contrast .bg-gray-300,
+  html.high-contrast .bg-gray-400,
+  html.high-contrast .bg-gray-500,
+  html.high-contrast .bg-gray-600,
+  html.high-contrast .bg-gray-700,
+  html.high-contrast .bg-gray-800,
+  html.high-contrast .bg-gray-900,
+  html.high-contrast .bg-black {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  /* Forçar bordas para alto contraste */
+  html.high-contrast .border-gray-200,
+  html.high-contrast .border-gray-300,
+  html.high-contrast .border-gray-400,
+  html.high-contrast .border-gray-500,
+  html.high-contrast .border-gray-600,
+  html.high-contrast .border-gray-700,
+  html.high-contrast .border-gray-800,
+  html.high-contrast .border-gray-900 {
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Banner beta com alto contraste */
+  html.high-contrast .bg-gradient-to-r,
+  html.high-contrast [class*="from-yellow"],
+  html.high-contrast [class*="to-orange"] {
+    background: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    border: 2px solid hsl(var(--border)) !important;
+  }
+
+  /* Brand colors com alto contraste */
+  html.high-contrast .text-brand-600,
+  html.high-contrast .text-brand-500,
+  html.high-contrast .text-brand-400,
+  html.high-contrast .hover\:text-brand-600:hover,
+  html.high-contrast .hover\:text-brand-400:hover,
+  html.high-contrast .dark\:text-brand-400 {
+    color: hsl(var(--primary)) !important;
+  }
+
+  html.high-contrast .bg-brand-500,
+  html.high-contrast .bg-brand-600,
+  html.high-contrast .hover\:bg-brand-600:hover {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border: 2px solid hsl(var(--border)) !important;
+  }
+
+  /* Red colors com alto contraste */
+  html.high-contrast .text-red-600,
+  html.high-contrast .text-red-500,
+  html.high-contrast .focus\:text-red-600:focus,
+  html.high-contrast .focus\:bg-red-50:focus {
+    color: hsl(var(--destructive)) !important;
+    background-color: hsl(var(--background)) !important;
+  }
+
+  /* Blue colors com alto contraste */
+  html.high-contrast .bg-blue-50,
+  html.high-contrast .bg-blue-100,
+  html.high-contrast .text-blue-900,
+  html.high-contrast .text-blue-800,
+  html.high-contrast .text-blue-200,
+  html.high-contrast .border-blue-200,
+  html.high-contrast .border-blue-800 {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Dark mode classes com alto contraste */
+  html.high-contrast .dark\:bg-gray-900,
+  html.high-contrast .dark\:bg-gray-800,
+  html.high-contrast .dark\:text-white,
+  html.high-contrast .dark\:text-gray-100,
+  html.high-contrast .dark\:text-gray-300,
+  html.high-contrast .dark\:text-gray-400,
+  html.high-contrast .dark\:text-gray-500,
+  html.high-contrast .dark\:border-gray-800,
+  html.high-contrast .dark\:border-gray-700 {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Muted foreground com alto contraste */
+  html.high-contrast .text-muted-foreground {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Cards e containers com classes específicas */
+  html.high-contrast [class*="Card"],
+  html.high-contrast [class*="card"] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+    border: 2px solid hsl(var(--border)) !important;
+  }
+
+  /* Ícones SVG com alto contraste */
+  html.high-contrast svg,
+  html.high-contrast [class*="icon"],
+  html.high-contrast [class*="Icon"] {
+    color: hsl(var(--foreground)) !important;
+    fill: hsl(var(--foreground)) !important;
+    stroke: hsl(var(--foreground)) !important;
+  }
+
+  html.high-contrast svg[class*="text-"],
+  html.high-contrast svg[class*="fill-"],
+  html.high-contrast svg[class*="stroke-"] {
+    color: hsl(var(--foreground)) !important;
+    fill: hsl(var(--foreground)) !important;
+    stroke: hsl(var(--foreground)) !important;
+  }
+
+  /* Avatares com alto contraste */
+  html.high-contrast [class*="avatar"],
+  html.high-contrast [class*="Avatar"] {
+    border: 2px solid hsl(var(--border)) !important;
+  }
+
+  /* Shadows removidos em alto contraste (substituídos por bordas) */
+  html.high-contrast * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html.high-contrast button:focus,
+  html.high-contrast a:focus,
+  html.high-contrast input:focus,
+  html.high-contrast textarea:focus,
+  html.high-contrast select:focus {
+    box-shadow: 0 0 0 3px hsl(var(--primary)) !important;
+  }
+
+  /* Garantir que todos os elementos tenham contraste suficiente */
+  html.high-contrast *:not(script):not(style):not(noscript) {
+    background-image: none !important;
+  }
+
+  /* Placeholders com alto contraste */
+  html.high-contrast input::placeholder,
+  html.high-contrast textarea::placeholder {
+    color: hsl(var(--muted-foreground)) !important;
+    opacity: 1 !important;
   }
 
   /* Acessibilidade - Reduzir animações */
