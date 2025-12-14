@@ -20,6 +20,48 @@ interface UseSpeechToTextReturn {
   error: string | null;
 }
 
+// Função auxiliar para detectar o navegador
+const detectBrowser = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (userAgent.includes('chrome') && !userAgent.includes('edg')) return 'chrome';
+  if (userAgent.includes('firefox')) return 'firefox';
+  if (userAgent.includes('safari') && !userAgent.includes('chrome')) return 'safari';
+  if (userAgent.includes('edg')) return 'edge';
+  if (userAgent.includes('opera') || userAgent.includes('opr')) return 'opera';
+  return 'unknown';
+};
+
+// Função auxiliar para verificar se está em contexto seguro (HTTPS)
+const isSecureContext = () => {
+  return window.isSecureContext || 
+         location.protocol === 'https:' || 
+         location.hostname === 'localhost' || 
+         location.hostname === '127.0.0.1';
+};
+
+// Função auxiliar para obter getUserMedia com fallback
+const getUserMedia = async (constraints: MediaStreamConstraints): Promise<MediaStream> => {
+  // Tentar API moderna primeiro
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+  
+  // Fallback para API antiga (navegadores mais antigos)
+  const legacyGetUserMedia = 
+    (navigator as any).getUserMedia ||
+    (navigator as any).webkitGetUserMedia ||
+    (navigator as any).mozGetUserMedia ||
+    (navigator as any).msGetUserMedia;
+  
+  if (legacyGetUserMedia) {
+    return new Promise((resolve, reject) => {
+      legacyGetUserMedia.call(navigator, constraints, resolve, reject);
+    });
+  }
+  
+  throw new Error('getUserMedia não é suportado neste navegador');
+};
+
 export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn => {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
@@ -27,8 +69,16 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const browserRef = useRef<string>(detectBrowser());
 
   useEffect(() => {
+    // Verificar contexto seguro (necessário para getUserMedia)
+    if (!isSecureContext()) {
+      setIsSupported(false);
+      setError('Reconhecimento de voz requer conexão segura (HTTPS). Por favor, acesse o site via HTTPS.');
+      return;
+    }
+
     // Verificar suporte para Web Speech API
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
@@ -38,6 +88,13 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = lang;
+
+      // Configurações específicas por navegador
+      const browser = browserRef.current;
+      if (browser === 'safari') {
+        // Safari pode ter comportamentos diferentes
+        recognition.continuous = false; // Safari funciona melhor com continuous=false
+      }
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -81,6 +138,9 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
           case 'aborted':
             errorMessage = 'Reconhecimento de voz interrompido.';
             break;
+          case 'service-not-allowed':
+            errorMessage = 'Serviço de reconhecimento de voz não permitido. Verifique as configurações do navegador.';
+            break;
           default:
             errorMessage = `Erro no reconhecimento de voz: ${event.error}`;
         }
@@ -101,12 +161,23 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
       recognitionRef.current = recognition;
     } else {
       setIsSupported(false);
-      setError('Reconhecimento de voz não é suportado neste navegador');
+      const browser = browserRef.current;
+      if (browser === 'firefox') {
+        setError('Firefox não suporta Web Speech API nativamente. Considere usar Chrome, Edge ou Safari.');
+      } else if (browser === 'safari') {
+        setError('Safari requer versão 14.1 ou superior para suporte a reconhecimento de voz.');
+      } else {
+        setError('Reconhecimento de voz não é suportado neste navegador. Tente usar Chrome, Edge, Opera ou Safari.');
+      }
     }
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (err) {
+          // Ignorar erros ao parar durante cleanup
+        }
       }
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => track.stop());
@@ -120,53 +191,81 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
       return;
     }
 
+    // Verificar contexto seguro novamente
+    if (!isSecureContext()) {
+      setError('Reconhecimento de voz requer conexão segura (HTTPS). Por favor, acesse o site via HTTPS.');
+      return;
+    }
+
     try {
-      // Primeiro, solicitar permissão de microfone explicitamente
-      // Isso é necessário para Chrome e Opera
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          // Solicitar permissão de microfone explicitamente
-          const stream = await navigator.mediaDevices.getUserMedia({ 
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            } 
-          });
-          
-          // Armazenar o stream temporariamente
-          mediaStreamRef.current = stream;
-          
-          // Parar o stream imediatamente após obter permissão
-          // O SpeechRecognition vai gerenciar o acesso ao microfone
-          stream.getTracks().forEach(track => track.stop());
-          mediaStreamRef.current = null;
-          
-          // Pequeno delay para garantir que a permissão foi processada
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (err: any) {
-          console.error('Erro ao solicitar permissão de microfone:', err);
-          
-          let errorMessage = 'Não foi possível acessar o microfone';
-          if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            errorMessage = 'Permissão de microfone negada. Por favor, permita o acesso ao microfone nas configurações do navegador e tente novamente.';
-          } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            errorMessage = 'Nenhum microfone encontrado. Verifique se há um microfone conectado.';
-          } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-            errorMessage = 'O microfone está sendo usado por outro aplicativo. Feche outros aplicativos e tente novamente.';
-          } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+      const browser = browserRef.current;
+      
+      // Solicitar permissão de microfone explicitamente
+      // Necessário para Chrome, Opera, Edge e alguns casos do Safari
+      try {
+        // Construir constraints de áudio baseado no navegador
+        const audioConstraints: MediaTrackConstraints = {
+          echoCancellation: browser !== 'safari', // Safari pode não suportar
+          noiseSuppression: browser !== 'safari',
+          autoGainControl: browser !== 'safari',
+        };
+
+        // Solicitar permissão de microfone
+        const stream = await getUserMedia({ audio: audioConstraints });
+        
+        // Armazenar o stream temporariamente
+        mediaStreamRef.current = stream;
+        
+        // Parar o stream imediatamente após obter permissão
+        // O SpeechRecognition vai gerenciar o acesso ao microfone
+        stream.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current = null;
+        
+        // Delay baseado no navegador para garantir que a permissão foi processada
+        const delay = browser === 'safari' ? 200 : browser === 'firefox' ? 150 : 100;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } catch (err: any) {
+        console.error('Erro ao solicitar permissão de microfone:', err);
+        
+        let errorMessage = 'Não foi possível acessar o microfone';
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          errorMessage = 'Permissão de microfone negada. Por favor, permita o acesso ao microfone nas configurações do navegador e tente novamente.';
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          errorMessage = 'Nenhum microfone encontrado. Verifique se há um microfone conectado.';
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          errorMessage = 'O microfone está sendo usado por outro aplicativo. Feche outros aplicativos e tente novamente.';
+        } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+          // Tentar novamente sem constraints específicas
+          try {
+            const stream = await getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            // Se chegou aqui, a permissão foi concedida, continuar
+          } catch (retryErr: any) {
             errorMessage = 'As configurações do microfone não são suportadas.';
-          } else {
-            errorMessage = `Erro ao acessar microfone: ${err.message || err.name}`;
+            setError(errorMessage);
+            return;
           }
-          
-          setError(errorMessage);
-          return;
+        } else if (err.name === 'TypeError' && err.message.includes('getUserMedia')) {
+          errorMessage = 'API de mídia não suportada. Por favor, use um navegador moderno (Chrome, Firefox, Edge, Safari ou Opera).';
+        } else {
+          errorMessage = `Erro ao acessar microfone: ${err.message || err.name}`;
         }
+        
+        setError(errorMessage);
+        return;
       }
 
       // Agora iniciar o reconhecimento de voz
-      recognitionRef.current.start();
+      try {
+        recognitionRef.current.start();
+      } catch (startErr: any) {
+        // Tratar erros específicos ao iniciar
+        if (startErr.message && startErr.message.includes('already started')) {
+          // Já está rodando, apenas continuar
+          return;
+        }
+        throw startErr;
+      }
     } catch (err: any) {
       console.error('Erro ao iniciar reconhecimento:', err);
       setError('Não foi possível iniciar o reconhecimento de voz. Tente novamente.');
