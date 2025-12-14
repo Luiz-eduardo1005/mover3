@@ -115,7 +115,12 @@
   }
 
   /* Foco mais visível em modo de alto contraste */
-  .high-contrast *:focus-visible,
+  .high-contrast *:focus-visible {
+    outline: 3px solid currentColor !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 3px currentColor !important;
+  }
+
   @media (prefers-contrast: high) {
     *:focus-visible {
       outline: 3px solid currentColor !important;

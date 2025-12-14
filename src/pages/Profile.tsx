@@ -40,6 +40,7 @@ import LoadingPage from './LoadingPage';
 import EmailPreferencesComponent from '@/components/notifications/EmailPreferences';
 import JobSeekingCard from '@/components/profile/JobSeekingCard';
 import JobPreferencesTab from '@/components/profile/JobPreferencesTab';
+import Breadcrumb from '@/components/ui/breadcrumb';
 
 // Componente para exibir vagas salvas
 const SavedJobsTab = ({ userId }: { userId?: string }) => {
@@ -908,6 +909,11 @@ const Profile = () => {
       
       <main id="main-content" className="flex-grow bg-gray-50 dark:bg-gray-900 py-6 sm:py-8 md:py-10" role="main" aria-label="Conteúdo principal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <div className="mb-4 sm:mb-6">
+            <Breadcrumb items={[{ label: 'Meu Perfil' }]} />
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Profile Summary */}
             <div className="space-y-4 sm:space-y-6">

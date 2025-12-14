@@ -119,7 +119,10 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
 };
 
 // Função auxiliar para ler todo o conteúdo da página
-export const readPageContent = (speak: (text: string) => void) => {
+export const readPageContent = (
+  speak: (text: string, options?: SpeechOptions) => void,
+  options?: SpeechOptions
+) => {
   // Remover elementos que não devem ser lidos
   const toRemove = ['script', 'style', 'nav', 'footer', 'aside', '[aria-hidden="true"]'];
   toRemove.forEach(selector => {
@@ -141,7 +144,7 @@ export const readPageContent = (speak: (text: string) => void) => {
     .trim();
 
   if (cleanText) {
-    speak(cleanText);
+    speak(cleanText, options);
   }
 
   // Restaurar elementos
@@ -157,10 +160,13 @@ export const readPageContent = (speak: (text: string) => void) => {
 };
 
 // Função auxiliar para ler texto selecionado
-export const readSelectedText = (speak: (text: string) => void) => {
+export const readSelectedText = (
+  speak: (text: string, options?: SpeechOptions) => void,
+  options?: SpeechOptions
+) => {
   const selection = window.getSelection();
   if (selection && selection.toString().trim()) {
-    speak(selection.toString().trim());
+    speak(selection.toString().trim(), options);
   }
 };
 
