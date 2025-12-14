@@ -35,6 +35,9 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const [isSupported, setIsSupported] = useState(false);
   const [currentText, setCurrentText] = useState<string>('');
   const [currentOptions, setCurrentOptions] = useState<SpeechOptions | undefined>();
+  const [textChunks, setTextChunks] = useState<string[]>([]);
+  const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
     setIsSupported('speechSynthesis' in window);
@@ -57,42 +60,60 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
   }, []);
 
-  const speak = useCallback((text: string, options?: SpeechOptions) => {
-    if (!isSupported) {
-      console.warn('Text-to-Speech não é suportado neste navegador');
+  // Função auxiliar para dividir texto em frases
+  const splitIntoChunks = useCallback((text: string): string[] => {
+    // Dividir por pontuação final (., !, ?) seguida de espaço ou nova linha
+    const sentences = text.split(/([.!?]\s+|[.!?]\n+)/);
+    const chunks: string[] = [];
+    
+    for (let i = 0; i < sentences.length; i += 2) {
+      if (sentences[i]) {
+        const chunk = sentences[i] + (sentences[i + 1] || '');
+        if (chunk.trim()) {
+          chunks.push(chunk.trim());
+        }
+      }
+    }
+    
+    // Se não encontrou pontuação, dividir por parágrafos ou linhas
+    if (chunks.length === 0 || chunks.length === 1) {
+      const paragraphs = text.split(/\n\n+/);
+      if (paragraphs.length > 1) {
+        return paragraphs.filter(p => p.trim());
+      }
+      // Se ainda não dividiu, dividir por linhas
+      const lines = text.split(/\n+/);
+      return lines.filter(l => l.trim());
+    }
+    
+    return chunks;
+  }, []);
+
+  // Função para falar um chunk específico (definida primeiro para ser usada em speak)
+  const speakChunk = useCallback((chunkIndex: number, chunks: string[], options?: SpeechOptions) => {
+    if (chunkIndex >= chunks.length) {
+      setIsSpeaking(false);
       return;
     }
 
-    // Armazenar texto e opções atuais para poder reiniciar
-    setCurrentText(text);
-    setCurrentOptions(options);
+    const chunk = chunks[chunkIndex];
+    if (!chunk.trim()) {
+      // Se chunk vazio, pular para o próximo
+      speakChunk(chunkIndex + 1, chunks, options);
+      return;
+    }
 
-    // Parar qualquer fala anterior
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(chunk);
     
     utterance.lang = options?.lang || 'pt-BR';
     utterance.rate = options?.rate || 1;
     utterance.pitch = options?.pitch || 1;
     utterance.volume = options?.volume || 1;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      // Limpar texto quando terminar (opcional, pode manter para permitir reiniciar)
-    };
-    utterance.onerror = (error) => {
-      console.error('Erro no Text-to-Speech:', error);
-      setIsSpeaking(false);
-    };
-
-    // Selecionar voz baseada no gênero solicitado
-    // Por padrão, sempre usar voz masculina a menos que explicitamente solicitado feminina
+    // Selecionar voz baseada no gênero
     const voices = window.speechSynthesis.getVoices();
     const targetGender = options?.voiceGender || 'male';
     
-    // Filtrar vozes brasileiras
     const brazilianVoices = voices.filter(voice => 
       voice.lang.includes('pt-BR') || voice.lang.includes('pt')
     );
@@ -100,10 +121,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     if (brazilianVoices.length > 0) {
       let selectedVoice: SpeechSynthesisVoice | null = null;
       
-      // Só procurar voz feminina se explicitamente solicitado
       if (targetGender === 'female') {
-        // Procurar especificamente por vozes femininas
-        // Padrões comuns: Maria, Heloisa, Luciana, ou indicação de "feminina" no nome
         selectedVoice = brazilianVoices.find(voice => {
           const name = voice.name.toLowerCase();
           return name.includes('maria') || 
@@ -114,17 +132,12 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
                  name.includes('female');
         }) || null;
         
-        // Se não encontrar por nome, tentar estratégias alternativas
         if (!selectedVoice && brazilianVoices.length > 1) {
-          // Chrome/Edge: vozes femininas geralmente vêm depois das masculinas
-          // Tentar a última voz brasileira se houver mais de uma
           selectedVoice = brazilianVoices[brazilianVoices.length - 1];
         }
       }
       
-      // Para voz masculina (padrão) ou se não encontrou feminina
       if (!selectedVoice || targetGender === 'male') {
-        // Procurar especificamente por vozes masculinas primeiro
         selectedVoice = brazilianVoices.find(voice => {
           const name = voice.name.toLowerCase();
           return name.includes('joão') || 
@@ -134,7 +147,6 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
                  name.includes('male');
         }) || null;
         
-        // Se não encontrar por nome, usar a primeira voz brasileira (geralmente masculina)
         if (!selectedVoice) {
           selectedVoice = brazilianVoices[0];
         }
@@ -145,8 +157,52 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       }
     }
 
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setCurrentChunkIndex(chunkIndex);
+      setCurrentUtterance(utterance);
+    };
+
+    utterance.onend = () => {
+      // Continuar com o próximo chunk
+      if (chunkIndex < chunks.length - 1) {
+        speakChunk(chunkIndex + 1, chunks, options);
+      } else {
+        setIsSpeaking(false);
+        setCurrentUtterance(null);
+      }
+    };
+
+    utterance.onerror = (error) => {
+      console.error('Erro no Text-to-Speech:', error);
+      setIsSpeaking(false);
+      setCurrentUtterance(null);
+    };
+
     window.speechSynthesis.speak(utterance);
-  }, [isSupported]);
+  }, []);
+
+  const speak = useCallback((text: string, options?: SpeechOptions) => {
+    if (!isSupported) {
+      console.warn('Text-to-Speech não é suportado neste navegador');
+      return;
+    }
+
+    // Armazenar texto e opções atuais
+    setCurrentText(text);
+    setCurrentOptions(options);
+    
+    // Dividir texto em chunks
+    const chunks = splitIntoChunks(text);
+    setTextChunks(chunks);
+    setCurrentChunkIndex(0);
+
+    // Parar qualquer fala anterior
+    window.speechSynthesis.cancel();
+    
+    // Iniciar leitura do primeiro chunk
+    speakChunk(0, chunks, options);
+  }, [isSupported, splitIntoChunks, speakChunk]);
 
   const stop = useCallback(() => {
     if (isSupported) {
@@ -171,15 +227,25 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   }, [isSupported]);
 
   const restartWithNewOptions = useCallback((newOptions: SpeechOptions) => {
-    if (currentText && isSupported) {
-      // Parar leitura atual
+    if (isSupported && textChunks.length > 0 && currentChunkIndex < textChunks.length) {
+      // Parar leitura atual suavemente
       window.speechSynthesis.cancel();
-      // Reiniciar com novas opções
+      
+      // Continuar do próximo chunk (não reiniciar o atual) com novas opções
+      const nextChunkIndex = currentChunkIndex + 1;
+      const mergedOptions = { ...currentOptions, ...newOptions };
+      setCurrentOptions(mergedOptions);
+      
+      // Pequeno delay para transição suave
       setTimeout(() => {
-        speak(currentText, { ...currentOptions, ...newOptions });
-      }, 100);
+        if (nextChunkIndex < textChunks.length) {
+          speakChunk(nextChunkIndex, textChunks, mergedOptions);
+        } else {
+          setIsSpeaking(false);
+        }
+      }, 50);
     }
-  }, [currentText, currentOptions, isSupported, speak]);
+  }, [isSupported, textChunks, currentChunkIndex, currentOptions, speakChunk]);
 
   const getCurrentText = useCallback(() => {
     return currentText || null;
