@@ -77,6 +77,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     };
 
     // Selecionar voz baseada no gênero solicitado
+    // Por padrão, sempre usar voz masculina a menos que explicitamente solicitado feminina
     const voices = window.speechSynthesis.getVoices();
     const targetGender = options?.voiceGender || 'male';
     
@@ -86,51 +87,51 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     );
 
     if (brazilianVoices.length > 0) {
-      let selectedVoice = brazilianVoices[0]; // Fallback para primeira voz brasileira
+      let selectedVoice: SpeechSynthesisVoice | null = null;
       
+      // Só procurar voz feminina se explicitamente solicitado
       if (targetGender === 'female') {
-        // Procurar por vozes femininas
+        // Procurar especificamente por vozes femininas
         // Padrões comuns: Maria, Heloisa, Luciana, ou indicação de "feminina" no nome
-        const femaleVoice = brazilianVoices.find(voice => {
+        selectedVoice = brazilianVoices.find(voice => {
           const name = voice.name.toLowerCase();
           return name.includes('maria') || 
                  name.includes('heloisa') || 
                  name.includes('heloísa') ||
                  name.includes('luciana') ||
                  name.includes('feminina') ||
-                 name.includes('female') ||
-                 (name.includes('google') && name.includes('feminina')) ||
-                 // Chrome/Edge: vozes femininas geralmente vêm depois das masculinas
-                 (voice.name.includes('Google') && brazilianVoices.indexOf(voice) > 0);
-        });
-        if (femaleVoice) {
-          selectedVoice = femaleVoice;
-        } else {
-          // Se não encontrar, tentar a última voz brasileira (geralmente é feminina no Chrome)
+                 name.includes('female');
+        }) || null;
+        
+        // Se não encontrar por nome, tentar estratégias alternativas
+        if (!selectedVoice && brazilianVoices.length > 1) {
+          // Chrome/Edge: vozes femininas geralmente vêm depois das masculinas
+          // Tentar a última voz brasileira se houver mais de uma
           selectedVoice = brazilianVoices[brazilianVoices.length - 1];
         }
-      } else {
-        // Procurar por vozes masculinas
-        const maleVoice = brazilianVoices.find(voice => {
+      }
+      
+      // Para voz masculina (padrão) ou se não encontrou feminina
+      if (!selectedVoice || targetGender === 'male') {
+        // Procurar especificamente por vozes masculinas primeiro
+        selectedVoice = brazilianVoices.find(voice => {
           const name = voice.name.toLowerCase();
           return name.includes('joão') || 
                  name.includes('joao') ||
                  name.includes('felipe') ||
                  name.includes('masculina') ||
-                 name.includes('male') ||
-                 (name.includes('google') && !name.includes('feminina')) ||
-                 // Chrome/Edge: primeira voz brasileira geralmente é masculina
-                 (voice.name.includes('Google') && brazilianVoices.indexOf(voice) === 0);
-        });
-        if (maleVoice) {
-          selectedVoice = maleVoice;
-        } else {
-          // Fallback: primeira voz brasileira (geralmente masculina)
+                 name.includes('male');
+        }) || null;
+        
+        // Se não encontrar por nome, usar a primeira voz brasileira (geralmente masculina)
+        if (!selectedVoice) {
           selectedVoice = brazilianVoices[0];
         }
       }
       
-      utterance.voice = selectedVoice;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
     }
 
     window.speechSynthesis.speak(utterance);

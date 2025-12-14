@@ -77,7 +77,14 @@ export const AccessibilityProvider: React.FC<{ children: ReactNode }> = ({ child
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
-          return { ...defaultPreferences, ...JSON.parse(saved) };
+          const parsed = JSON.parse(saved);
+          // Garantir que voiceGender e speechRate existam (para compatibilidade com versões antigas)
+          return { 
+            ...defaultPreferences, 
+            ...parsed,
+            voiceGender: parsed.voiceGender || 'male',
+            speechRate: parsed.speechRate !== undefined ? parsed.speechRate : 1
+          };
         } catch {
           return defaultPreferences;
         }
