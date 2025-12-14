@@ -76,33 +76,17 @@ const Register = () => {
     const { error } = await signUp(formData.email, formData.password, userType, additionalData);
 
     if (error) {
-      // Verificar se é erro relacionado a email já existente
-      const isEmailExists = error.message?.toLowerCase().includes('already registered') || 
-                           error.message?.toLowerCase().includes('user already');
-      
-      if (isEmailExists) {
-        toast({
-          title: "Email já cadastrado",
-          description: "Este email já está cadastrado. Faça login ou use outro email.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Erro ao criar conta",
-          description: error.message || "Não foi possível criar a conta. Tente novamente.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message || "Não foi possível criar a conta. Tente novamente.",
+        variant: "destructive",
+      });
     } else {
       toast({
         title: "Conta criada com sucesso!",
-        description: "Um email de confirmação foi enviado para " + formData.email + ". Verifique sua caixa de entrada e spam.",
-        duration: 6000,
+        description: "Verifique seu email para confirmar sua conta.",
       });
-      // Aguardar um pouco antes de redirecionar para o usuário ver a mensagem
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      navigate('/login');
     }
 
     setLoading(false);

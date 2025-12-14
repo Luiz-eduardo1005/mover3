@@ -22,7 +22,6 @@ import CookieConsent from "@/components/CookieConsent";
 import AccessibilityControls from "@/components/AccessibilityControls";
 import QuickNavigation from "@/components/navigation/QuickNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import React, { lazy, Suspense, useEffect } from "react";
 import { initGA, trackPageView } from "@/lib/analytics";
 import LoadingPage from "./pages/LoadingPage";
@@ -43,9 +42,6 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Applications = lazy(() => import("./pages/Applications"));
 const Messages = lazy(() => import("./pages/Messages"));
 const CompanyProfile = lazy(() => import("./pages/CompanyProfile"));
-const CompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
-const CompanyJobs = lazy(() => import("./pages/CompanyJobs"));
-const CompanyApplications = lazy(() => import("./pages/CompanyApplications"));
 const JobDetails = lazy(() => import("./pages/JobDetails"));
 const Companies = lazy(() => import("./pages/Companies"));
 
@@ -101,68 +97,11 @@ const App = () => (
                   <Route path="/auth/callback" element={<SuspenseWrapper><AuthCallback /></SuspenseWrapper>} />
                   <Route path="/jobs" element={<SuspenseWrapper><Jobs /></SuspenseWrapper>} />
                   <Route path="/profile" element={<SuspenseWrapper><Profile /></SuspenseWrapper>} />
-                  <Route 
-                    path="/company/dashboard" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['employer']}>
-                          <CompanyDashboard />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
-                  <Route 
-                    path="/company/jobs" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['employer']}>
-                          <CompanyJobs />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
-                  <Route 
-                    path="/company/applications" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['employer']}>
-                          <CompanyApplications />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
-                  <Route 
-                    path="/advertise" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['employer']}>
-                          <Advertise />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
+                  <Route path="/advertise" element={<SuspenseWrapper><Advertise /></SuspenseWrapper>} />
                   <Route path="/about" element={<SuspenseWrapper><About /></SuspenseWrapper>} />
-                  <Route 
-                    path="/curriculum" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['candidate']}>
-                          <CurriculumRegistration />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
+                  <Route path="/curriculum" element={<SuspenseWrapper><CurriculumRegistration /></SuspenseWrapper>} />
                   <Route path="/courses" element={<SuspenseWrapper><Courses /></SuspenseWrapper>} />
-                  <Route 
-                    path="/applications" 
-                    element={
-                      <SuspenseWrapper>
-                        <ProtectedRoute allowedUserTypes={['candidate']}>
-                          <Applications />
-                        </ProtectedRoute>
-                      </SuspenseWrapper>
-                    } 
-                  />
+                  <Route path="/applications" element={<SuspenseWrapper><Applications /></SuspenseWrapper>} />
                   <Route path="/messages" element={<SuspenseWrapper><Messages /></SuspenseWrapper>} />
                   <Route path="/companies" element={<SuspenseWrapper><Companies /></SuspenseWrapper>} />
                   <Route path="/company/:id" element={<SuspenseWrapper><CompanyProfile /></SuspenseWrapper>} />

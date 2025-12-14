@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from "@/components/ui/button";
@@ -13,46 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from '@/contexts/AuthContext';
 import { Building2, BriefcaseBusiness, Briefcase, DollarSign, MapPin, Clock, CheckCircle } from 'lucide-react';
-import LoadingPage from './LoadingPage';
 
 const Advertise = () => {
-  const { user, profile, loading } = useAuth();
-  const navigate = useNavigate();
-
-  // Verificar se é empresa
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        toast({
-          title: "Acesso restrito",
-          description: "Você precisa fazer login para anunciar vagas.",
-          variant: "destructive",
-        });
-        navigate('/login');
-        return;
-      }
-
-      if (profile && profile.user_type !== 'employer') {
-        toast({
-          title: "Acesso negado",
-          description: "Esta página é apenas para empresas. Candidatos não podem anunciar vagas.",
-          variant: "destructive",
-        });
-        navigate('/profile');
-        return;
-      }
-    }
-  }, [user, profile, loading, navigate, toast]);
-
-  if (loading) {
-    return <LoadingPage />;
-  }
-
-  if (!user || (profile && profile.user_type !== 'employer')) {
-    return null;
-  }
   const [jobType, setJobType] = useState('standard');
   
   const handleSubmit = (e: React.FormEvent) => {

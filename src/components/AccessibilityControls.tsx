@@ -41,6 +41,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AccessibilityControls: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [speechRate, setSpeechRate] = useState(1);
   const [notificationMessage, setNotificationMessage] = useState('');
   const navigate = useNavigate();
   const {
@@ -54,8 +55,6 @@ const AccessibilityControls: React.FC = () => {
     toggleHighlightButtons,
     toggleLargeCursor,
     toggleReadingMode,
-    updateVoiceGender,
-    updateSpeechRate,
     resetPreferences,
   } = useAccessibility();
 
@@ -66,7 +65,6 @@ const AccessibilityControls: React.FC = () => {
     stop: stopSpeech,
     pause: pauseSpeech,
     resume: resumeSpeech,
-    restartWithNewOptions,
   } = useTextToSpeech();
 
   const {
@@ -97,10 +95,7 @@ const AccessibilityControls: React.FC = () => {
           stopSpeech();
           setNotificationMessage('Leitura interrompida');
         } else {
-          readPageContent((text: string) => speak(text, { 
-            rate: preferences.speechRate,
-            voiceGender: preferences.voiceGender 
-          }));
+          readPageContent((text: string) => speak(text, { rate: speechRate }));
           setNotificationMessage('Iniciando leitura da página');
         }
       }
@@ -132,7 +127,7 @@ const AccessibilityControls: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, isSpeaking, isSTTSupported, isListening, stopSpeech, stopListening, startListening, speak, preferences.speechRate, preferences.voiceGender]);
+  }, [isOpen, isSpeaking, isSTTSupported, isListening, stopSpeech, stopListening, startListening, speak, speechRate]);
 
   // Processar comandos de voz
   useEffect(() => {
@@ -153,20 +148,6 @@ const AccessibilityControls: React.FC = () => {
       });
     }
   }, [transcript, isListening, navigate, isOpen, stopListening]);
-
-  // Aplicar mudança de velocidade durante a leitura
-  const [previousSpeechRate, setPreviousSpeechRate] = useState(preferences.speechRate);
-  useEffect(() => {
-    // Se a velocidade mudou e está falando, aplicar imediatamente
-    if (isSpeaking && previousSpeechRate !== preferences.speechRate) {
-      restartWithNewOptions({
-        rate: preferences.speechRate,
-        voiceGender: preferences.voiceGender,
-      });
-    }
-    setPreviousSpeechRate(preferences.speechRate);
-  }, [preferences.speechRate, isSpeaking, previousSpeechRate, restartWithNewOptions, preferences.voiceGender]);
-
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -209,19 +190,13 @@ const AccessibilityControls: React.FC = () => {
       stopSpeech();
       setNotificationMessage('Leitura interrompida');
     } else {
-      readPageContent((text: string) => speak(text, { 
-        rate: preferences.speechRate,
-        voiceGender: preferences.voiceGender 
-      }));
+      readPageContent((text: string) => speak(text, { rate: speechRate }));
       setNotificationMessage('Iniciando leitura da página');
     }
   };
 
   const handleReadSelection = () => {
-    readSelectedText((text: string) => speak(text, { 
-      rate: preferences.speechRate,
-      voiceGender: preferences.voiceGender 
-    }));
+    readSelectedText((text: string) => speak(text, { rate: speechRate }));
     setNotificationMessage('Lendo texto selecionado');
   };
 
@@ -482,58 +457,6 @@ const AccessibilityControls: React.FC = () => {
                   <span className="text-xs">Ler Seleção</span>
                 </Button>
                 
-                {/* Controle de voz (masculina/feminina) */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center gap-2">
-                    <Volume2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                    <span className="text-xs font-medium">Voz</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-2">
-                    <Button
-                      onClick={() => {
-                        const newGender = 'male';
-                        // Atualizar preferência primeiro
-                        updateVoiceGender(newGender);
-                        // Se estiver falando, trocar voz imediatamente sem pausar
-                        if (isSpeaking) {
-                          restartWithNewOptions({
-                            voiceGender: newGender,
-                            rate: preferences.speechRate,
-                          });
-                        }
-                      }}
-                      variant={preferences.voiceGender === 'male' ? 'default' : 'outline'}
-                      size="sm"
-                      className="flex-1 text-xs"
-                      aria-label="Voz masculina"
-                      aria-pressed={preferences.voiceGender === 'male'}
-                    >
-                      Masculina
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        const newGender = 'female';
-                        // Atualizar preferência primeiro
-                        updateVoiceGender(newGender);
-                        // Se estiver falando, trocar voz imediatamente sem pausar
-                        if (isSpeaking) {
-                          restartWithNewOptions({
-                            voiceGender: newGender,
-                            rate: preferences.speechRate,
-                          });
-                        }
-                      }}
-                      variant={preferences.voiceGender === 'female' ? 'default' : 'outline'}
-                      size="sm"
-                      className="flex-1 text-xs"
-                      aria-label="Voz feminina"
-                      aria-pressed={preferences.voiceGender === 'female'}
-                    >
-                      Feminina
-                    </Button>
-                  </div>
-                </div>
-
                 {/* Controle de velocidade de leitura */}
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center gap-2">
@@ -543,48 +466,32 @@ const AccessibilityControls: React.FC = () => {
                   <div className="flex items-center gap-2 px-2">
                     <Button
                       onClick={() => {
-                        if (preferences.speechRate > 0.5) {
-                          const newRate = preferences.speechRate - 0.1;
-                          updateSpeechRate(newRate);
-                          // Se estiver falando, aplicar nova velocidade imediatamente
-                          if (isSpeaking) {
-                            restartWithNewOptions({
-                              rate: newRate,
-                              voiceGender: preferences.voiceGender,
-                            });
-                          }
+                        if (speechRate > 0.5) {
+                          setSpeechRate(prev => Math.max(0.5, prev - 0.1));
                         }
                       }}
                       variant="outline"
                       size="sm"
                       className="h-7 w-7 p-0"
                       aria-label="Diminuir velocidade de leitura"
-                      disabled={preferences.speechRate <= 0.5}
+                      disabled={speechRate <= 0.5}
                     >
                       <Minus className="h-3 w-3" aria-hidden="true" />
                     </Button>
                     <span className="flex-1 text-center text-xs font-medium">
-                      {preferences.speechRate.toFixed(1)}x
+                      {speechRate.toFixed(1)}x
                     </span>
                     <Button
                       onClick={() => {
-                        if (preferences.speechRate < 2) {
-                          const newRate = preferences.speechRate + 0.1;
-                          updateSpeechRate(newRate);
-                          // Se estiver falando, aplicar nova velocidade imediatamente
-                          if (isSpeaking) {
-                            restartWithNewOptions({
-                              rate: newRate,
-                              voiceGender: preferences.voiceGender,
-                            });
-                          }
+                        if (speechRate < 2) {
+                          setSpeechRate(prev => Math.min(2, prev + 0.1));
                         }
                       }}
                       variant="outline"
                       size="sm"
                       className="h-7 w-7 p-0"
                       aria-label="Aumentar velocidade de leitura"
-                      disabled={preferences.speechRate >= 2}
+                      disabled={speechRate >= 2}
                     >
                       <Plus className="h-3 w-3" aria-hidden="true" />
                     </Button>

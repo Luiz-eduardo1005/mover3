@@ -352,127 +352,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   ) => {
     const emailRedirectTo = getEmailRedirectUrl();
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          ...(emailRedirectTo ? { emailRedirectTo } : {}),
-          data: {
-            user_type: userType,
-            ...additionalData,
-          },
-        },
-      });
-
-      if (error) {
-        console.error('❌ Erro ao criar conta:', error);
-        return { error };
-      }
-
-      if (data.user) {
-        console.log('✅ Conta criada com sucesso. Email de confirmação deve ser enviado para:', email);
-        
-        // Verificar se o email foi enviado
-        if (!data.session) {
-          console.log('ℹ️ Email de confirmação necessário. Verifique sua caixa de entrada.');
-        }
-
-        // Criar perfil na tabela de perfis
-        const profileData = {
-          id: data.user.id,
-          email: data.user.email,
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+        data: {
           user_type: userType,
           ...additionalData,
-        };
+        },
+      },
+    });
 
-        try {
-          await supabase.from('profiles').insert(profileData);
-        } catch (profileError) {
-          console.warn('⚠️ Não foi possível criar o perfil imediatamente (provável falta de confirmação de email):', profileError);
-        }
-      }
-
-      return { error: null };
-    } catch (err: any) {
-      console.error('❌ Erro inesperado ao criar conta:', err);
-      return { 
-        error: { 
-          message: err.message || 'Não foi possível criar a conta. Tente novamente.',
-          name: err.name || 'SignUpError',
-          status: err.status || 500
-        } as AuthError 
+    if (!error && data.user) {
+      // Criar perfil na tabela de perfis
+      const profileData = {
+        id: data.user.id,
+        email: data.user.email,
+        user_type: userType,
+        ...additionalData,
       };
+
+      try {
+        await supabase.from('profiles').insert(profileData);
+      } catch (profileError) {
+        console.warn('⚠️ Não foi possível criar o perfil imediatamente (provável falta de confirmação de email):', profileError);
+      }
     }
+
+    return { error };
   };
 
   const resendConfirmationEmail = async (email: string) => {
-    if (!email || !email.trim()) {
-      return { 
-        error: { 
-          message: 'Email é obrigatório',
-          name: 'ValidationError',
-          status: 400
-        } as AuthError 
-      };
-    }
-
     const emailRedirectTo = getEmailRedirectUrl();
-    
-    try {
-      console.log('📧 Tentando reenviar email de confirmação para:', email.trim());
-      
-      // Usar a API correta do Supabase para reenviar email
-      const { data, error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email.trim(),
-        options: emailRedirectTo
-          ? {
-              emailRedirectTo,
-            }
-          : undefined,
-      });
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: emailRedirectTo
+        ? {
+            emailRedirectTo,
+          }
+        : undefined,
+    });
 
-      if (error) {
-        console.error('❌ Erro ao reenviar email de confirmação:', error);
-        
-        // Melhorar mensagens de erro
-        let errorMessage = error.message;
-        if (error.message?.includes('rate limit') || error.message?.includes('too many')) {
-          errorMessage = 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.';
-        } else if (error.message?.includes('not found') || error.message?.includes('does not exist')) {
-          errorMessage = 'Email não encontrado. Verifique se o email está correto ou crie uma nova conta.';
-        } else if (error.message?.includes('already confirmed')) {
-          errorMessage = 'Este email já foi confirmado. Você pode fazer login normalmente.';
-        }
-        
-        return { 
-          error: { 
-            ...error,
-            message: errorMessage
-          } as AuthError 
-        };
-      }
-
-      // Verificar resposta
-      if (data) {
-        console.log('✅ Email de confirmação reenviado com sucesso para:', email.trim());
-        console.log('📧 Resposta do Supabase:', data);
-      } else {
-        console.warn('⚠️ Resposta vazia do Supabase ao reenviar email');
-      }
-
-      return { error: null };
-    } catch (err: any) {
-      console.error('❌ Erro inesperado ao reenviar email de confirmação:', err);
-      return { 
-        error: { 
-          message: err.message || 'Não foi possível reenviar o email de confirmação. Verifique se o email está correto e tente novamente. Se o problema persistir, verifique as configurações de email no Supabase.',
-          name: err.name || 'ResendError',
-          status: err.status || 500
-        } as AuthError 
-      };
-    }
+    return { error: error as AuthError | null };
   };
 
   const signInWithGoogle = async () => {

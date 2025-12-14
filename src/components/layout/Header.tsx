@@ -97,16 +97,9 @@ const Header = () => {
               <Link to="/" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
               <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
               <Link to="/companies" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver empresas">Empresas</Link>
-              {isAuthenticated && profile?.user_type === 'employer' && (
-                <>
-                  <Link to="/company/dashboard" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Dashboard da empresa">Dashboard</Link>
-                  <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
-                </>
-              )}
+              <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
               <Link to="/courses" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
-              {isAuthenticated && profile?.user_type === 'candidate' && (
-                <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
-              )}
+              <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
               <Link to="/about" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Sobre a plataforma MOVER">Sobre</Link>
             </nav>
           </div>
@@ -178,33 +171,13 @@ const Header = () => {
                     <User className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
-                  {profile?.user_type === 'candidate' && (
-                    <DropdownMenuItem 
-                      onSelect={() => navigate('/applications')}
-                      className="cursor-pointer"
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      <span>Minhas Candidaturas</span>
-                    </DropdownMenuItem>
-                  )}
-                  {profile?.user_type === 'employer' && (
-                    <>
-                      <DropdownMenuItem 
-                        onSelect={() => navigate('/company/dashboard')}
-                        className="cursor-pointer"
-                      >
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onSelect={() => navigate('/advertise')}
-                        className="cursor-pointer"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        <span>Anunciar Vaga</span>
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem 
+                    onSelect={() => navigate('/applications')}
+                    className="cursor-pointer"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Minhas Candidaturas</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem 
                     onSelect={() => navigate('/messages')}
                     className="cursor-pointer"
@@ -316,30 +289,16 @@ const Header = () => {
                     <User className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
-                  {profile?.user_type === 'candidate' && (
-                    <DropdownMenuItem 
-                      onSelect={() => {
-                        navigate('/applications');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      <span>Minhas Candidaturas</span>
-                    </DropdownMenuItem>
-                  )}
-                  {profile?.user_type === 'employer' && (
-                    <DropdownMenuItem 
-                      onSelect={() => {
-                        navigate('/advertise');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      <span>Anunciar Vaga</span>
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem 
+                    onSelect={() => {
+                      navigate('/applications');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Minhas Candidaturas</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem 
                     onSelect={() => {
                       navigate('/messages');
@@ -424,24 +383,13 @@ const Header = () => {
                   >
                     Empresas
                   </Link>
-                  {isAuthenticated && profile?.user_type === 'employer' && (
-                    <>
-                      <Link 
-                        to="/company/dashboard" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
-                      >
-                        Dashboard
-                      </Link>
-                      <Link 
-                        to="/advertise" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
-                      >
-                        Anuncie
-                      </Link>
-                    </>
-                  )}
+                  <Link 
+                    to="/advertise" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
+                  >
+                    Anuncie
+                  </Link>
                   <Link 
                     to="/courses" 
                     onClick={() => setMobileMenuOpen(false)}
@@ -449,15 +397,13 @@ const Header = () => {
                   >
                     Cursos
                   </Link>
-                  {isAuthenticated && profile?.user_type === 'candidate' && (
-                    <Link 
-                      to="/curriculum" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
-                    >
-                      Cadastrar Currículo
-                    </Link>
-                  )}
+                  <Link 
+                    to="/curriculum" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 py-2 border-b border-gray-100 dark:border-gray-800"
+                  >
+                    Cadastrar Currículo
+                  </Link>
                   <Link 
                     to="/about" 
                     onClick={() => setMobileMenuOpen(false)}
