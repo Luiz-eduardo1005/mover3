@@ -60,6 +60,22 @@ const Header = () => {
   };
   return (
     <>
+      {/* Skip Links para acessibilidade */}
+      <div className="sr-only focus-within:not-sr-only focus-within:absolute focus-within:top-0 focus-within:left-0 focus-within:z-[9999] focus-within:p-4">
+        <a 
+          href="#main-content" 
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          Pular para conteúdo principal
+        </a>
+        <a 
+          href="#navigation" 
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium ml-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          Pular para navegação
+        </a>
+      </div>
+
       {/* Beta Banner */}
       <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-center py-1.5 sm:py-2 px-2 sm:px-4 flex items-center justify-center gap-1 sm:gap-2 sticky top-0 z-50">
         <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse flex-shrink-0" aria-hidden="true" />
@@ -77,7 +93,7 @@ const Header = () => {
               <Briefcase className="h-8 w-8 text-brand-600 dark:text-brand-400" aria-hidden="true" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white font-heading">MOVER</span>
             </Link>
-            <nav className="hidden md:ml-8 md:flex md:space-x-8" role="navigation" aria-label="Menu principal">
+            <nav id="navigation" className="hidden md:ml-8 md:flex md:space-x-8" role="navigation" aria-label="Menu principal">
               <Link to="/" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
               <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
               <Link to="/companies" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver empresas">Empresas</Link>

@@ -16,6 +16,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SearchBar from '@/components/search/SearchBar';
 import AccessibilityNotice from '@/components/AccessibilityNotice';
+import LazyImage from '@/components/ui/LazyImage';
 import { Briefcase, User, Search } from 'lucide-react';
 import JobList from '@/components/jobs/JobList';
 
@@ -24,7 +25,7 @@ const Index = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow" role="main" aria-label="Conteúdo principal">
         {/* Hero Section */}
         <section className="relative py-12 sm:py-16 md:py-20">
           {/* Background Image */}
@@ -127,17 +128,14 @@ const Index = () => {
                   className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 flex items-center justify-center h-20 sm:h-24 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="w-full h-full rounded flex items-center justify-center overflow-hidden">
-                    <img 
+                    <LazyImage 
                       src={company.logo} 
                       alt={`${company.name} logo`}
                       className="w-full h-full object-contain p-1"
-                      onError={(e) => {
-                        // Se a imagem não carregar, mostrar placeholder
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        if (target.parentElement) {
-                          target.parentElement.innerHTML = `<span class="text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-sm">${company.name}</span>`;
-                        }
+                      placeholder="/placeholder.svg"
+                      fallback="/placeholder.svg"
+                      onError={() => {
+                        // Fallback já é tratado pelo componente LazyImage
                       }}
                     />
                   </div>

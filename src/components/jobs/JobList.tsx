@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { JobListSkeleton } from '@/components/ui/skeleton-loader';
 
 // Mock data for job listings
 const jobListings = [

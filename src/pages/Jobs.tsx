@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import JobList from '@/components/jobs/JobList';
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import Breadcrumb from "@/components/ui/breadcrumb";
 
 const Jobs = () => {
   const [filters, setFilters] = useState({
@@ -85,7 +86,12 @@ const Jobs = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow" role="main" aria-label="Conteúdo principal">
+        {/* Breadcrumb */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <Breadcrumb items={[{ label: 'Vagas' }]} />
+        </div>
+
         {/* Search Bar Section */}
         <section className="bg-gradient-to-r from-blue-50 to-brand-50 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

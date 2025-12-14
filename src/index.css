@@ -109,8 +109,19 @@
 
   /* Acessibilidade - Focus visível melhorado */
   *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
+  }
+
+  /* Foco mais visível em modo de alto contraste */
+  .high-contrast *:focus-visible,
+  @media (prefers-contrast: high) {
+    *:focus-visible {
+      outline: 3px solid currentColor !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 0 3px currentColor !important;
+    }
   }
 
   /* Acessibilidade - Labels visíveis para screen readers */
@@ -124,6 +135,20 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  /* Classe para tornar visível quando focado (usado em skip links) */
+  .sr-only:focus,
+  .sr-only:focus-within,
+  .focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
   }
 
   /* Acessibilidade - Tamanhos de fonte personalizados */

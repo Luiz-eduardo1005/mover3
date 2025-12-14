@@ -15,6 +15,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Breadcrumb from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
@@ -511,17 +512,17 @@ const JobDetails = () => {
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
       
-      <main className="flex-grow py-6 sm:py-8">
+      <main id="main-content" className="flex-grow py-6 sm:py-8" role="main" aria-label="Conteúdo principal">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Botão Voltar */}
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-4 sm:mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm sm:text-base"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
+          {/* Breadcrumb */}
+          <div className="mb-4">
+            <Breadcrumb 
+              items={[
+                { label: 'Vagas', href: '/jobs' },
+                { label: job.title || 'Detalhes da vaga' }
+              ]} 
+            />
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Conteúdo Principal */}

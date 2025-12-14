@@ -33,6 +33,23 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
 
   useEffect(() => {
     setIsSupported('speechSynthesis' in window);
+    
+    // Carregar vozes disponíveis
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        // Log para debug (pode ser removido em produção)
+        if (voices.length > 0 && process.env.NODE_ENV === 'development') {
+          console.log('Vozes disponíveis:', voices.map(v => ({ name: v.name, lang: v.lang })));
+        }
+      };
+      
+      loadVoices();
+      // Alguns navegadores carregam vozes de forma assíncrona
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
   }, []);
 
   const speak = useCallback((text: string, options?: SpeechOptions) => {
@@ -53,7 +70,19 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onerror = (error) => {
+      console.error('Erro no Text-to-Speech:', error);
+      setIsSpeaking(false);
+    };
+
+    // Tentar usar voz brasileira se disponível
+    const voices = window.speechSynthesis.getVoices();
+    const brazilianVoice = voices.find(voice => 
+      voice.lang.includes('pt-BR') || voice.lang.includes('pt')
+    );
+    if (brazilianVoice) {
+      utterance.voice = brazilianVoice;
+    }
 
     window.speechSynthesis.speak(utterance);
   }, [isSupported]);

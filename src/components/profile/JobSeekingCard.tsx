@@ -23,15 +23,29 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
 
   // Verificar se deve mostrar o card
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setShowCard(false);
+      return;
+    }
 
     const checkShouldShow = () => {
       const lastAnswerDate = localStorage.getItem(`job_seeking_last_answer_${user.id}`);
       const hasAnswered = localStorage.getItem(`job_seeking_answered_${user.id}`);
       const jobPreferences = (profile as any)?.job_preferences;
 
-      // Se nunca respondeu, mostrar (fica lá até responder)
-      if (!hasAnswered && jobPreferences?.has_answered_job_seeking_question !== true) {
+      console.log('🔍 Verificando se deve mostrar card:', {
+        userId: user.id,
+        hasAnswered,
+        lastAnswerDate,
+        jobPreferences: jobPreferences?.has_answered_job_seeking_question,
+        profileLoaded: !!profile
+      });
+
+      // Se nunca respondeu (nem no localStorage nem no banco), mostrar
+      const neverAnswered = !hasAnswered && jobPreferences?.has_answered_job_seeking_question !== true;
+      
+      if (neverAnswered) {
+        console.log('✅ Mostrando card - nunca respondeu');
         setShowCard(true);
         return;
       }
@@ -43,17 +57,33 @@ const JobSeekingCard: React.FC<JobSeekingCardProps> = ({ onResponse }) => {
         const diffTime = Math.abs(now.getTime() - lastDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
+        console.log(`⏰ Última resposta há ${diffDays} dias`);
+        
+        // Para desenvolvimento/teste: descomente a linha abaixo para forçar exibição
+        // if (true) {
+        
         // Se passou 7 dias ou mais, mostrar novamente
         if (diffDays >= 7) {
+          console.log('✅ Mostrando card - passou 1 semana');
           setShowCard(true);
           return;
         }
       }
 
       // Se já respondeu e não passou 1 semana, não mostrar
+      console.log('❌ Não mostrando card - já respondeu recentemente');
       setShowCard(false);
     };
 
+    // Se o profile ainda não foi carregado, aguardar um pouco
+    if (!profile) {
+      const timer = setTimeout(() => {
+        checkShouldShow();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+
+    // Se o profile já foi carregado, verificar imediatamente
     checkShouldShow();
   }, [user, profile]);
 

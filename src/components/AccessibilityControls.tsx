@@ -41,6 +41,8 @@ import { useNavigate } from 'react-router-dom';
 
 const AccessibilityControls: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [speechRate, setSpeechRate] = useState(1);
+  const [notificationMessage, setNotificationMessage] = useState('');
   const navigate = useNavigate();
   const {
     preferences,
@@ -74,6 +76,59 @@ const AccessibilityControls: React.FC = () => {
     error: speechError,
   } = useSpeechToText();
 
+  // Atalhos de teclado globais
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt + A = Abrir/fechar controles de acessibilidade
+      if (e.altKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsOpen(prev => {
+          const newState = !prev;
+          setNotificationMessage('Controles de acessibilidade ' + (newState ? 'abertos' : 'fechados'));
+          return newState;
+        });
+      }
+      // Alt + S = Ler conteúdo da página
+      if (e.altKey && e.key.toLowerCase() === 's' && !e.shiftKey) {
+        e.preventDefault();
+        if (isSpeaking) {
+          stopSpeech();
+          setNotificationMessage('Leitura interrompida');
+        } else {
+          readPageContent((text: string) => speak(text, { rate: speechRate }));
+          setNotificationMessage('Iniciando leitura da página');
+        }
+      }
+      // Alt + Shift + S = Parar leitura
+      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (isSpeaking) {
+          stopSpeech();
+          setNotificationMessage('Leitura interrompida');
+        }
+      }
+      // Alt + V = Ativar comandos por voz
+      if (e.altKey && e.key.toLowerCase() === 'v' && isSTTSupported) {
+        e.preventDefault();
+        if (isListening) {
+          stopListening();
+          setNotificationMessage('Comandos por voz desativados');
+        } else {
+          startListening();
+          setNotificationMessage('Comandos por voz ativados. Fale seus comandos.');
+        }
+      }
+      // Esc = Fechar controles se abertos
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+        setNotificationMessage('Controles de acessibilidade fechados');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isOpen, isSpeaking, isSTTSupported, isListening, stopSpeech, stopListening, startListening, speak, speechRate]);
+
   // Processar comandos de voz
   useEffect(() => {
     if (transcript && isListening) {
@@ -81,12 +136,14 @@ const AccessibilityControls: React.FC = () => {
         onNavigate: (path) => {
           navigate(path);
           stopListening();
+          setNotificationMessage(`Navegando para ${path}`);
         },
         onClose: () => {
           if (isOpen) {
             setIsOpen(false);
           }
           stopListening();
+          setNotificationMessage('Comandos por voz desativados');
         },
       });
     }
@@ -131,29 +188,53 @@ const AccessibilityControls: React.FC = () => {
   const handleReadPage = () => {
     if (isSpeaking) {
       stopSpeech();
+      setNotificationMessage('Leitura interrompida');
     } else {
-      readPageContent(speak);
+      readPageContent((text: string) => speak(text, { rate: speechRate }));
+      setNotificationMessage('Iniciando leitura da página');
     }
   };
 
   const handleReadSelection = () => {
-    readSelectedText(speak);
+    readSelectedText((text: string) => speak(text, { rate: speechRate }));
+    setNotificationMessage('Lendo texto selecionado');
   };
 
   const handleVoiceCommand = () => {
     if (isListening) {
       stopListening();
+      setNotificationMessage('Comandos por voz desativados');
     } else {
       startListening();
+      setNotificationMessage('Comandos por voz ativados. Fale seus comandos.');
     }
   };
 
+  // Limpar mensagem de notificação após 3 segundos
+  useEffect(() => {
+    if (notificationMessage) {
+      const timer = setTimeout(() => setNotificationMessage(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notificationMessage]);
+
   return (
-    <div
-      className="fixed left-0 top-[120px] z-50"
-      role="region"
-      aria-label="Controles de acessibilidade"
-    >
+    <>
+      {/* Live region para notificações */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {notificationMessage}
+      </div>
+
+      <div
+        className="fixed left-0 top-[120px] z-50"
+        role="region"
+        aria-label="Controles de acessibilidade"
+      >
       {/* Painel de controles */}
       <div
         className={cn(
@@ -172,6 +253,18 @@ const AccessibilityControls: React.FC = () => {
           <div className="flex items-center gap-2 pb-2 border-b border-border sticky top-0 bg-background z-10">
             <Accessibility className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="font-semibold text-sm">Acessibilidade</h3>
+          </div>
+
+          {/* Informações de atalhos de teclado */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3 mb-2">
+            <p className="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-2">Atalhos de Teclado:</p>
+            <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
+              <li><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Alt</kbd> + <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">A</kbd> - Abrir/Fechar controles</li>
+              <li><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Alt</kbd> + <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">S</kbd> - Ler página</li>
+              <li><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Alt</kbd> + <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Shift</kbd> + <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">S</kbd> - Parar leitura</li>
+              <li><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Alt</kbd> + <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">V</kbd> - Comandos por voz</li>
+              <li><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 rounded text-xs">Esc</kbd> - Fechar controles</li>
+            </ul>
           </div>
 
           {/* Controle de Tamanho da Fonte */}
@@ -363,13 +456,57 @@ const AccessibilityControls: React.FC = () => {
                   <Volume2 className="h-4 w-4" aria-hidden="true" />
                   <span className="text-xs">Ler Seleção</span>
                 </Button>
+                
+                {/* Controle de velocidade de leitura */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span className="text-xs font-medium">Velocidade de Leitura</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-2">
+                    <Button
+                      onClick={() => {
+                        if (speechRate > 0.5) {
+                          setSpeechRate(prev => Math.max(0.5, prev - 0.1));
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      aria-label="Diminuir velocidade de leitura"
+                      disabled={speechRate <= 0.5}
+                    >
+                      <Minus className="h-3 w-3" aria-hidden="true" />
+                    </Button>
+                    <span className="flex-1 text-center text-xs font-medium">
+                      {speechRate.toFixed(1)}x
+                    </span>
+                    <Button
+                      onClick={() => {
+                        if (speechRate < 2) {
+                          setSpeechRate(prev => Math.min(2, prev + 0.1));
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      aria-label="Aumentar velocidade de leitura"
+                      disabled={speechRate >= 2}
+                    >
+                      <Plus className="h-3 w-3" aria-hidden="true" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground px-2">
+                    Atalho: Alt+S para ler, Alt+Shift+S para parar
+                  </p>
+                </div>
               </div>
             </>
           )}
 
-          {/* Comandos por Voz /// AINDA ESTÁ EM DESENVOLVIMENTO BY LUIS ROBERTO*/}
-          {/* {isSTTSupported && (
-            <div className="space-y-2">
+          {/* Comandos por Voz */}
+          {isSTTSupported && (
+            <div className="pt-2 border-t border-border space-y-2">
               <Button
                 onClick={handleVoiceCommand}
                 variant={isListening ? 'default' : 'outline'}
@@ -386,10 +523,18 @@ const AccessibilityControls: React.FC = () => {
                 <span className="text-xs">{isListening ? 'Parar Voz' : 'Comandos por Voz'}</span>
               </Button>
               {speechError && (
-                <p className="text-xs text-destructive px-2">{speechError}</p>
+                <p className="text-xs text-destructive px-2" role="alert">{speechError}</p>
               )}
+              {isListening && (
+                <p className="text-xs text-muted-foreground px-2">
+                  Comandos disponíveis: "ir para vagas", "ir para perfil", "fechar"
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground px-2">
+                Atalho: Alt+V para ativar
+              </p>
             </div>
-          )} */}
+          )}
 
           {/* Controle de Reduzir Animações */}
           <div className="space-y-2">
@@ -442,6 +587,7 @@ const AccessibilityControls: React.FC = () => {
         )}
       </Button>
     </div>
+    </>
   );
 };
 
