@@ -154,6 +154,19 @@ const AccessibilityControls: React.FC = () => {
     }
   }, [transcript, isListening, navigate, isOpen, stopListening]);
 
+  // Aplicar mudança de velocidade durante a leitura
+  const [previousSpeechRate, setPreviousSpeechRate] = useState(preferences.speechRate);
+  useEffect(() => {
+    // Se a velocidade mudou e está falando, aplicar imediatamente
+    if (isSpeaking && previousSpeechRate !== preferences.speechRate) {
+      restartWithNewOptions({
+        rate: preferences.speechRate,
+        voiceGender: preferences.voiceGender,
+      });
+    }
+    setPreviousSpeechRate(preferences.speechRate);
+  }, [preferences.speechRate, isSpeaking, previousSpeechRate, restartWithNewOptions, preferences.voiceGender]);
+
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -531,7 +544,15 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         if (preferences.speechRate > 0.5) {
-                          updateSpeechRate(preferences.speechRate - 0.1);
+                          const newRate = preferences.speechRate - 0.1;
+                          updateSpeechRate(newRate);
+                          // Se estiver falando, aplicar nova velocidade imediatamente
+                          if (isSpeaking) {
+                            restartWithNewOptions({
+                              rate: newRate,
+                              voiceGender: preferences.voiceGender,
+                            });
+                          }
                         }
                       }}
                       variant="outline"
@@ -548,7 +569,15 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         if (preferences.speechRate < 2) {
-                          updateSpeechRate(preferences.speechRate + 0.1);
+                          const newRate = preferences.speechRate + 0.1;
+                          updateSpeechRate(newRate);
+                          // Se estiver falando, aplicar nova velocidade imediatamente
+                          if (isSpeaking) {
+                            restartWithNewOptions({
+                              rate: newRate,
+                              voiceGender: preferences.voiceGender,
+                            });
+                          }
                         }
                       }}
                       variant="outline"
