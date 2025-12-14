@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
 import LoadingPage from './LoadingPage';
 
 // Status timeline com ícones e cores
@@ -70,9 +71,43 @@ const statusConfig = {
 const Applications = () => {
   const { user, profile, session, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Verificar se há sessão válida
   const isAuthenticated = !loading && user && session;
+
+  // Verificar se é candidato
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        toast({
+          title: "Acesso restrito",
+          description: "Você precisa fazer login para ver suas candidaturas.",
+          variant: "destructive",
+        });
+        navigate('/login');
+        return;
+      }
+
+      if (profile && profile.user_type !== 'candidate') {
+        toast({
+          title: "Acesso negado",
+          description: "Esta página é apenas para candidatos. Empresas não podem ver candidaturas de outros usuários.",
+          variant: "destructive",
+        });
+        navigate('/profile');
+        return;
+      }
+    }
+  }, [user, profile, loading, navigate, toast]);
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (!user || (profile && profile.user_type !== 'candidate')) {
+    return null;
+  }
 
   // Buscar candidaturas do usuário
   const { data: applications, isLoading } = useQuery({
