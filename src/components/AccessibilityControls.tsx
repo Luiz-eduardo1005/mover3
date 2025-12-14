@@ -66,6 +66,7 @@ const AccessibilityControls: React.FC = () => {
     stop: stopSpeech,
     pause: pauseSpeech,
     resume: resumeSpeech,
+    restartWithNewOptions,
   } = useTextToSpeech();
 
   const {
@@ -152,6 +153,7 @@ const AccessibilityControls: React.FC = () => {
       });
     }
   }, [transcript, isListening, navigate, isOpen, stopListening]);
+
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -475,7 +477,16 @@ const AccessibilityControls: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 px-2">
                     <Button
-                      onClick={() => updateVoiceGender('male')}
+                      onClick={() => {
+                        updateVoiceGender('male');
+                        // Se estiver falando, reiniciar com voz masculina
+                        if (isSpeaking) {
+                          restartWithNewOptions({
+                            voiceGender: 'male',
+                            rate: preferences.speechRate,
+                          });
+                        }
+                      }}
                       variant={preferences.voiceGender === 'male' ? 'default' : 'outline'}
                       size="sm"
                       className="flex-1 text-xs"
@@ -485,7 +496,16 @@ const AccessibilityControls: React.FC = () => {
                       Masculina
                     </Button>
                     <Button
-                      onClick={() => updateVoiceGender('female')}
+                      onClick={() => {
+                        updateVoiceGender('female');
+                        // Se estiver falando, reiniciar com voz feminina
+                        if (isSpeaking) {
+                          restartWithNewOptions({
+                            voiceGender: 'female',
+                            rate: preferences.speechRate,
+                          });
+                        }
+                      }}
                       variant={preferences.voiceGender === 'female' ? 'default' : 'outline'}
                       size="sm"
                       className="flex-1 text-xs"

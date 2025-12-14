@@ -18,6 +18,8 @@ interface UseTextToSpeechReturn {
   stop: () => void;
   pause: () => void;
   resume: () => void;
+  restartWithNewOptions: (options: SpeechOptions) => void;
+  getCurrentText: () => string | null;
 }
 
 interface SpeechOptions {
@@ -31,6 +33,8 @@ interface SpeechOptions {
 export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [currentText, setCurrentText] = useState<string>('');
+  const [currentOptions, setCurrentOptions] = useState<SpeechOptions | undefined>();
 
   useEffect(() => {
     setIsSupported('speechSynthesis' in window);
@@ -59,6 +63,10 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       return;
     }
 
+    // Armazenar texto e opções atuais para poder reiniciar
+    setCurrentText(text);
+    setCurrentOptions(options);
+
     // Parar qualquer fala anterior
     window.speechSynthesis.cancel();
 
@@ -70,7 +78,10 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     utterance.volume = options?.volume || 1;
 
     utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      // Limpar texto quando terminar (opcional, pode manter para permitir reiniciar)
+    };
     utterance.onerror = (error) => {
       console.error('Erro no Text-to-Speech:', error);
       setIsSpeaking(false);
@@ -141,6 +152,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     if (isSupported) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      // Não limpar currentText aqui para permitir reiniciar se necessário
     }
   }, [isSupported]);
 
@@ -158,6 +170,21 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
   }, [isSupported]);
 
+  const restartWithNewOptions = useCallback((newOptions: SpeechOptions) => {
+    if (currentText && isSupported) {
+      // Parar leitura atual
+      window.speechSynthesis.cancel();
+      // Reiniciar com novas opções
+      setTimeout(() => {
+        speak(currentText, { ...currentOptions, ...newOptions });
+      }, 100);
+    }
+  }, [currentText, currentOptions, isSupported, speak]);
+
+  const getCurrentText = useCallback(() => {
+    return currentText || null;
+  }, [currentText]);
+
   return {
     isSpeaking,
     isSupported,
@@ -165,6 +192,8 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     stop,
     pause,
     resume,
+    restartWithNewOptions,
+    getCurrentText,
   };
 };
 
