@@ -211,18 +211,22 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     };
 
     utterance.onend = () => {
-      // Continuar com o próximo chunk usando as opções mais atualizadas
-      const nextIndex = chunkIndex + 1;
-      if (nextIndex < chunks.length) {
-        // Sempre usar as opções mais recentes do ref (que podem ter sido atualizadas durante a leitura)
-        const optionsToUse = currentOptionsRef.current || options || {};
-        // Garantir que continuamos na ordem correta
-        speakChunk(nextIndex, chunks, optionsToUse);
-      } else {
-        // Leitura completa
-        setIsSpeaking(false);
-        setCurrentUtterance(null);
-        currentChunkIndexRef.current = 0;
+      // Só continuar se não foi cancelado (verificar se ainda está falando)
+      // Se foi cancelado para trocar voz, não continuar aqui
+      if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+        // Continuar com o próximo chunk usando as opções mais atualizadas
+        const nextIndex = chunkIndex + 1;
+        if (nextIndex < chunks.length) {
+          // Sempre usar as opções mais recentes do ref (que podem ter sido atualizadas durante a leitura)
+          const optionsToUse = currentOptionsRef.current || options || {};
+          // Garantir que continuamos na ordem correta
+          speakChunk(nextIndex, chunks, optionsToUse);
+        } else {
+          // Leitura completa
+          setIsSpeaking(false);
+          setCurrentUtterance(null);
+          currentChunkIndexRef.current = 0;
+        }
       }
     };
 
@@ -294,12 +298,13 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
     isChangingVoiceRef.current = true;
     
-    // Usar refs para obter valores mais atualizados e confiáveis
+    // CAPTURAR valores ANTES de qualquer operação para garantir sincronização
     const chunks = textChunksRef.current.length > 0 ? textChunksRef.current : textChunks;
+    // Capturar o índice atual ANTES de cancelar
     const currentIndex = currentChunkIndexRef.current;
     
     // Validar chunks e índice
-    if (chunks.length === 0 || currentIndex < 0) {
+    if (chunks.length === 0 || currentIndex < 0 || currentIndex >= chunks.length) {
       isChangingVoiceRef.current = false;
       return;
     }
@@ -322,19 +327,21 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     // Parar leitura atual imediatamente (chunk que está sendo lido agora)
     window.speechSynthesis.cancel();
     
-    // Continuar do próximo chunk que ainda não foi lido
-    // Validar que o próximo índice é válido
-    const nextChunkIndex = currentIndex + 1;
+    // IMPORTANTE: Continuar do MESMO chunk que estava sendo lido
+    // Isso faz com que continue de onde parou (ou pelo menos do início do chunk atual)
+    // Como os chunks são pequenos, a repetição será mínima
+    const chunkToContinue = currentIndex;
     
     // Transição IMEDIATA - usar microtask para garantir ordem
     Promise.resolve().then(() => {
       isChangingVoiceRef.current = false;
       // Validar novamente antes de continuar
-      if (nextChunkIndex >= 0 && nextChunkIndex < chunks.length) {
-        // Continuar do próximo chunk com a nova voz - garantindo ordem correta
-        speakChunk(nextChunkIndex, chunks, mergedOptions);
-      } else if (nextChunkIndex >= chunks.length) {
-        // Se já estava no último chunk, apenas finalizar
+      if (chunkToContinue >= 0 && chunkToContinue < chunks.length) {
+        // Continuar do MESMO chunk com a nova voz
+        // Isso garante que continue de onde parou (dentro do chunk atual)
+        speakChunk(chunkToContinue, chunks, mergedOptions);
+      } else {
+        // Se índice inválido, apenas finalizar
         setIsSpeaking(false);
         currentChunkIndexRef.current = 0;
         setCurrentUtterance(null);
