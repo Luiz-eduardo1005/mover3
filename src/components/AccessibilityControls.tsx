@@ -478,11 +478,13 @@ const AccessibilityControls: React.FC = () => {
                   <div className="flex items-center gap-2 px-2">
                     <Button
                       onClick={() => {
-                        updateVoiceGender('male');
-                        // Se estiver falando, reiniciar com voz masculina
+                        const newGender = 'male';
+                        // Atualizar preferência primeiro
+                        updateVoiceGender(newGender);
+                        // Se estiver falando, trocar voz imediatamente sem pausar
                         if (isSpeaking) {
                           restartWithNewOptions({
-                            voiceGender: 'male',
+                            voiceGender: newGender,
                             rate: preferences.speechRate,
                           });
                         }
@@ -497,11 +499,13 @@ const AccessibilityControls: React.FC = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        updateVoiceGender('female');
-                        // Se estiver falando, reiniciar com voz feminina
+                        const newGender = 'female';
+                        // Atualizar preferência primeiro
+                        updateVoiceGender(newGender);
+                        // Se estiver falando, trocar voz imediatamente sem pausar
                         if (isSpeaking) {
                           restartWithNewOptions({
-                            voiceGender: 'female',
+                            voiceGender: newGender,
                             rate: preferences.speechRate,
                           });
                         }

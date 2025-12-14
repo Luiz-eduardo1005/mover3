@@ -9,7 +9,7 @@
  * Copyright (c) 2025 Luis Roberto Lins de Almeida e equipe ADS FAMetro
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface UseTextToSpeechReturn {
   isSpeaking: boolean;
@@ -38,6 +38,12 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const [textChunks, setTextChunks] = useState<string[]>([]);
   const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  
+  // Usar refs para rastreamento mais confiável durante a leitura
+  const currentChunkIndexRef = useRef(0);
+  const textChunksRef = useRef<string[]>([]);
+  const currentOptionsRef = useRef<SpeechOptions | undefined>();
+  const isChangingVoiceRef = useRef(false);
 
   useEffect(() => {
     setIsSupported('speechSynthesis' in window);
@@ -89,10 +95,57 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     return chunks;
   }, []);
 
+  // Função auxiliar para selecionar voz baseada no gênero
+  const selectVoice = useCallback((targetGender: 'male' | 'female'): SpeechSynthesisVoice | null => {
+    const voices = window.speechSynthesis.getVoices();
+    const brazilianVoices = voices.filter(voice => 
+      voice.lang.includes('pt-BR') || voice.lang.includes('pt')
+    );
+
+    if (brazilianVoices.length === 0) return null;
+
+    let selectedVoice: SpeechSynthesisVoice | null = null;
+    
+    if (targetGender === 'female') {
+      selectedVoice = brazilianVoices.find(voice => {
+        const name = voice.name.toLowerCase();
+        return name.includes('maria') || 
+               name.includes('heloisa') || 
+               name.includes('heloísa') ||
+               name.includes('luciana') ||
+               name.includes('feminina') ||
+               name.includes('female');
+      }) || null;
+      
+      if (!selectedVoice && brazilianVoices.length > 1) {
+        selectedVoice = brazilianVoices[brazilianVoices.length - 1];
+      }
+    }
+    
+    if (!selectedVoice || targetGender === 'male') {
+      selectedVoice = brazilianVoices.find(voice => {
+        const name = voice.name.toLowerCase();
+        return name.includes('joão') || 
+               name.includes('joao') ||
+               name.includes('felipe') ||
+               name.includes('masculina') ||
+               name.includes('male');
+      }) || null;
+      
+      if (!selectedVoice) {
+        selectedVoice = brazilianVoices[0];
+      }
+    }
+    
+    return selectedVoice;
+  }, []);
+
   // Função para falar um chunk específico (definida primeiro para ser usada em speak)
   const speakChunk = useCallback((chunkIndex: number, chunks: string[], options?: SpeechOptions) => {
     if (chunkIndex >= chunks.length) {
       setIsSpeaking(false);
+      currentChunkIndexRef.current = 0;
+      setCurrentUtterance(null);
       return;
     }
 
@@ -103,58 +156,26 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       return;
     }
 
+    // Atualizar refs para rastreamento confiável
+    currentChunkIndexRef.current = chunkIndex;
+    textChunksRef.current = chunks;
+    if (options) {
+      currentOptionsRef.current = options;
+    }
+
     const utterance = new SpeechSynthesisUtterance(chunk);
     
-    utterance.lang = options?.lang || 'pt-BR';
-    utterance.rate = options?.rate || 1;
-    utterance.pitch = options?.pitch || 1;
-    utterance.volume = options?.volume || 1;
+    const finalOptions = options || currentOptionsRef.current || {};
+    utterance.lang = finalOptions.lang || 'pt-BR';
+    utterance.rate = finalOptions.rate || 1;
+    utterance.pitch = finalOptions.pitch || 1;
+    utterance.volume = finalOptions.volume || 1;
 
     // Selecionar voz baseada no gênero
-    const voices = window.speechSynthesis.getVoices();
-    const targetGender = options?.voiceGender || 'male';
-    
-    const brazilianVoices = voices.filter(voice => 
-      voice.lang.includes('pt-BR') || voice.lang.includes('pt')
-    );
-
-    if (brazilianVoices.length > 0) {
-      let selectedVoice: SpeechSynthesisVoice | null = null;
-      
-      if (targetGender === 'female') {
-        selectedVoice = brazilianVoices.find(voice => {
-          const name = voice.name.toLowerCase();
-          return name.includes('maria') || 
-                 name.includes('heloisa') || 
-                 name.includes('heloísa') ||
-                 name.includes('luciana') ||
-                 name.includes('feminina') ||
-                 name.includes('female');
-        }) || null;
-        
-        if (!selectedVoice && brazilianVoices.length > 1) {
-          selectedVoice = brazilianVoices[brazilianVoices.length - 1];
-        }
-      }
-      
-      if (!selectedVoice || targetGender === 'male') {
-        selectedVoice = brazilianVoices.find(voice => {
-          const name = voice.name.toLowerCase();
-          return name.includes('joão') || 
-                 name.includes('joao') ||
-                 name.includes('felipe') ||
-                 name.includes('masculina') ||
-                 name.includes('male');
-        }) || null;
-        
-        if (!selectedVoice) {
-          selectedVoice = brazilianVoices[0];
-        }
-      }
-      
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
+    const targetGender = finalOptions.voiceGender || 'male';
+    const selectedVoice = selectVoice(targetGender);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
 
     utterance.onstart = () => {
@@ -164,12 +185,17 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     };
 
     utterance.onend = () => {
-      // Continuar com o próximo chunk
-      if (chunkIndex < chunks.length - 1) {
-        speakChunk(chunkIndex + 1, chunks, options);
+      // Continuar com o próximo chunk usando as opções mais atualizadas
+      const nextIndex = chunkIndex + 1;
+      if (nextIndex < chunks.length) {
+        // Sempre usar as opções mais recentes do ref (que podem ter sido atualizadas durante a leitura)
+        const optionsToUse = currentOptionsRef.current || options || {};
+        speakChunk(nextIndex, chunks, optionsToUse);
       } else {
+        // Leitura completa
         setIsSpeaking(false);
         setCurrentUtterance(null);
+        currentChunkIndexRef.current = 0;
       }
     };
 
@@ -180,7 +206,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     };
 
     window.speechSynthesis.speak(utterance);
-  }, []);
+  }, [selectVoice]);
 
   const speak = useCallback((text: string, options?: SpeechOptions) => {
     if (!isSupported) {
@@ -191,11 +217,16 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     // Armazenar texto e opções atuais
     setCurrentText(text);
     setCurrentOptions(options);
+    if (options) {
+      currentOptionsRef.current = options;
+    }
     
     // Dividir texto em chunks
     const chunks = splitIntoChunks(text);
     setTextChunks(chunks);
+    textChunksRef.current = chunks;
     setCurrentChunkIndex(0);
+    currentChunkIndexRef.current = 0;
 
     // Parar qualquer fala anterior
     window.speechSynthesis.cancel();
@@ -227,25 +258,60 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   }, [isSupported]);
 
   const restartWithNewOptions = useCallback((newOptions: SpeechOptions) => {
-    if (isSupported && textChunks.length > 0 && currentChunkIndex < textChunks.length) {
-      // Parar leitura atual suavemente
-      window.speechSynthesis.cancel();
-      
-      // Continuar do próximo chunk (não reiniciar o atual) com novas opções
-      const nextChunkIndex = currentChunkIndex + 1;
-      const mergedOptions = { ...currentOptions, ...newOptions };
-      setCurrentOptions(mergedOptions);
-      
-      // Pequeno delay para transição suave
-      setTimeout(() => {
-        if (nextChunkIndex < textChunks.length) {
-          speakChunk(nextChunkIndex, textChunks, mergedOptions);
-        } else {
-          setIsSpeaking(false);
-        }
-      }, 50);
+    if (!isSupported) return;
+    
+    // Proteção contra múltiplas chamadas rápidas
+    if (isChangingVoiceRef.current) {
+      return;
     }
-  }, [isSupported, textChunks, currentChunkIndex, currentOptions, speakChunk]);
+    isChangingVoiceRef.current = true;
+    
+    // Usar refs para obter valores mais atualizados e confiáveis
+    const chunks = textChunksRef.current.length > 0 ? textChunksRef.current : textChunks;
+    const currentIndex = currentChunkIndexRef.current;
+    
+    if (chunks.length === 0) {
+      isChangingVoiceRef.current = false;
+      return;
+    }
+
+    // Se não está mais falando, não fazer nada
+    if (!isSpeaking && currentIndex >= chunks.length) {
+      isChangingVoiceRef.current = false;
+      return;
+    }
+
+    // Parar leitura atual imediatamente (chunk que está sendo lido agora)
+    window.speechSynthesis.cancel();
+    
+    // Mesclar opções: manter as atuais e aplicar as novas
+    const mergedOptions = { 
+      ...currentOptionsRef.current, 
+      ...currentOptions,
+      ...newOptions 
+    };
+    setCurrentOptions(mergedOptions);
+    currentOptionsRef.current = mergedOptions;
+    
+    // Continuar do próximo chunk que ainda não foi lido
+    // O chunk atual foi cancelado, então continuamos do próximo
+    const nextChunkIndex = currentIndex + 1;
+    
+    // Transição imediata (sem delay perceptível) para troca suave
+    // Usar requestAnimationFrame para garantir que a troca seja instantânea
+    requestAnimationFrame(() => {
+      isChangingVoiceRef.current = false;
+      if (nextChunkIndex < chunks.length) {
+        // Continuar do próximo chunk com a nova voz
+        speakChunk(nextChunkIndex, chunks, mergedOptions);
+      } else {
+        // Se já estava no último chunk, apenas finalizar
+        setIsSpeaking(false);
+        currentChunkIndexRef.current = 0;
+        setCurrentUtterance(null);
+      }
+    });
+  }, [isSupported, textChunks, isSpeaking, speakChunk, currentOptions]);
 
   const getCurrentText = useCallback(() => {
     return currentText || null;
