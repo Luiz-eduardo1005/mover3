@@ -108,15 +108,30 @@ const Login = () => {
     const { error } = await resendConfirmationEmail(pendingVerificationEmail);
 
     if (error) {
-      toast({
-        title: "Erro ao reenviar confirmação",
-        description: error.message || "Não foi possível reenviar o email. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
+      // Verificar se é erro de email não encontrado
+      const isEmailNotFound = error.message?.toLowerCase().includes('not found') ||
+                             error.message?.toLowerCase().includes('user not found') ||
+                             error.message?.toLowerCase().includes('does not exist');
+      
+      if (isEmailNotFound) {
+        toast({
+          title: "Email não encontrado",
+          description: "Este email não está cadastrado. Verifique se digitou corretamente ou crie uma nova conta.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao reenviar confirmação",
+          description: error.message || "Não foi possível reenviar o email. Verifique se o email está correto e tente novamente.",
+          variant: "destructive",
+          duration: 6000,
+        });
+      }
     } else {
       toast({
-        title: "Email reenviado",
-        description: "Verifique sua caixa de entrada e confirme seu cadastro.",
+        title: "Email reenviado com sucesso!",
+        description: `Um novo email de confirmação foi enviado para ${pendingVerificationEmail}. Verifique sua caixa de entrada e spam.`,
+        duration: 6000,
       });
     }
 
