@@ -25,6 +25,7 @@ interface SpeechOptions {
   pitch?: number; // 0 a 2
   volume?: number; // 0 a 1
   lang?: string;
+  voiceGender?: 'male' | 'female';
 }
 
 export const useTextToSpeech = (): UseTextToSpeechReturn => {
@@ -75,13 +76,61 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       setIsSpeaking(false);
     };
 
-    // Tentar usar voz brasileira se disponível
+    // Selecionar voz baseada no gênero solicitado
     const voices = window.speechSynthesis.getVoices();
-    const brazilianVoice = voices.find(voice => 
+    const targetGender = options?.voiceGender || 'male';
+    
+    // Filtrar vozes brasileiras
+    const brazilianVoices = voices.filter(voice => 
       voice.lang.includes('pt-BR') || voice.lang.includes('pt')
     );
-    if (brazilianVoice) {
-      utterance.voice = brazilianVoice;
+
+    if (brazilianVoices.length > 0) {
+      let selectedVoice = brazilianVoices[0]; // Fallback para primeira voz brasileira
+      
+      if (targetGender === 'female') {
+        // Procurar por vozes femininas
+        // Padrões comuns: Maria, Heloisa, Luciana, ou indicação de "feminina" no nome
+        const femaleVoice = brazilianVoices.find(voice => {
+          const name = voice.name.toLowerCase();
+          return name.includes('maria') || 
+                 name.includes('heloisa') || 
+                 name.includes('heloísa') ||
+                 name.includes('luciana') ||
+                 name.includes('feminina') ||
+                 name.includes('female') ||
+                 (name.includes('google') && name.includes('feminina')) ||
+                 // Chrome/Edge: vozes femininas geralmente vêm depois das masculinas
+                 (voice.name.includes('Google') && brazilianVoices.indexOf(voice) > 0);
+        });
+        if (femaleVoice) {
+          selectedVoice = femaleVoice;
+        } else {
+          // Se não encontrar, tentar a última voz brasileira (geralmente é feminina no Chrome)
+          selectedVoice = brazilianVoices[brazilianVoices.length - 1];
+        }
+      } else {
+        // Procurar por vozes masculinas
+        const maleVoice = brazilianVoices.find(voice => {
+          const name = voice.name.toLowerCase();
+          return name.includes('joão') || 
+                 name.includes('joao') ||
+                 name.includes('felipe') ||
+                 name.includes('masculina') ||
+                 name.includes('male') ||
+                 (name.includes('google') && !name.includes('feminina')) ||
+                 // Chrome/Edge: primeira voz brasileira geralmente é masculina
+                 (voice.name.includes('Google') && brazilianVoices.indexOf(voice) === 0);
+        });
+        if (maleVoice) {
+          selectedVoice = maleVoice;
+        } else {
+          // Fallback: primeira voz brasileira (geralmente masculina)
+          selectedVoice = brazilianVoices[0];
+        }
+      }
+      
+      utterance.voice = selectedVoice;
     }
 
     window.speechSynthesis.speak(utterance);

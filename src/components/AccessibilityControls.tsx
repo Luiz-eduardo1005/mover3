@@ -41,7 +41,6 @@ import { useNavigate } from 'react-router-dom';
 
 const AccessibilityControls: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [speechRate, setSpeechRate] = useState(1);
   const [notificationMessage, setNotificationMessage] = useState('');
   const navigate = useNavigate();
   const {
@@ -55,6 +54,8 @@ const AccessibilityControls: React.FC = () => {
     toggleHighlightButtons,
     toggleLargeCursor,
     toggleReadingMode,
+    updateVoiceGender,
+    updateSpeechRate,
     resetPreferences,
   } = useAccessibility();
 
@@ -95,7 +96,10 @@ const AccessibilityControls: React.FC = () => {
           stopSpeech();
           setNotificationMessage('Leitura interrompida');
         } else {
-          readPageContent((text: string) => speak(text, { rate: speechRate }));
+          readPageContent((text: string) => speak(text, { 
+            rate: preferences.speechRate,
+            voiceGender: preferences.voiceGender 
+          }));
           setNotificationMessage('Iniciando leitura da página');
         }
       }
@@ -127,7 +131,7 @@ const AccessibilityControls: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, isSpeaking, isSTTSupported, isListening, stopSpeech, stopListening, startListening, speak, speechRate]);
+  }, [isOpen, isSpeaking, isSTTSupported, isListening, stopSpeech, stopListening, startListening, speak, preferences.speechRate, preferences.voiceGender]);
 
   // Processar comandos de voz
   useEffect(() => {
@@ -190,13 +194,19 @@ const AccessibilityControls: React.FC = () => {
       stopSpeech();
       setNotificationMessage('Leitura interrompida');
     } else {
-      readPageContent((text: string) => speak(text, { rate: speechRate }));
+      readPageContent((text: string) => speak(text, { 
+        rate: preferences.speechRate,
+        voiceGender: preferences.voiceGender 
+      }));
       setNotificationMessage('Iniciando leitura da página');
     }
   };
 
   const handleReadSelection = () => {
-    readSelectedText((text: string) => speak(text, { rate: speechRate }));
+    readSelectedText((text: string) => speak(text, { 
+      rate: preferences.speechRate,
+      voiceGender: preferences.voiceGender 
+    }));
     setNotificationMessage('Lendo texto selecionado');
   };
 
@@ -457,6 +467,36 @@ const AccessibilityControls: React.FC = () => {
                   <span className="text-xs">Ler Seleção</span>
                 </Button>
                 
+                {/* Controle de voz (masculina/feminina) */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span className="text-xs font-medium">Voz</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-2">
+                    <Button
+                      onClick={() => updateVoiceGender('male')}
+                      variant={preferences.voiceGender === 'male' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-1 text-xs"
+                      aria-label="Voz masculina"
+                      aria-pressed={preferences.voiceGender === 'male'}
+                    >
+                      Masculina
+                    </Button>
+                    <Button
+                      onClick={() => updateVoiceGender('female')}
+                      variant={preferences.voiceGender === 'female' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-1 text-xs"
+                      aria-label="Voz feminina"
+                      aria-pressed={preferences.voiceGender === 'female'}
+                    >
+                      Feminina
+                    </Button>
+                  </div>
+                </div>
+
                 {/* Controle de velocidade de leitura */}
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center gap-2">
@@ -466,32 +506,32 @@ const AccessibilityControls: React.FC = () => {
                   <div className="flex items-center gap-2 px-2">
                     <Button
                       onClick={() => {
-                        if (speechRate > 0.5) {
-                          setSpeechRate(prev => Math.max(0.5, prev - 0.1));
+                        if (preferences.speechRate > 0.5) {
+                          updateSpeechRate(preferences.speechRate - 0.1);
                         }
                       }}
                       variant="outline"
                       size="sm"
                       className="h-7 w-7 p-0"
                       aria-label="Diminuir velocidade de leitura"
-                      disabled={speechRate <= 0.5}
+                      disabled={preferences.speechRate <= 0.5}
                     >
                       <Minus className="h-3 w-3" aria-hidden="true" />
                     </Button>
                     <span className="flex-1 text-center text-xs font-medium">
-                      {speechRate.toFixed(1)}x
+                      {preferences.speechRate.toFixed(1)}x
                     </span>
                     <Button
                       onClick={() => {
-                        if (speechRate < 2) {
-                          setSpeechRate(prev => Math.min(2, prev + 0.1));
+                        if (preferences.speechRate < 2) {
+                          updateSpeechRate(preferences.speechRate + 0.1);
                         }
                       }}
                       variant="outline"
                       size="sm"
                       className="h-7 w-7 p-0"
                       aria-label="Aumentar velocidade de leitura"
-                      disabled={speechRate >= 2}
+                      disabled={preferences.speechRate >= 2}
                     >
                       <Plus className="h-3 w-3" aria-hidden="true" />
                     </Button>
