@@ -294,18 +294,11 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
     isChangingVoiceRef.current = true;
     
-    // Usar refs para obter valores mais atualizados e confiáveis
     const chunks = textChunksRef.current.length > 0 ? textChunksRef.current : textChunks;
     const currentIndex = currentChunkIndexRef.current;
     
     // Validar chunks e índice
     if (chunks.length === 0 || currentIndex < 0) {
-      isChangingVoiceRef.current = false;
-      return;
-    }
-
-    // Se não está mais falando, não fazer nada
-    if (!isSpeaking) {
       isChangingVoiceRef.current = false;
       return;
     }
@@ -318,28 +311,32 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     };
     currentOptionsRef.current = mergedOptions;
     setCurrentOptions(mergedOptions);
+
+    // Se não está mais falando, apenas continuar do próximo trecho com as novas opções
+    if (!isSpeaking) {
+      const resumeIndex = Math.min(currentIndex + 1, chunks.length - 1);
+      isChangingVoiceRef.current = false;
+      speakChunk(resumeIndex, chunks, mergedOptions);
+      return;
+    }
     
     // Parar leitura atual imediatamente (chunk que está sendo lido agora)
     window.speechSynthesis.cancel();
     
-    // Continuar do próximo chunk que ainda não foi lido
-    // Validar que o próximo índice é válido
-    const nextChunkIndex = currentIndex + 1;
-    
-    // Transição IMEDIATA - usar microtask para garantir ordem
-    Promise.resolve().then(() => {
+    // Pequena pausa para o navegador "soltar" o áudio anterior
+    const resumeIndex = Math.min(currentIndex + 1, chunks.length - 1);
+    setTimeout(() => {
       isChangingVoiceRef.current = false;
+
       // Validar novamente antes de continuar
-      if (nextChunkIndex >= 0 && nextChunkIndex < chunks.length) {
-        // Continuar do próximo chunk com a nova voz - garantindo ordem correta
-        speakChunk(nextChunkIndex, chunks, mergedOptions);
-      } else if (nextChunkIndex >= chunks.length) {
-        // Se já estava no último chunk, apenas finalizar
+      if (resumeIndex >= 0 && resumeIndex < chunks.length) {
+        speakChunk(resumeIndex, chunks, mergedOptions);
+      } else if (resumeIndex >= chunks.length) {
         setIsSpeaking(false);
         currentChunkIndexRef.current = 0;
         setCurrentUtterance(null);
       }
-    });
+    }, 120); // ~0.1s de pausa para suavizar a transição
   }, [isSupported, textChunks, isSpeaking, speakChunk, currentOptions]);
 
   const getCurrentText = useCallback(() => {

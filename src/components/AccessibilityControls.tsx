@@ -478,15 +478,12 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         const newGender = 'male';
-                        // Atualizar preferência primeiro
                         updateVoiceGender(newGender);
-                        // Se estiver falando, trocar voz imediatamente sem pausar
-                        if (isSpeaking) {
-                          restartWithNewOptions({
-                            voiceGender: newGender,
-                            rate: preferences.speechRate,
-                          });
-                        }
+                        // Se estiver falando, trocar voz com uma pequena pausa e continuar do ponto atual
+                        restartWithNewOptions({
+                          voiceGender: newGender,
+                          rate: preferences.speechRate,
+                        });
                       }}
                       variant={preferences.voiceGender === 'male' ? 'default' : 'outline'}
                       size="sm"
@@ -499,15 +496,12 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         const newGender = 'female';
-                        // Atualizar preferência primeiro
                         updateVoiceGender(newGender);
-                        // Se estiver falando, trocar voz imediatamente sem pausar
-                        if (isSpeaking) {
-                          restartWithNewOptions({
-                            voiceGender: newGender,
-                            rate: preferences.speechRate,
-                          });
-                        }
+                        // Se estiver falando, trocar voz com uma pequena pausa e continuar do ponto atual
+                        restartWithNewOptions({
+                          voiceGender: newGender,
+                          rate: preferences.speechRate,
+                        });
                       }}
                       variant={preferences.voiceGender === 'female' ? 'default' : 'outline'}
                       size="sm"
