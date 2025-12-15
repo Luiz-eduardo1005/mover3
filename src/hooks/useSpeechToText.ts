@@ -187,6 +187,10 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
   }, [lang]);
 
   const startListening = useCallback(async () => {
+    // limpar mensagens anteriores
+    setError(null);
+    setTranscript('');
+
     if (!recognitionRef.current || isListening) {
       return;
     }
@@ -273,15 +277,17 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
   }, [isListening]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current && isListening) {
+    if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-        setIsListening(false);
       } catch (err) {
         console.error('Erro ao parar reconhecimento:', err);
       }
     }
-    
+
+    setIsListening(false);
+    setError(null);
+
     // Liberar stream de mídia se ainda estiver ativo
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop());
@@ -299,7 +305,7 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
   };
 };
 
-// Comandos de voz comuns para navegação
+  // Comandos de voz comuns para navegação
 export const processVoiceCommand = (
   transcript: string,
   callbacks: {
@@ -313,18 +319,108 @@ export const processVoiceCommand = (
 
   // Comandos de navegação
   if (callbacks.onNavigate) {
-    if (lowerTranscript.includes('ir para') || lowerTranscript.includes('abrir')) {
-      if (lowerTranscript.includes('início') || lowerTranscript.includes('home')) {
-        callbacks.onNavigate('/');
-      } else if (lowerTranscript.includes('vagas') || lowerTranscript.includes('empregos')) {
-        callbacks.onNavigate('/jobs');
-      } else if (lowerTranscript.includes('cursos')) {
-        callbacks.onNavigate('/courses');
-      } else if (lowerTranscript.includes('perfil')) {
-        callbacks.onNavigate('/profile');
-      } else if (lowerTranscript.includes('sobre')) {
-        callbacks.onNavigate('/about');
-      }
+    const hasGoVerb = lowerTranscript.includes('ir para') || lowerTranscript.includes('abrir');
+
+    // Página inicial
+    if (hasGoVerb && (lowerTranscript.includes('início') || lowerTranscript.includes('home') || lowerTranscript.includes('inicio'))) {
+      callbacks.onNavigate('/');
+    }
+
+    // Vagas
+    if (
+      (hasGoVerb && (lowerTranscript.includes('vagas') || lowerTranscript.includes('empregos'))) ||
+      (!hasGoVerb && (lowerTranscript === 'vagas' || lowerTranscript === 'empregos'))
+    ) {
+      callbacks.onNavigate('/jobs');
+    }
+
+    // Empresas
+    if (
+      (hasGoVerb && lowerTranscript.includes('empresas')) ||
+      (!hasGoVerb && (lowerTranscript === 'empresas' || lowerTranscript === 'empresa'))
+    ) {
+      callbacks.onNavigate('/companies');
+    }
+
+    // Cursos
+    if (
+      (hasGoVerb && lowerTranscript.includes('cursos')) ||
+      (!hasGoVerb && lowerTranscript === 'cursos')
+    ) {
+      callbacks.onNavigate('/courses');
+    }
+
+    // Perfil de candidato
+    if (
+      (hasGoVerb && lowerTranscript.includes('perfil')) ||
+      (!hasGoVerb && (lowerTranscript === 'perfil' || lowerTranscript === 'meu perfil'))
+    ) {
+      callbacks.onNavigate('/profile');
+    }
+
+    // Currículo
+    if (
+      (hasGoVerb && (lowerTranscript.includes('currículo') || lowerTranscript.includes('curriculo'))) ||
+      (!hasGoVerb && (lowerTranscript === 'currículo' || lowerTranscript === 'curriculo'))
+    ) {
+      callbacks.onNavigate('/curriculum');
+    }
+
+    // Minhas candidaturas (candidato)
+    if (
+      (hasGoVerb && lowerTranscript.includes('candidaturas')) ||
+      (!hasGoVerb && (lowerTranscript === 'candidaturas' || lowerTranscript === 'minhas candidaturas'))
+    ) {
+      callbacks.onNavigate('/applications');
+    }
+
+    // Mensagens
+    if (
+      (hasGoVerb && lowerTranscript.includes('mensagens')) ||
+      (!hasGoVerb && (lowerTranscript === 'mensagens' || lowerTranscript === 'mensagem'))
+    ) {
+      callbacks.onNavigate('/messages');
+    }
+
+    // Sobre
+    if (
+      (hasGoVerb && lowerTranscript.includes('sobre')) ||
+      (!hasGoVerb && lowerTranscript === 'sobre')
+    ) {
+      callbacks.onNavigate('/about');
+    }
+
+    // Área da empresa - dashboard
+    if (
+      (hasGoVerb && (lowerTranscript.includes('dashboard da empresa') || lowerTranscript.includes('painel da empresa'))) ||
+      lowerTranscript.includes('painel da empresa') ||
+      lowerTranscript.includes('dashboard empresa')
+    ) {
+      callbacks.onNavigate('/company/dashboard');
+    }
+
+    // Área da empresa - minhas vagas
+    if (
+      (hasGoVerb && lowerTranscript.includes('minhas vagas')) ||
+      (!hasGoVerb && lowerTranscript === 'minhas vagas')
+    ) {
+      callbacks.onNavigate('/company/jobs');
+    }
+
+    // Área da empresa - candidaturas recebidas
+    if (
+      (hasGoVerb && (lowerTranscript.includes('candidaturas da empresa') || lowerTranscript.includes('candidatos'))) ||
+      (!hasGoVerb && (lowerTranscript === 'candidaturas da empresa' || lowerTranscript === 'candidatos'))
+    ) {
+      callbacks.onNavigate('/company/applications');
+    }
+
+    // Anunciar vaga (empresa)
+    if (
+      (hasGoVerb && (lowerTranscript.includes('anunciar vaga') || lowerTranscript.includes('publicar vaga') || lowerTranscript.includes('anunciar'))) ||
+      (!hasGoVerb && (lowerTranscript === 'anunciar vaga' || lowerTranscript === 'anunciar' || lowerTranscript === 'publicar vaga'))
+    ) {
+      callbacks.onNavigate('/advertise');
     }
 
     if (lowerTranscript.includes('voltar') || lowerTranscript.includes('retroceder')) {
