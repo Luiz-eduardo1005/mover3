@@ -76,47 +76,61 @@ const AuthCallback = () => {
 
         if (session?.user) {
           console.log('✅ Sessão recebida com sucesso!', session.user.email);
-          
+
           // Limpar o hash da URL imediatamente
           if (window.location.hash) {
             window.history.replaceState({}, document.title, window.location.pathname);
           }
-          
-          // Verificar se o perfil já existe (sem bloquear)
-          supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            .then(({ data: profile, error: profileError }) => {
-              // Se não existe perfil, criar um (em background, não bloqueia)
-          if (!profile && profileError?.code === 'PGRST116') {
-            const profileData = {
-              id: session.user.id,
-              email: session.user.email || '',
-              full_name: session.user.user_metadata?.full_name || 
-                        session.user.user_metadata?.name || 
-                        '',
-              avatar_url: session.user.user_metadata?.avatar_url || 
-                        session.user.user_metadata?.picture || 
-                        '',
-                  user_type: 'candidate',
-            };
 
-                supabase
+          try {
+            // Verificar se o perfil já existe e pegar o user_type
+            const { data: profile, error: profileError } = await supabase
               .from('profiles')
-                  .insert(profileData)
-                  .catch(err => console.error('Erro ao criar perfil:', err));
+              .select('user_type')
+              .eq('id', session.user.id)
+              .single();
+
+            let finalUserType: 'candidate' | 'employer' = 'candidate';
+
+            if (!profile && profileError?.code === 'PGRST116') {
+              // Criar perfil básico padrão candidato
+              const profileData = {
+                id: session.user.id,
+                email: session.user.email || '',
+                full_name: session.user.user_metadata?.full_name ||
+                          session.user.user_metadata?.name ||
+                          '',
+                avatar_url: session.user.user_metadata?.avatar_url ||
+                            session.user.user_metadata?.picture ||
+                            '',
+                user_type: 'candidate',
+              };
+
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert(profileData);
+
+              if (insertError) {
+                console.error('Erro ao criar perfil durante callback:', insertError);
+              }
+            } else if (profile?.user_type === 'employer') {
+              finalUserType = 'employer';
             }
-            })
-            .catch(() => {
-              // Ignorar erros de perfil, não bloqueia o login
-            });
-          
-          // Redirecionar imediatamente - não esperar
-          if (mounted) {
-            setProcessing(false);
-            navigate('/profile', { replace: true });
+
+            if (mounted) {
+              setProcessing(false);
+              if (finalUserType === 'employer') {
+                navigate('/company/dashboard', { replace: true });
+              } else {
+                navigate('/profile', { replace: true });
+              }
+            }
+          } catch (e) {
+            console.error('Erro ao processar perfil no callback:', e);
+            if (mounted) {
+              setProcessing(false);
+              navigate('/profile', { replace: true });
+            }
           }
         } else {
           // Se não há sessão, aguardar um pouco mais e verificar novamente

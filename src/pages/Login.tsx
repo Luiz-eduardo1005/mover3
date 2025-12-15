@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ const Login = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
   const [resendingEmail, setResendingEmail] = useState(false);
-  const { signIn, signInWithGoogle, resendConfirmationEmail } = useAuth();
+  const { signIn, signInWithGoogle, resendConfirmationEmail, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -96,7 +97,33 @@ const Login = () => {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta!",
       });
-      navigate('/profile');
+
+      try {
+        // Dar um tempo para o Supabase propagar a sessão
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await refreshProfile();
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', currentUser.id)
+            .single();
+
+          if (profileData?.user_type === 'employer') {
+            navigate('/company/dashboard', { replace: true });
+          } else {
+            navigate('/profile', { replace: true });
+          }
+        } else {
+          navigate('/profile', { replace: true });
+        }
+      } catch (err) {
+        console.error('Erro ao redirecionar após login:', err);
+        navigate('/profile', { replace: true });
+      }
     }
 
     setLoading(false);

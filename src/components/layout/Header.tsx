@@ -94,12 +94,29 @@ const Header = () => {
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white font-heading">MOVER</span>
             </Link>
             <nav id="navigation" className="hidden md:ml-8 md:flex md:space-x-8" role="navigation" aria-label="Menu principal">
+              {/* Itens comuns */}
               <Link to="/" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ir para página inicial">Início</Link>
               <Link to="/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver vagas disponíveis">Vagas</Link>
               <Link to="/companies" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver empresas">Empresas</Link>
-              <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anuncie</Link>
               <Link to="/courses" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Ver cursos disponíveis">Cursos</Link>
-              <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
+
+              {/* Menu específico por tipo de usuário */}
+              {isAuthenticated && profile?.user_type === 'employer' ? (
+                <>
+                  <Link to="/company/dashboard" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Dashboard da empresa">Dashboard</Link>
+                  <Link to="/company/jobs" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Minhas vagas">Minhas Vagas</Link>
+                  <Link to="/company/applications" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Candidaturas recebidas">Candidaturas</Link>
+                  <Link to="/advertise" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Anunciar vaga">Anunciar Vaga</Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/curriculum" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Cadastrar meu currículo">Cadastrar Currículo</Link>
+                  {isAuthenticated && profile?.user_type === 'candidate' && (
+                    <Link to="/applications" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Minhas candidaturas">Minhas Candidaturas</Link>
+                  )}
+                </>
+              )}
+
               <Link to="/about" className="text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 px-3 py-2 text-sm font-medium" aria-label="Sobre a plataforma MOVER">Sobre</Link>
             </nav>
           </div>
@@ -164,20 +181,48 @@ const Header = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onSelect={() => navigate('/profile')}
-                    className="cursor-pointer"
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Meu Perfil</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onSelect={() => navigate('/applications')}
-                    className="cursor-pointer"
-                  >
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    <span>Minhas Candidaturas</span>
-                  </DropdownMenuItem>
+                  {profile?.user_type === 'employer' ? (
+                    <>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/company/dashboard')}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Dashboard da Empresa</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/company/jobs')}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Minhas Vagas</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/company/applications')}
+                        className="cursor-pointer"
+                      >
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>Candidaturas</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/profile')}
+                        className="cursor-pointer"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Meu Perfil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => navigate('/applications')}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Minhas Candidaturas</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuItem 
                     onSelect={() => navigate('/messages')}
                     className="cursor-pointer"
@@ -279,26 +324,63 @@ const Header = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onSelect={() => {
-                      navigate('/profile');
-                      setMobileMenuOpen(false);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Meu Perfil</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onSelect={() => {
-                      navigate('/applications');
-                      setMobileMenuOpen(false);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    <span>Minhas Candidaturas</span>
-                  </DropdownMenuItem>
+                  {profile?.user_type === 'employer' ? (
+                    <>
+                      <DropdownMenuItem 
+                        onSelect={() => {
+                          navigate('/company/dashboard');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Dashboard da Empresa</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => {
+                          navigate('/company/jobs');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Minhas Vagas</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => {
+                          navigate('/company/applications');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>Candidaturas</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem 
+                        onSelect={() => {
+                          navigate('/profile');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Meu Perfil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => {
+                          navigate('/applications');
+                          setMobileMenuOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Minhas Candidaturas</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuItem 
                     onSelect={() => {
                       navigate('/messages');
