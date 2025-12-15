@@ -17,6 +17,7 @@ export type AnimationPreference = 'normal' | 'reduced';
 export type TextSpacing = 'normal' | 'large' | 'extra-large';
 export type FontFamily = 'default' | 'dyslexia';
 export type CursorSize = 'normal' | 'large';
+export type VoiceGender = 'male' | 'female';
 
 interface AccessibilityPreferences {
   fontSize: FontSize;
@@ -29,6 +30,8 @@ interface AccessibilityPreferences {
   highlightButtons: boolean;
   largeCursor: boolean;
   readingMode: boolean;
+  voiceGender: VoiceGender;
+  speechRate: number;
 }
 
 interface AccessibilityContextType {
@@ -43,6 +46,8 @@ interface AccessibilityContextType {
   toggleHighlightButtons: () => void;
   toggleLargeCursor: () => void;
   toggleReadingMode: () => void;
+  updateVoiceGender: (gender: VoiceGender) => void;
+  updateSpeechRate: (rate: number) => void;
   resetPreferences: () => void;
 }
 
@@ -57,6 +62,8 @@ const defaultPreferences: AccessibilityPreferences = {
   highlightButtons: false,
   largeCursor: false,
   readingMode: false,
+  voiceGender: 'male',
+  speechRate: 1,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -70,7 +77,14 @@ export const AccessibilityProvider: React.FC<{ children: ReactNode }> = ({ child
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
-          return { ...defaultPreferences, ...JSON.parse(saved) };
+          const parsed = JSON.parse(saved);
+          // Garantir que voiceGender e speechRate existam (para compatibilidade com versões antigas)
+          return { 
+            ...defaultPreferences, 
+            ...parsed,
+            voiceGender: parsed.voiceGender || 'male',
+            speechRate: parsed.speechRate !== undefined ? parsed.speechRate : 1
+          };
         } catch {
           return defaultPreferences;
         }
@@ -196,6 +210,14 @@ export const AccessibilityProvider: React.FC<{ children: ReactNode }> = ({ child
     setPreferences(prev => ({ ...prev, readingMode: !prev.readingMode }));
   };
 
+  const updateVoiceGender = (gender: VoiceGender) => {
+    setPreferences(prev => ({ ...prev, voiceGender: gender }));
+  };
+
+  const updateSpeechRate = (rate: number) => {
+    setPreferences(prev => ({ ...prev, speechRate: Math.max(0.5, Math.min(2, rate)) }));
+  };
+
   const resetPreferences = () => {
     setPreferences(defaultPreferences);
   };
@@ -214,6 +236,8 @@ export const AccessibilityProvider: React.FC<{ children: ReactNode }> = ({ child
         toggleHighlightButtons,
         toggleLargeCursor,
         toggleReadingMode,
+        updateVoiceGender,
+        updateSpeechRate,
         resetPreferences,
       }}
     >
