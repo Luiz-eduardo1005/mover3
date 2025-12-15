@@ -350,18 +350,24 @@ export const processVoiceCommand = (
       callbacks.onNavigate('/courses');
     }
 
-    // Perfil de candidato
+    // Perfil / Configurações (candidato)
     if (
-      (hasGoVerb && lowerTranscript.includes('perfil')) ||
-      (!hasGoVerb && (lowerTranscript === 'perfil' || lowerTranscript === 'meu perfil'))
+      lowerTranscript.includes('perfil') ||
+      lowerTranscript.includes('meu perfil') ||
+      lowerTranscript.includes('configurações') ||
+      lowerTranscript.includes('configuracoes') ||
+      lowerTranscript.includes('configuração') ||
+      lowerTranscript.includes('configuracao')
     ) {
       callbacks.onNavigate('/profile');
     }
 
     // Currículo
     if (
-      (hasGoVerb && (lowerTranscript.includes('currículo') || lowerTranscript.includes('curriculo'))) ||
-      (!hasGoVerb && (lowerTranscript === 'currículo' || lowerTranscript === 'curriculo'))
+      lowerTranscript.includes('currículo') ||
+      lowerTranscript.includes('curriculo') ||
+      lowerTranscript.includes('cadastrar currículo') ||
+      lowerTranscript.includes('cadastrar curriculo')
     ) {
       callbacks.onNavigate('/curriculum');
     }
