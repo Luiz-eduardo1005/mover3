@@ -120,7 +120,7 @@ export const useSpeechToText = (lang: string = 'pt-BR'): UseSpeechToTextReturn =
       recognition.onerror = (event: any) => {
         setIsListening(false);
         
-        // Tratamento específico de erros
+        // Tratamento específico de erros teste vai git hub
         let errorMessage = 'Erro no reconhecimento de voz';
         switch (event.error) {
           case 'no-speech':
