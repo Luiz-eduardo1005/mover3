@@ -312,9 +312,10 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     currentOptionsRef.current = mergedOptions;
     setCurrentOptions(mergedOptions);
 
-    // Se não está mais falando, apenas continuar do próximo trecho com as novas opções
+    // Se não está mais falando, apenas continuar do mesmo trecho (ou próximo) com as novas opções
     if (!isSpeaking) {
-      const resumeIndex = Math.min(currentIndex + 1, chunks.length - 1);
+      // Repetir o chunk atual ajuda a evitar "pulos" perceptíveis para o usuário
+      const resumeIndex = Math.min(currentIndex, chunks.length - 1);
       isChangingVoiceRef.current = false;
       speakChunk(resumeIndex, chunks, mergedOptions);
       return;
@@ -324,7 +325,8 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     window.speechSynthesis.cancel();
     
     // Pequena pausa para o navegador "soltar" o áudio anterior
-    const resumeIndex = Math.min(currentIndex + 1, chunks.length - 1);
+    // Repetir o chunk atual após a pausa curta evita saltos grandes de conteúdo
+    const resumeIndex = Math.min(currentIndex, chunks.length - 1);
     setTimeout(() => {
       isChangingVoiceRef.current = false;
 

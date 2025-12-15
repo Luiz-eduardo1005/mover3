@@ -524,7 +524,13 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         if (preferences.speechRate > 0.5) {
-                          updateSpeechRate(preferences.speechRate - 0.1);
+                          const newRate = parseFloat((preferences.speechRate - 0.1).toFixed(1));
+                          updateSpeechRate(newRate);
+                          // Se estiver lendo, ajustar a velocidade e continuar do ponto atual
+                          restartWithNewOptions({
+                            voiceGender: preferences.voiceGender,
+                            rate: newRate,
+                          });
                         }
                       }}
                       variant="outline"
@@ -541,7 +547,13 @@ const AccessibilityControls: React.FC = () => {
                     <Button
                       onClick={() => {
                         if (preferences.speechRate < 2) {
-                          updateSpeechRate(preferences.speechRate + 0.1);
+                          const newRate = parseFloat((preferences.speechRate + 0.1).toFixed(1));
+                          updateSpeechRate(newRate);
+                          // Se estiver lendo, ajustar a velocidade e continuar do ponto atual
+                          restartWithNewOptions({
+                            voiceGender: preferences.voiceGender,
+                            rate: newRate,
+                          });
                         }
                       }}
                       variant="outline"
